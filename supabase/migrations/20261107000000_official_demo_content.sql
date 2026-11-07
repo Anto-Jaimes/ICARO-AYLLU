@@ -1,0 +1,25 @@
+-- Replaces the sample content with the cases from the official brief (lasana, muletas, pool...).
+-- Phones are left empty on purpose: invented numbers could belong to real people.
+-- Remove it all with: delete from public.posts where is_demo;
+
+delete from public.posts where is_demo;
+
+insert into public.posts (
+  id, type, category, title, description, author_name, neighborhood, address,
+  lat, lng, price_info, urgency_level, status, vistos_buenos, is_demo, created_at
+) values
+  ('67ff91c4-6753-4e83-a497-86d932378cf9', 'service', 'comida', 'Lasañas Caseras y Pasteles de Doña Rosa', 'Aprovecho mis momentos para hacer ricas lasañas de carne y verduras, además de queques caseros. Venta para vecinos de la cuadra.', 'Doña Rosa', 'Jr. Los Sauces 234', 'A 1 cuadra del parque', -12.093, -77.0315, 'S/ 18 porción', null, 'active', 32, true, now() - interval '3 hours'),
+  ('ef861437-d312-42f8-a9e6-8f539311c9ae', 'service', 'clases', 'Clases de Matemáticas Escolar y Secundaria', 'Apoyo a niños y jóvenes del barrio con álgebra, geometría y aritmética. Sin necesidad de gastar en pasajes ni traslados.', 'Prof. Julio', 'Av. Las Palmeras 104', 'Piso 2', -12.094, -77.0305, 'S/ 20 la hora', null, 'active', 24, true, now() - interval '3 hours'),
+  ('9f7fd3dd-24ef-4321-af12-bdba021fdd8e', 'service', 'gasfiteria', 'Gasfitería Don Carlos (Reparación Express)', 'Solución a cañerías rotas, grifos y sanitarios. Atención en menos de 15 minutos en el cuadrante.', 'Don Carlos Mendoza', 'Calle Los Pinos 210', 'Frente a bodega Don Pepe', -12.092, -77.0335, 'Tarifa vecinal', null, 'active', 41, true, now() - interval '3 hours'),
+  ('21185d8e-3262-4fb4-a0ca-877f7ad6969d', 'service', 'cerrajeria', 'Cerrajería de Confianza "Lucho"', 'Apertura de chapas trabadas sin romper puertas y duplicados al instante para vecinos.', 'Lucho Cerrajería', 'Pasaje Santa Rosa Mz C', 'Local 4', -12.091, -77.031, 'Desde S/ 15', null, 'active', 29, true, now() - interval '1 day'),
+  ('a1cf00f2-f032-413d-ac54-bb8f336419b2', 'favor_offer', 'salud', 'Presto Par de Muletas Ortopédicas (Talla Adulto)', 'Mi hermano se recuperó de una lesión jugando fútbol. Juancito o cualquier vecino que las necesite, no las compres, yo te las presto sin costo.', 'Marcos (Vecino Mz D)', 'Jr. Arequipa 512', 'Casa con reja blanca', -12.0928, -77.029, 'GRATIS / Préstamo solidario', null, 'active', 38, true, now() - interval '3 hours'),
+  ('828d26dc-9d50-4b13-a275-aa8f75de1eba', 'favor_offer', 'movilidad', 'Movilidad Solidaria / Pool al Colegio San Agustín', 'Llevo a mis hijas en auto al colegio todos los días a las 7:30 AM. Tengo 2 asientos libres para vecinos de la ruta para mitigar costos y autos en el barrio.', 'Familia Barreto', 'Calle Los Sauces 410', 'Estacionamiento 12', -12.095, -77.033, 'Solidario / Sin fines de lucro', null, 'active', 27, true, now() - interval '3 hours'),
+  ('73c6bd66-9f52-4dbf-a2e2-32e57d4e105e', 'favor_offer', 'herramientas', 'Presto Escalera Tijera de Aluminio y Taladro', 'Para pintar o arreglar la casa el fin de semana. Solo pido devolverla limpia el mismo día.', 'Don Roberto', 'Jr. Lima 180', 'Taller', -12.0915, -77.0325, 'Préstamo entre vecinos', null, 'active', 19, true, now() - interval '1 day'),
+  ('4a4d24bc-c935-4993-a7ec-51b0abe7e8de', 'emergency_need', 'agua_alimentos', 'Se mojó mi techo por la lluvia, necesito baldes y plásticos', 'Filtración fuerte en el segundo piso por lluvias del Fenómeno El Niño. ¿Algún vecino que me preste baldes grandes o plástico grueso?', 'Sra. Elena (Mz H Lt 4)', 'Pasaje Bolognesi 105', 'Segundo piso', -12.0938, -77.0345, null, 'alta', 'active', 15, true, now() - interval '25 minutes'),
+  ('3e8910a3-a7ee-41ec-a96e-1c36f074a8bb', 'emergency_need', 'vulnerabilidad_mayor', 'Don Alfonso (84 años) necesita ayuda con bidón de agua', 'Corte de agua en el sector. Don Alfonso no puede cargar peso por las escaleras. Se requiere voluntario joven.', 'Brigada Vecinal Sector 2', 'Torre B Dpto 301', 'Urb. Los Sauces', -12.0925, -77.031, null, 'critica', 'active', 42, true, now() - interval '40 minutes'),
+  ('b7e75663-0401-4416-ab25-525e74eebd25', 'emergency_resource', 'energia_luz', 'Tanque Comunitario y Punto de Carga de Celulares', 'En el local comunal tenemos grupo electrógeno para cargar teléfonos y tanque de agua potable disponible para vecinos sin servicio.', 'Junta Vecinal Los Sauces', 'Local Comunal (Parque Central)', 'Frente al mirador', -12.0935, -77.032, null, null, 'active', 60, true, now() - interval '1 hours');
+
+insert into public.reviews (post_id, author_name, comment, is_neighbor_verified, created_at) values
+  ('67ff91c4-6753-4e83-a497-86d932378cf9', 'Julio Cortijo (Vecino)', 'La lasaña de mi vecina es muy buena, se las recomiendo a todos los vecinos del barrio.', true, now() - interval '1 day'),
+  ('ef861437-d312-42f8-a9e6-8f539311c9ae', 'Sra. Carmen', 'Excelente paciencia con mis hijos, vive a media cuadra.', true, now() - interval '2 days'),
+  ('a1cf00f2-f032-413d-ac54-bb8f336419b2', 'Juancito', 'Me ahorró comprar unas muletas nuevas por 1 mes de yeso. ¡Muchísimas gracias!', true, now() - interval '1 day');

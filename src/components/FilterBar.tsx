@@ -31,13 +31,14 @@ export const FilterBar: React.FC = () => {
     { id: 'cerrajeria', label: '🔑 Cerrajería' },
     { id: 'mascotas', label: '🐾 Mascotas' },
     { id: 'clases', label: '📚 Clases / Saberes' },
-    { id: 'alimentacion', label: '🍲 Comida / Repostería' },
+    { id: 'comida', label: '🍲 Comida / Repostería' },
     { id: 'salud', label: '🩹 Cuidados / Salud' },
   ];
 
   const favorCategories = [
     { id: 'all', label: 'Todos los favores' },
     { id: 'herramientas', label: '🔨 Préstamo de Herramientas' },
+    { id: 'salud', label: '🩼 Insumos Médicos / Muletas' },
     { id: 'ayuda_temporal', label: '🤝 Ayuda Temporal' },
     { id: 'donacion', label: '📦 Donación de Materiales' },
     { id: 'habilidades', label: '💡 Trueque de Saberes' },

@@ -76,7 +76,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return (localStorage.getItem('icaro_ayllu_mode') as Mode) || 'normal';
   });
   
-  const [activeTab, setActiveTab] = useState<'services' | 'favors' | 'emergency_board' | 'map'>('services');
+  const [activeTab, setActiveTabState] = useState<'services' | 'favors' | 'emergency_board' | 'map'>('services');
   const [items, setItems] = useState<CommunityItem[]>(() => withPendingPosts(loadItemsFromStorage()));
   const [userLocation, setUserLocation] = useState<UserLocation>(DEFAULT_USER_LOCATION);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
@@ -86,6 +86,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [maxDistanceMeters, setMaxDistanceMeters] = useState<number>(3000);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Each tab has its own categories: one chosen in Favores must not silently empty Oficios.
+  const setActiveTab = (tab: 'services' | 'favors' | 'emergency_board' | 'map') => {
+    setActiveTabState(tab);
+    setSelectedCategory('all');
+  };
 
   // Keep the id, not a copy, so an open detail shows live votes and recommendations.
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);

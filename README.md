@@ -80,13 +80,19 @@ La aplicación integra 4 APIs reales en producción sin costo y sin fricción de
    npm install
    ```
 
-3. **Iniciar el servidor de desarrollo:**
+3. **Conectar con la base de datos del equipo:**
+   ```bash
+   cp .env.example .env.local
+   ```
+   Sin este archivo la app no arranca. En PowerShell usa `copy .env.example .env.local`.
+
+4. **Iniciar el servidor de desarrollo:**
    ```bash
    npm run dev
    ```
    Abre [http://localhost:5173](http://localhost:5173) en tu navegador.
 
-4. **Compilar para producción:**
+5. **Compilar para producción:**
    ```bash
    npm run build
    ```
