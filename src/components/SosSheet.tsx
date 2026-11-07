@@ -13,11 +13,13 @@ import {
   Siren,
   Square,
   Volume2,
+  Waves,
   type LucideIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { HELP_REQUEST_PRESET } from '../data/categories';
 import { communitySiren } from '../utils/audioAlarm';
+import { AcousticBeaconSheet } from './AcousticBeaconSheet';
 import { BottomSheet } from './BottomSheet';
 import { FirstAidSheet } from './FirstAidSheet';
 import { FreeCallSheet } from './FreeCallSheet';
@@ -31,7 +33,7 @@ const EMERGENCY_NUMBERS = [
   { label: 'Defensa Civil', number: '115' }
 ];
 
-type Panel = 'alarm' | 'family' | 'medical' | 'firstAid' | 'freeCall' | null;
+type Panel = 'alarm' | 'family' | 'medical' | 'firstAid' | 'freeCall' | 'acoustic' | null;
 
 const ActionRow: React.FC<{ icon: LucideIcon; title: string; line?: string; onClick: () => void }> = ({ icon: Icon, title, line, onClick }) => (
   <li>
@@ -114,6 +116,7 @@ export const SosSheet: React.FC = () => {
             <ActionRow icon={HandHeart} title="Pedir ayuda a vecinos" onClick={() => { close(); openPublish(HELP_REQUEST_PRESET); }} />
             <ActionRow icon={Camera} title="Avisar con foto o video" onClick={() => { close(); openReport('otro'); }} />
             <ActionRow icon={BellRing} title="Hacer sonar la alarma" line="Para que te encuentren" onClick={() => openPanel('alarm')} />
+            <ActionRow icon={Waves} title="Radar por sonido" line="Pide o escucha socorro con el parlante y el micrófono, sin internet" onClick={() => openPanel('acoustic')} />
             <ActionRow icon={ShieldPlus} title="Primeros auxilios" line="Pasos sencillos, sin internet" onClick={() => openPanel('firstAid')} />
             <ActionRow icon={HeartPulse} title="Mi ficha médica" line="Tipo de sangre, alergias y a quién llamar" onClick={() => openPanel('medical')} />
             {!isEmergency && (
@@ -136,6 +139,7 @@ export const SosSheet: React.FC = () => {
       </BottomSheet>
 
       <FreeCallSheet open={panel === 'freeCall'} onClose={() => setPanel(null)} />
+      <AcousticBeaconSheet open={panel === 'acoustic'} onClose={() => setPanel(null)} />
       <SafetyCheckinSheet open={panel === 'family'} onClose={() => setPanel(null)} />
       <FirstAidSheet open={panel === 'firstAid'} onClose={() => setPanel(null)} />
       <MedicalIdSheet open={panel === 'medical'} onClose={() => setPanel(null)} />
