@@ -11,7 +11,8 @@ import {
   MessageSquare, 
   HeartPulse, 
   ShieldCheck, 
-  Radio
+  Radio,
+  Waves
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { HELP_REQUEST_PRESET } from '../data/categories';
@@ -21,6 +22,7 @@ import { MedicalIdSheet } from './MedicalIdSheet';
 import { SafetyCheckinSheet } from './SafetyCheckinSheet';
 import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
 import { FirstAidSheet } from './FirstAidSheet';
+import { AcousticBeaconSheet } from './AcousticBeaconSheet';
 
 const EMERGENCY_NUMBERS = [
   { label: 'Policía', number: '105' },
@@ -38,6 +40,7 @@ export const SosSheet: React.FC = () => {
   const [isFirstAidOpen, setIsFirstAidOpen] = useState(false);
   const [isCheckinOpen, setIsCheckinOpen] = useState(false);
   const [isBackpackOpen, setIsBackpackOpen] = useState(false);
+  const [isAcousticOpen, setIsAcousticOpen] = useState(false);
 
   const close = () => setIsSosOpen(false);
 
@@ -121,6 +124,28 @@ export const SosSheet: React.FC = () => {
                 </span>
                 <ChevronRight className="w-5 h-5 text-ink-2" aria-hidden="true" />
               </a>
+            </li>
+
+            {/* Acoustic P2P Beacon (Data-over-Sound without Internet/Bluetooth) */}
+            <li>
+              <button
+                type="button"
+                className="row"
+                onClick={() => {
+                  close();
+                  setIsAcousticOpen(true);
+                }}
+              >
+                <Waves className="w-6 h-6 shrink-0 text-cyan-600" aria-hidden="true" />
+                <span className="flex-1">
+                  <span className="block text-row font-semibold flex items-center gap-1.5">
+                    Radar acústico P2P (Por sonido)
+                    <span className="px-1.5 py-0.5 text-[10px] bg-cyan-100 text-cyan-800 rounded font-bold">100% Offline</span>
+                  </span>
+                  <span className="block text-secondary text-ink-2">Transmite o escucha socorro por bocina y micrófono</span>
+                </span>
+                <ChevronRight className="w-5 h-5 text-ink-2" aria-hidden="true" />
+              </button>
             </li>
 
             {/* Medical ID ICE */}
@@ -268,6 +293,12 @@ export const SosSheet: React.FC = () => {
       <EmergencyBackpackSheet
         open={isBackpackOpen}
         onClose={() => setIsBackpackOpen(false)}
+      />
+
+      {/* Acoustic P2P Beacon Sheet */}
+      <AcousticBeaconSheet
+        open={isAcousticOpen}
+        onClose={() => setIsAcousticOpen(false)}
       />
     </>
   );
