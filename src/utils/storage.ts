@@ -1,57 +1,47 @@
 import { CommunityItem } from '../types';
-import { INITIAL_ITEMS } from '../data/mockData';
 
-const STORAGE_KEY = 'icaro_ayllu_items_v1';
-const OFFLINE_QUEUE_KEY = 'icaro_ayllu_offline_queue_v1';
+const STORAGE_KEY = 'icaro_ayllu_items_v2';
+const OFFLINE_QUEUE_KEY = 'icaro_ayllu_offline_queue_v2';
 
-export function loadItemsFromStorage(): CommunityItem[] {
+function readList(key: string): CommunityItem[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_ITEMS));
-      return INITIAL_ITEMS;
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : INITIAL_ITEMS;
+    const parsed = JSON.parse(localStorage.getItem(key) ?? '[]');
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
-    console.error('Error loading items from localStorage:', err);
-    return INITIAL_ITEMS;
+    console.error(`Error reading ${key} from localStorage:`, err);
+    return [];
   }
+}
+
+function writeList(key: string, items: CommunityItem[]): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(items));
+  } catch (err) {
+    console.error(`Error writing ${key} to localStorage:`, err);
+  }
+}
+
+/** Last feed received from the server, shown while there is no connection. */
+export function loadItemsFromStorage(): CommunityItem[] {
+  return readList(STORAGE_KEY);
 }
 
 export function saveItemsToStorage(items: CommunityItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch (err) {
-    console.error('Error saving items to localStorage:', err);
-  }
+  writeList(STORAGE_KEY, items);
+}
+
+export function getOfflineQueue(): CommunityItem[] {
+  return readList(OFFLINE_QUEUE_KEY);
 }
 
 export function queueOfflineItem(item: CommunityItem): void {
-  try {
-    const queueRaw = localStorage.getItem(OFFLINE_QUEUE_KEY);
-    const queue: CommunityItem[] = queueRaw ? JSON.parse(queueRaw) : [];
-    queue.push(item);
-    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-  } catch (err) {
-    console.error('Error queueing offline item:', err);
-  }
+  writeList(OFFLINE_QUEUE_KEY, [...getOfflineQueue(), item]);
+}
+
+export function removeFromOfflineQueue(id: string): void {
+  writeList(OFFLINE_QUEUE_KEY, getOfflineQueue().filter((item) => item.id !== id));
 }
 
 export function getOfflineQueueCount(): number {
-  try {
-    const queueRaw = localStorage.getItem(OFFLINE_QUEUE_KEY);
-    const queue = queueRaw ? JSON.parse(queueRaw) : [];
-    return Array.isArray(queue) ? queue.length : 0;
-  } catch {
-    return 0;
-  }
-}
-
-export function clearOfflineQueue(): void {
-  try {
-    localStorage.removeItem(OFFLINE_QUEUE_KEY);
-  } catch (err) {
-    console.error('Error clearing offline queue:', err);
-  }
+  return getOfflineQueue().length;
 }

@@ -50,13 +50,14 @@ export interface CommunityItem {
   type: PostType;
   category: ServiceCategory | FavorCategory | EmergencyCategory | string;
   authorName: string;
-  authorPhone: string;
+  authorPhone?: string;
   neighborhood: string;
   address?: string;
   coordinates: [number, number]; // [lat, lng]
   distanceMeters?: number;
   vistosBuenos: number; // Sistema de Visto Bueno Vecinal
   hasUserVoted?: boolean;
+  isMine?: boolean;
   reviews: Review[];
   priceInfo?: string; // ej: "Tarifa vecinal accesible" o "Gratis / Solidario"
   urgencyLevel?: 'baja' | 'media' | 'alta' | 'critica'; // para emergencias

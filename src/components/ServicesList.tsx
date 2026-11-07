@@ -89,7 +89,7 @@ interface ServiceCardProps {
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ item, onVistoBueno, onOpenDetail }) => {
-  const whatsappUrl = buildWhatsAppLink(
+  const whatsappUrl = item.authorPhone && buildWhatsAppLink(
     item.authorPhone,
     `Hola ${item.authorName}, vi tu servicio "${item.title}" en la app vecinal ICARO-AYLLU y me gustaría coordinar un servicio en mi zona.`
   );
@@ -148,7 +148,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ item, onVistoBueno, onOpenDet
               "{item.reviews[0].comment}"
             </p>
             <span className="font-semibold text-[10px] text-emerald-700 mt-0.5 block">
-              — {item.reviews[0].authorName} (Vecino verificado)
+              — {item.reviews[0].authorName}{item.reviews[0].isNeighborVerified && ' (Vecino verificado)'}
             </span>
           </div>
         )}
@@ -177,16 +177,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ item, onVistoBueno, onOpenDet
             Ver más
           </button>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition"
-            title="Contactar directamente por WhatsApp"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">WhatsApp</span>
-          </a>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition"
+              title="Contactar directamente por WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </a>
+          )}
         </div>
       </div>
     </div>

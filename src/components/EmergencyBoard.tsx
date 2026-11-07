@@ -192,7 +192,7 @@ const EmergencyCard: React.FC<EmergencyCardProps> = ({
   const isBrigade = item.type === 'support_group';
   const isResolved = item.status === 'resolved';
 
-  const whatsappUrl = buildWhatsAppLink(
+  const whatsappUrl = item.authorPhone && buildWhatsAppLink(
     item.authorPhone,
     `ALERTA VECINAL ICARO-AYLLU: Me comunico respecto al reporte de emergencia "${item.title}" para ofrecer apoyo inmediato.`
   );
@@ -293,15 +293,17 @@ const EmergencyCard: React.FC<EmergencyCardProps> = ({
             </button>
           )}
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black text-xs shadow-md transition"
-          >
-            <Phone className="w-3.5 h-3.5" />
-            <span>Ayudar Ahora</span>
-          </a>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black text-xs shadow-md transition"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>Ayudar Ahora</span>
+            </a>
+          )}
         </div>
       </div>
     </div>

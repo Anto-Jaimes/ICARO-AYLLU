@@ -40,23 +40,27 @@ export const DetailModal: React.FC = () => {
         selectedItemForDetail.coordinates[1]
       ).then((res) => setWalkingEstimate(res));
 
-      const qr = generateNeighborPaymentQr(
-        selectedItemForDetail.authorPhone,
-        selectedItemForDetail.authorName,
-        undefined,
-        selectedItemForDetail.title
+      setPaymentQrInfo(
+        selectedItemForDetail.authorPhone
+          ? generateNeighborPaymentQr(
+              selectedItemForDetail.authorPhone,
+              selectedItemForDetail.authorName,
+              undefined,
+              selectedItemForDetail.title
+            )
+          : null
       );
-      setPaymentQrInfo(qr);
       setShowPaymentQr(false);
     }
-  }, [selectedItemForDetail, userLocation.lat, userLocation.lng]);
+    // Keyed by id: live votes must not reset an open payment QR.
+  }, [selectedItemForDetail?.id, userLocation.lat, userLocation.lng]);
 
   if (!selectedItemForDetail) return null;
 
   const item = selectedItemForDetail;
   const isEmergency = ['emergency_need', 'emergency_resource', 'support_group'].includes(item.type);
 
-  const whatsappUrl = buildWhatsAppLink(
+  const whatsappUrl = item.authorPhone && buildWhatsAppLink(
     item.authorPhone,
     `Hola ${item.authorName}, te contacto desde la app vecinal ICARO-AYLLU respecto a tu publicación "${item.title}".`
   );
@@ -70,21 +74,6 @@ export const DetailModal: React.FC = () => {
       commentText.trim(),
       reviewerName.trim() || 'Vecino del barrio'
     );
-
-    setSelectedItemForDetail({
-      ...item,
-      vistosBuenos: item.vistosBuenos + 1,
-      reviews: [
-        {
-          id: `rev-${Date.now()}`,
-          authorName: reviewerName.trim() || 'Vecino del barrio',
-          comment: commentText.trim(),
-          date: 'Justo ahora',
-          isNeighborVerified: true
-        },
-        ...item.reviews
-      ]
-    });
 
     setCommentText('');
   };
@@ -159,14 +148,7 @@ export const DetailModal: React.FC = () => {
             </div>
 
             <button
-              onClick={() => {
-                toggleVistoBueno(item.id);
-                setSelectedItemForDetail({
-                  ...item,
-                  vistosBuenos: item.hasUserVoted ? item.vistosBuenos - 1 : item.vistosBuenos + 1,
-                  hasUserVoted: !item.hasUserVoted
-                });
-              }}
+              onClick={() => toggleVistoBueno(item.id)}
               className={`px-3 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 active:scale-95 shrink-0 ${
                 item.hasUserVoted
                   ? 'bg-emerald-600 text-white ring-2 ring-emerald-300'
@@ -196,7 +178,7 @@ export const DetailModal: React.FC = () => {
                   </span>
                 </div>
 
-                {item.type === 'service' && (
+                {item.type === 'service' && paymentQrInfo && (
                   <button
                     onClick={() => setShowPaymentQr(!showPaymentQr)}
                     className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 cursor-pointer"
@@ -244,29 +226,31 @@ export const DetailModal: React.FC = () => {
                 {item.authorName}
               </h4>
               <p className="text-xs text-slate-300">
-                Teléfono: {item.authorPhone}
+                {item.authorPhone ? `Teléfono: ${item.authorPhone}` : 'No dejó teléfono de contacto'}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md transition"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>WhatsApp</span>
-              </a>
+            {whatsappUrl && (
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md transition"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>WhatsApp</span>
+                </a>
 
-              <a
-                href={`tel:${item.authorPhone}`}
-                className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 transition"
-                title="Llamar directamente"
-              >
-                <Phone className="w-4 h-4 text-amber-400" />
-              </a>
-            </div>
+                <a
+                  href={`tel:${item.authorPhone}`}
+                  className="flex items-center justify-center p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 transition"
+                  title="Llamar directamente"
+                >
+                  <Phone className="w-4 h-4 text-amber-400" />
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Neighbor Reviews & Testimonials Section */}

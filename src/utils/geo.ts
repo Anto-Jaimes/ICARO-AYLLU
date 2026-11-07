@@ -26,6 +26,13 @@ export function formatDistance(meters?: number): string {
   return `A ${(meters / 1000).toFixed(1)} km`;
 }
 
+/** Returns a number that WhatsApp and the dialer can open, or undefined if it is not one. */
+export function normalizePhone(rawPhone: string): string | undefined {
+  const phone = rawPhone.replace(/[^\d+]/g, '');
+  if (/^9\d{8}$/.test(phone)) return `+51${phone}`; // Peruvian mobile without country code
+  return /^\+?\d{6,15}$/.test(phone) ? phone : undefined;
+}
+
 export function buildWhatsAppLink(phone: string, text: string): string {
   const cleanPhone = phone.replace(/[^0-9]/g, '');
   const encodedText = encodeURIComponent(text);

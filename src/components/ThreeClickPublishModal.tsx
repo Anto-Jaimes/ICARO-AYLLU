@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { normalizePhone } from '../utils/geo';
 import { PostType } from '../types';
 import { 
   X, 
@@ -167,7 +168,7 @@ export const ThreeClickPublishModal: React.FC = () => {
 
     const finalTitle = title.trim() || 'Publicación vecinal';
     const finalAuthor = authorName.trim() || 'Vecino solidario';
-    const finalPhone = authorPhone.trim() || '+51900000000';
+    const finalPhone = normalizePhone(authorPhone);
 
     addItem({
       title: finalTitle,

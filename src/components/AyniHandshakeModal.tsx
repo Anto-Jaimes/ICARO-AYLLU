@@ -30,7 +30,7 @@ export const AyniHandshakeModal: React.FC<AyniHandshakeModalProps> = ({ item, is
   const handleConfirmLoan = (e: React.FormEvent) => {
     e.preventDefault();
     setIsConfirmed(true);
-    toggleVistoBueno(item.id);
+    if (!item.hasUserVoted) toggleVistoBueno(item.id);
 
     try {
       confetti({

@@ -150,7 +150,7 @@ const FavorCard: React.FC<FavorCardProps> = ({
 }) => {
   const isOffer = item.type === 'favor_offer';
 
-  const whatsappUrl = buildWhatsAppLink(
+  const whatsappUrl = item.authorPhone && buildWhatsAppLink(
     item.authorPhone,
     `Hola ${item.authorName}, te escribo por tu publicación solidaria "${item.title}" en ICARO-AYLLU para coordinar con confianza.`
   );
@@ -247,15 +247,17 @@ const FavorCard: React.FC<FavorCardProps> = ({
             Detalles
           </button>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Coordinar</span>
-          </a>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Coordinar</span>
+            </a>
+          )}
         </div>
       </div>
     </div>

@@ -1,10 +1,40 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useState, useEffect, useMemo, useRef, ReactNode } from 'react';
 import { CommunityItem, Mode, UserLocation, Review } from '../types';
-import { INITIAL_USER_LOCATION } from '../data/mockData';
-import { loadItemsFromStorage, saveItemsToStorage, queueOfflineItem, getOfflineQueueCount, clearOfflineQueue } from '../utils/storage';
+import { DEFAULT_USER_LOCATION } from '../data/defaultLocation';
+import {
+  loadItemsFromStorage,
+  saveItemsToStorage,
+  queueOfflineItem,
+  getOfflineQueue,
+  getOfflineQueueCount,
+  removeFromOfflineQueue
+} from '../utils/storage';
 import { calculateDistanceMeters } from '../utils/geo';
 import { reverseGeocode } from '../services/geoService';
+import {
+  createPost,
+  fetchNearbyPosts,
+  isRejectedByServer,
+  setPostStatus,
+  setVote,
+  submitReview,
+  subscribeToPostChanges
+} from '../services/postsService';
 import confetti from 'canvas-confetti';
+
+function celebrate(particleCount: number, spread: number, originY: number) {
+  try {
+    confetti({ particleCount, spread, origin: { y: originY } });
+  } catch {
+    // Purely decorative: never let it interrupt the action.
+  }
+}
+
+// Posts still waiting to reach the server stay visible to their author.
+function withPendingPosts(items: CommunityItem[]): CommunityItem[] {
+  const pending = getOfflineQueue().filter((queued) => !items.some((item) => item.id === queued.id));
+  return [...pending, ...items];
+}
 
 interface AppContextType {
   mode: Mode;
@@ -35,7 +65,8 @@ interface AppContextType {
   addReview: (itemId: string, comment: string, reviewerName: string) => void;
   addItem: (item: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => void;
   updateItemStatus: (id: string, status: 'active' | 'in_progress' | 'resolved') => void;
-  resetToDefaultData: () => void;
+  notice: string | null;
+  clearNotice: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -46,42 +77,94 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
   
   const [activeTab, setActiveTab] = useState<'services' | 'favors' | 'emergency_board' | 'map'>('services');
-  const [items, setItems] = useState<CommunityItem[]>(() => loadItemsFromStorage());
-  const [userLocation, setUserLocation] = useState<UserLocation>(INITIAL_USER_LOCATION);
+  const [items, setItems] = useState<CommunityItem[]>(() => withPendingPosts(loadItemsFromStorage()));
+  const [userLocation, setUserLocation] = useState<UserLocation>(DEFAULT_USER_LOCATION);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [pendingOfflineCount, setPendingOfflineCount] = useState<number>(getOfflineQueueCount());
-  
+  const [notice, setNotice] = useState<string | null>(null);
+
   const [maxDistanceMeters, setMaxDistanceMeters] = useState<number>(3000);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
-  const [selectedItemForDetail, setSelectedItemForDetail] = useState<CommunityItem | null>(null);
+
+  // Keep the id, not a copy, so an open detail shows live votes and recommendations.
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(() => {
     return !localStorage.getItem('icaro_ayllu_tutorial_seen');
   });
 
-  // Track online/offline status
+  const latestFetch = useRef(0);
+  const isFlushingQueue = useRef(false);
+
+  const clearNotice = useCallback(() => setNotice(null), []);
+
+  const refreshItems = useCallback(async () => {
+    const fetchId = ++latestFetch.current;
+    try {
+      const remoteItems = await fetchNearbyPosts(userLocation.lat, userLocation.lng);
+      // A slower, older response must not overwrite a newer one.
+      if (fetchId === latestFetch.current) setItems(withPendingPosts(remoteItems));
+    } catch (err) {
+      console.warn('No se pudieron actualizar las publicaciones:', err);
+      if (navigator.onLine) setNotice('No pudimos actualizar. Mostrando lo último guardado.');
+    }
+  }, [userLocation.lat, userLocation.lng]);
+
+  // A post leaves the queue only once the server has confirmed it.
+  const flushOfflineQueue = useCallback(async () => {
+    if (isFlushingQueue.current || !navigator.onLine) return;
+    isFlushingQueue.current = true;
+
+    try {
+      let item: CommunityItem | undefined;
+      while ((item = getOfflineQueue()[0])) {
+        const { id, title } = item;
+        try {
+          await createPost(item);
+          removeFromOfflineQueue(id);
+        } catch (err) {
+          if (!isRejectedByServer(err)) {
+            console.warn('Sin conexión con el servidor, se reintentará:', err);
+            break;
+          }
+          console.error('Publicación rechazada por el servidor:', err);
+          removeFromOfflineQueue(id);
+          setItems((prev) => prev.filter((existing) => existing.id !== id));
+          setNotice(`No se pudo publicar "${title}". Revisa los datos e inténtalo de nuevo.`);
+        }
+      }
+    } finally {
+      isFlushingQueue.current = false;
+      setPendingOfflineCount(getOfflineQueueCount());
+    }
+  }, []);
+
+  // Keep the feed in sync: on load, on reconnect, and whenever a neighbour changes something.
   useEffect(() => {
+    const syncFeed = async () => {
+      await flushOfflineQueue();
+      await refreshItems();
+    };
     const handleOnline = () => {
       setIsOnline(true);
-      const count = getOfflineQueueCount();
-      if (count > 0) {
-        clearOfflineQueue();
-        setPendingOfflineCount(0);
-      }
+      syncFeed();
     };
     const handleOffline = () => setIsOnline(false);
 
+    syncFeed();
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    const unsubscribe = subscribeToPostChanges(refreshItems);
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      unsubscribe();
     };
-  }, []);
+  }, [flushOfflineQueue, refreshItems]);
 
-  // Save items on change
+  // Last known feed, for reading without connection
   useEffect(() => {
     saveItemsToStorage(items);
   }, [items]);
@@ -131,94 +214,121 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const toggleVistoBueno = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const isVoted = item.hasUserVoted;
-          if (!isVoted) {
-            try {
-              confetti({
-                particleCount: 40,
-                spread: 60,
-                origin: { y: 0.7 }
-              });
-            } catch {
-              // Ignore
-            }
-          }
-          return {
-            ...item,
-            vistosBuenos: isVoted ? item.vistosBuenos - 1 : item.vistosBuenos + 1,
-            hasUserVoted: !isVoted
-          };
-        }
-        return item;
-      })
-    );
-  };
-
-  const addReview = (itemId: string, comment: string, reviewerName: string) => {
-    const newReview: Review = {
-      id: `rev-${Date.now()}`,
-      authorName: reviewerName || 'Vecino de la zona',
-      comment,
-      date: 'Reciente',
-      isNeighborVerified: true
-    };
-
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.id === itemId) {
-          return {
-            ...item,
-            vistosBuenos: item.vistosBuenos + 1,
-            reviews: [newReview, ...item.reviews]
-          };
-        }
-        return item;
-      })
-    );
-  };
-
-  const addItem = (itemData: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => {
-    const newItem: CommunityItem = {
-      ...itemData,
-      id: `post-${Date.now()}`,
-      createdAt: 'Hace un momento',
-      vistosBuenos: 1,
-      reviews: [],
-      isOfflineCreated: !isOnline
-    };
-
-    if (!isOnline) {
-      queueOfflineItem(newItem);
-      setPendingOfflineCount((prev) => prev + 1);
+  // The database enforces both rules too; checking here gives the neighbour a clear reason.
+  const canRecommend = (item: CommunityItem | undefined): item is CommunityItem => {
+    if (!item) return false;
+    if (item.isMine) {
+      setNotice('No puedes recomendar tu propia publicación.');
+      return false;
     }
+    if (!navigator.onLine) {
+      setNotice('Necesitas conexión para recomendar.');
+      return false;
+    }
+    return true;
+  };
 
-    setItems((prev) => [newItem, ...prev]);
+  const applyVote = (id: string, voted: boolean) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, hasUserVoted: voted, vistosBuenos: item.vistosBuenos + (voted ? 1 : -1) }
+          : item
+      )
+    );
+  };
+
+  const toggleVistoBueno = (id: string) => {
+    const item = items.find((candidate) => candidate.id === id);
+    if (!canRecommend(item)) return;
+
+    const voted = !item.hasUserVoted;
+    if (voted) celebrate(40, 60, 0.7);
+    applyVote(id, voted);
+
+    setVote(id, voted).catch((err) => {
+      console.error('No se pudo guardar el voto:', err);
+      applyVote(id, !voted);
+      setNotice('No se pudo guardar tu recomendación. Inténtalo de nuevo.');
+    });
+  };
+
+  const addReview = async (itemId: string, comment: string, reviewerName: string) => {
+    const item = items.find((candidate) => candidate.id === itemId);
+    if (!canRecommend(item)) return;
+
+    const authorName = reviewerName || 'Vecino de la zona';
+    const optimisticReview: Review = {
+      id: `pending-${Date.now()}`,
+      authorName,
+      comment,
+      date: 'Hace un momento',
+      isNeighborVerified: false
+    };
+
+    setItems((prev) =>
+      prev.map((candidate) =>
+        candidate.id === itemId
+          ? {
+              ...candidate,
+              hasUserVoted: true,
+              vistosBuenos: candidate.vistosBuenos + (candidate.hasUserVoted ? 0 : 1),
+              reviews: [optimisticReview, ...candidate.reviews]
+            }
+          : candidate
+      )
+    );
 
     try {
-      confetti({
-        particleCount: 60,
-        spread: 80,
-        origin: { y: 0.6 }
-      });
-    } catch {
-      // Ignore
+      await submitReview(itemId, authorName, comment, userLocation.lat, userLocation.lng);
+    } catch (err) {
+      console.error('No se pudo guardar la recomendación:', err);
+      setNotice('No se pudo guardar tu recomendación. Inténtalo de nuevo.');
     }
+    await refreshItems();
+  };
+
+  // Every post goes through the queue, so online and offline share one path and a
+  // post survives the app closing before the server has answered.
+  const addItem = async (itemData: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => {
+    const newItem: CommunityItem = {
+      ...itemData,
+      id: crypto.randomUUID(),
+      createdAt: 'Hace un momento',
+      vistosBuenos: 0,
+      reviews: [],
+      isMine: true,
+      isOfflineCreated: !navigator.onLine
+    };
+
+    queueOfflineItem(newItem);
+    setPendingOfflineCount(getOfflineQueueCount());
+    setItems((prev) => [newItem, ...prev]);
+    celebrate(60, 80, 0.6);
+
+    await flushOfflineQueue();
+    if (navigator.onLine) await refreshItems();
   };
 
   const updateItemStatus = (id: string, status: 'active' | 'in_progress' | 'resolved') => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status } : item))
-    );
-  };
+    const previousStatus = items.find((item) => item.id === id)?.status;
+    if (!previousStatus) return;
 
-  const resetToDefaultData = () => {
-    localStorage.removeItem('icaro_ayllu_items_v1');
-    localStorage.removeItem('icaro_ayllu_offline_queue_v1');
-    window.location.reload();
+    if (!navigator.onLine) {
+      setNotice('Necesitas conexión para cambiar el estado.');
+      return;
+    }
+
+    const applyStatus = (nextStatus: CommunityItem['status']) => {
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item)));
+    };
+
+    applyStatus(status);
+    setPostStatus(id, status).catch((err) => {
+      console.error('No se pudo cambiar el estado:', err);
+      applyStatus(previousStatus);
+      setNotice('No se pudo cambiar el estado. Inténtalo de nuevo.');
+    });
   };
 
   const itemsWithDistance = useMemo(() => {
@@ -235,6 +345,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       };
     });
   }, [items, userLocation]);
+
+  const selectedItemForDetail = useMemo(
+    () => itemsWithDistance.find((item) => item.id === selectedItemId) ?? null,
+    [itemsWithDistance, selectedItemId]
+  );
+
+  const setSelectedItemForDetail = (item: CommunityItem | null) => setSelectedItemId(item?.id ?? null);
 
   const filteredItems = useMemo(() => {
     return itemsWithDistance.filter((item) => {
@@ -304,7 +421,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addReview,
         addItem,
         updateItemStatus,
-        resetToDefaultData
+        notice,
+        clearNotice
       }}
     >
       {children}

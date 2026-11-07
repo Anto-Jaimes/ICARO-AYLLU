@@ -11,10 +11,10 @@ import { InteractiveMap } from './components/InteractiveMap';
 import { ThreeClickPublishModal } from './components/ThreeClickPublishModal';
 import { DetailModal } from './components/DetailModal';
 import { TutorialModal } from './components/TutorialModal';
-import { RefreshCw } from 'lucide-react';
+import { NoticeToast } from './components/NoticeToast';
 
 const MainContent: React.FC = () => {
-  const { mode, activeTab, resetToDefaultData } = useApp();
+  const { mode, activeTab } = useApp();
   const isEmergency = mode === 'emergency';
 
   return (
@@ -56,16 +56,6 @@ const MainContent: React.FC = () => {
           <p className="text-[11px] text-slate-400">
             APIs Integradas: OpenStreetMap Nominatim • OSRM Walking Routes • USGS Real-Time Seismology • Open-Meteo Weather
           </p>
-          <div className="pt-2">
-            <button
-              onClick={resetToDefaultData}
-              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600 underline cursor-pointer"
-              title="Restaurar datos de prueba iniciales"
-            >
-              <RefreshCw className="w-3 h-3" />
-              <span>Restablecer datos de ejemplo</span>
-            </button>
-          </div>
         </footer>
       </main>
 
@@ -73,6 +63,7 @@ const MainContent: React.FC = () => {
       <ThreeClickPublishModal />
       <DetailModal />
       <TutorialModal />
+      <NoticeToast />
     </div>
   );
 };
