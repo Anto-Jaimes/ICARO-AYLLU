@@ -12,6 +12,7 @@ import { ReportSheet } from './components/ReportSheet';
 import { SosSheet } from './components/SosSheet';
 import { EmergencyBar } from './components/TopBar';
 import { PrintableMuralModal } from './components/PrintableMuralModal';
+import { BatterySaverScreen } from './screens/BatterySaverScreen';
 import { runBackHandler, useBackHandler } from './hooks/useBackHandler';
 import { exitApp, listenForBackButton, setStatusBarOverDark } from './lib/native';
 import { AlertsScreen } from './screens/AlertsScreen';
@@ -64,7 +65,7 @@ const PublishButton: React.FC = () => {
 };
 
 const Shell: React.FC = () => {
-  const { mode, setMode, tab, setTab, homeTab, isAlertsOpen, setIsAlertsOpen, isNewsOpen, isMuralOpen, setIsMuralOpen } = useApp();
+  const { mode, setMode, tab, setTab, homeTab, isAlertsOpen, setIsAlertsOpen, isNewsOpen, isMuralOpen, setIsMuralOpen, isBatterySaver, setIsBatterySaver } = useApp();
   const { verdict } = useHazards();
   const isEmergency = mode === 'emergency';
   const [isExitOpen, setIsExitOpen] = useState(false);

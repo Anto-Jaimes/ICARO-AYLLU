@@ -30,7 +30,7 @@ const EMERGENCY_NUMBERS = [
 ];
 
 export const SosSheet: React.FC = () => {
-  const { isSosOpen, setIsSosOpen, mode, setMode, openPublish, openReport, userLocation } = useApp();
+  const { isSosOpen, setIsSosOpen, mode, setMode, openPublish, openReport, userLocation, setIsBatterySaver } = useApp();
   const isEmergency = mode === 'emergency';
   const [isAlarmOpen, setIsAlarmOpen] = useState(false);
   const [isSounding, setIsSounding] = useState(false);

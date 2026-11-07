@@ -93,6 +93,8 @@ interface AppContextType {
   setIsMenuOpen: (open: boolean) => void;
   isMuralOpen: boolean;
   setIsMuralOpen: (open: boolean) => void;
+  isBatterySaver: boolean;
+  setIsBatterySaver: (active: boolean) => void;
   toggleVistoBueno: (id: string) => void;
   addReview: (itemId: string, comment: string, reviewerName: string) => void;
   addItem: (item: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => void;
@@ -134,6 +136,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isSosOpen, setIsSosOpen] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isMuralOpen, setIsMuralOpen] = useState<boolean>(false);
+  const [isBatterySaver, setIsBatterySaver] = useState<boolean>(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(() => {
     return !localStorage.getItem('icaro_ayllu_tutorial_seen');
   });
@@ -487,6 +490,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsMenuOpen,
         isMuralOpen,
         setIsMuralOpen,
+        isBatterySaver,
+        setIsBatterySaver,
         toggleVistoBueno,
         addReview,
         addItem,

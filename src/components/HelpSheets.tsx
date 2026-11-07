@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CircleHelp, HandHeart, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { BatteryLow, CircleHelp, HandHeart, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { BottomSheet } from './BottomSheet';
 
@@ -67,7 +67,7 @@ export const TutorialSheet: React.FC = () => {
 };
 
 export const MenuSheet: React.FC = () => {
-  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen } = useApp();
+  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver } = useApp();
 
   return (
     <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title="Ayuda">
@@ -97,6 +97,19 @@ export const MenuSheet: React.FC = () => {
             >
               <Printer className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
               <span className="flex-1 text-row font-semibold">Imprimir mural comunal</span>
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="row"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsBatterySaver(true);
+              }}
+            >
+              <BatteryLow className="w-6 h-6 shrink-0 text-amber-500" aria-hidden="true" />
+              <span className="flex-1 text-row font-semibold">Modo batería crítica (Apagón)</span>
             </button>
           </li>
         </ul>
