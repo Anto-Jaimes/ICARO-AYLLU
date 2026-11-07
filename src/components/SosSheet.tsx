@@ -18,6 +18,8 @@ import { HELP_REQUEST_PRESET } from '../data/categories';
 import { communitySiren } from '../utils/audioAlarm';
 import { BottomSheet } from './BottomSheet';
 import { MedicalIdSheet } from './MedicalIdSheet';
+import { SafetyCheckinSheet } from './SafetyCheckinSheet';
+import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
 import { FirstAidSheet } from './FirstAidSheet';
 
 const EMERGENCY_NUMBERS = [
@@ -34,6 +36,8 @@ export const SosSheet: React.FC = () => {
   const [isSounding, setIsSounding] = useState(false);
   const [isMedicalOpen, setIsMedicalOpen] = useState(false);
   const [isFirstAidOpen, setIsFirstAidOpen] = useState(false);
+  const [isCheckinOpen, setIsCheckinOpen] = useState(false);
+  const [isBackpackOpen, setIsBackpackOpen] = useState(false);
 
   const close = () => setIsSosOpen(false);
 
@@ -252,6 +256,18 @@ export const SosSheet: React.FC = () => {
       <FirstAidSheet
         open={isFirstAidOpen}
         onClose={() => setIsFirstAidOpen(false)}
+      />
+
+      {/* Safety Checkin Sheet */}
+      <SafetyCheckinSheet
+        open={isCheckinOpen}
+        onClose={() => setIsCheckinOpen(false)}
+      />
+
+      {/* Emergency Backpack Sheet */}
+      <EmergencyBackpackSheet
+        open={isBackpackOpen}
+        onClose={() => setIsBackpackOpen(false)}
       />
     </>
   );
