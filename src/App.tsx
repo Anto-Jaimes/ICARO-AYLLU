@@ -11,6 +11,7 @@ import { PublishSheet } from './components/PublishSheet';
 import { ReportSheet } from './components/ReportSheet';
 import { SosSheet } from './components/SosSheet';
 import { EmergencyBar } from './components/TopBar';
+import { PrintableMuralModal } from './components/PrintableMuralModal';
 import { runBackHandler, useBackHandler } from './hooks/useBackHandler';
 import { exitApp, listenForBackButton, setStatusBarOverDark } from './lib/native';
 import { AlertsScreen } from './screens/AlertsScreen';
@@ -63,7 +64,7 @@ const PublishButton: React.FC = () => {
 };
 
 const Shell: React.FC = () => {
-  const { mode, setMode, tab, setTab, homeTab, isAlertsOpen, setIsAlertsOpen, isNewsOpen } = useApp();
+  const { mode, setMode, tab, setTab, homeTab, isAlertsOpen, setIsAlertsOpen, isNewsOpen, isMuralOpen, setIsMuralOpen } = useApp();
   const { verdict } = useHazards();
   const isEmergency = mode === 'emergency';
   const [isExitOpen, setIsExitOpen] = useState(false);
@@ -142,6 +143,7 @@ const Shell: React.FC = () => {
       </BottomSheet>
 
       <NoticeToast />
+      <PrintableMuralModal isOpen={isMuralOpen} onClose={() => setIsMuralOpen(false)} />
     </div>
   );
 };

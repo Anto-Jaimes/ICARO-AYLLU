@@ -91,6 +91,8 @@ interface AppContextType {
   setIsTutorialOpen: (open: boolean) => void;
   isMenuOpen: boolean;
   setIsMenuOpen: (open: boolean) => void;
+  isMuralOpen: boolean;
+  setIsMuralOpen: (open: boolean) => void;
   toggleVistoBueno: (id: string) => void;
   addReview: (itemId: string, comment: string, reviewerName: string) => void;
   addItem: (item: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => void;
@@ -131,6 +133,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [publishPreset, setPublishPreset] = useState<PublishPreset | null>(null);
   const [isSosOpen, setIsSosOpen] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isMuralOpen, setIsMuralOpen] = useState<boolean>(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(() => {
     return !localStorage.getItem('icaro_ayllu_tutorial_seen');
   });
@@ -482,6 +485,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsTutorialOpen,
         isMenuOpen,
         setIsMenuOpen,
+        isMuralOpen,
+        setIsMuralOpen,
         toggleVistoBueno,
         addReview,
         addItem,
