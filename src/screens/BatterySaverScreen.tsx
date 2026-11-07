@@ -72,7 +72,11 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
 
   // Native Android back button handlers
   useBackHandler(true, onExit);
-  useBackHandler(torchMode !== 'off', () => setTorchMode('off'));
+  // Back must switch the LED off too, not just the screen's state: otherwise it kept burning.
+  useBackHandler(torchMode !== 'off', () => {
+    stopHardwareTorch();
+    setTorchMode('off');
+  });
 
   // Load Medical ID for instant reading
   useEffect(() => {
