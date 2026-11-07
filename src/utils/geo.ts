@@ -1,3 +1,11 @@
+/** The "Sin límite" option of the distance filter. */
+export const UNLIMITED_RADIUS_M = 100000;
+
+/** Rough box around Peru: a reading outside it must not move the neighbour abroad. */
+export function isInPeru(lat: number, lng: number): boolean {
+  return lat >= -18.6 && lat <= 0.2 && lng >= -81.6 && lng <= -68.4;
+}
+
 // Calculates distance in meters between two lat/lng coordinates using the Haversine formula
 export function calculateDistanceMeters(
   lat1: number,

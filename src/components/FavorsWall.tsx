@@ -13,6 +13,7 @@ import {
   Gift
 } from 'lucide-react';
 import { formatDistance, buildWhatsAppLink } from '../utils/geo';
+import { WidenSearchButton } from './WidenSearchButton';
 
 export const FavorsWall: React.FC = () => {
   const { 
@@ -98,6 +99,7 @@ export const FavorsWall: React.FC = () => {
         <div className="text-center py-10 bg-white rounded-3xl border border-dashed border-slate-300 p-6">
           <p className="text-3xl mb-1">🤝</p>
           <h3 className="font-bold text-slate-700 text-sm">Sin favores activos en esta categoría</h3>
+          <div className="mt-3"><WidenSearchButton /></div>
           <button
             onClick={() => setIsPublishModalOpen(true)}
             className="mt-3 px-4 py-2 bg-slate-900 text-white font-bold text-xs rounded-xl"

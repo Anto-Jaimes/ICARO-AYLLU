@@ -25,3 +25,6 @@ dist-ssr
 
 # Skills de terceros (114 MB), no forman parte de la app
 agentes/
+
+# Clave secreta del relevo de SENAMHI: nunca subirla
+.env.relay

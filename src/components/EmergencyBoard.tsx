@@ -17,6 +17,7 @@ import {
   Award
 } from 'lucide-react';
 import { formatDistance, buildWhatsAppLink } from '../utils/geo';
+import { WidenSearchButton } from './WidenSearchButton';
 
 export const EmergencyBoard: React.FC = () => {
   const { 
@@ -154,6 +155,7 @@ export const EmergencyBoard: React.FC = () => {
           <p className="text-xs text-slate-400 mt-1 mb-4">
             Si conoces a un vecino en necesidad o puedes habilitar agua o electricidad, compártelo ahora.
           </p>
+          <WidenSearchButton />
           <button
             onClick={() => setIsPublishModalOpen(true)}
             className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs rounded-xl transition cursor-pointer shadow-lg"

@@ -9,7 +9,7 @@ import {
   getOfflineQueueCount,
   removeFromOfflineQueue
 } from '../utils/storage';
-import { calculateDistanceMeters } from '../utils/geo';
+import { calculateDistanceMeters, isInPeru } from '../utils/geo';
 import { reverseGeocode } from '../services/geoService';
 import {
   createPost,
@@ -206,11 +206,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const requestCurrentGPS = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          const streetAddress = await reverseGeocode(lat, lng);
-          updateUserLocation(lat, lng, streetAddress);
+        (pos) => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          if (!isInPeru(lat, lng)) {
+            setNotice('Tu ubicación está fuera del Perú. Elige un departamento para ver sus alertas.');
+            return;
+          }
+          updateUserLocation(lat, lng);
         },
         (err) => {
           console.warn('Geolocation unavailable, keeping current coordinates:', err);
@@ -220,8 +222,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  // The home screen shows the neighbour's own area, so locate them as soon as the app opens.
+  useEffect(() => {
+    requestCurrentGPS();
+  }, []);
+
   // The database enforces both rules too; checking here gives the neighbour a clear reason.
-  const canRecommend = (item: CommunityItem | undefined): item is CommunityItem => {
+  const canRecommend =(item: CommunityItem | undefined): item is CommunityItem => {
     if (!item) return false;
     if (item.isMine) {
       setNotice('No puedes recomendar tu propia publicación.');

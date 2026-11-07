@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { UNLIMITED_RADIUS_M } from '../utils/geo';
 import { Search, SlidersHorizontal, MapPin, X } from 'lucide-react';
 
 export const FilterBar: React.FC = () => {
@@ -20,7 +21,7 @@ export const FilterBar: React.FC = () => {
     { label: '500m (A pie)', value: 500 },
     { label: '1 km (Mi barrio)', value: 1000 },
     { label: '3 km (Zonas aledañas)', value: 3000 },
-    { label: 'Sin límite', value: 100000 },
+    { label: 'Sin límite', value: UNLIMITED_RADIUS_M },
   ];
 
   const serviceCategories = [

@@ -22,14 +22,15 @@ Inspirada en el vocablo quechua **Ayllu** (*comunidad unida por vínculos de rec
 
 ## 🌐 APIs Integradas en Código Limpio (`src/services/`)
 
-La aplicación integra 4 APIs reales en producción sin costo y sin fricción de API Keys:
+La aplicación integra fuentes oficiales del Perú y servicios abiertos, sin costo:
 
 | API | Servicio en Código | Utilidad para el Reto |
 | :--- | :--- | :--- |
 | **OpenStreetMap Nominatim** | `src/services/geoService.ts` | **Geocodificación Inversa:** Convierte las coordenadas GPS del vecino en su nombre de calle y distrito exacto automáticamente. |
 | **OSRM Foot Routing** | `src/services/geoService.ts` | **Rutas Peatonales a Pie:** Calcula el tiempo real caminando (ej. *"A 3 min a pie (240m)"*), garantizando el cumplimiento de *"sin necesidad de transporte mayor"*. |
-| **USGS Real-Time Earthquake API** | `src/services/emergencyApiService.ts` | **Monitoreo Sísmico en Vivo:** Detecta sismos recientes en la región y sugiere la activación del Modo Emergencia SOS ante eventos mayores. |
-| **Open-Meteo Weather API** | `src/services/emergencyApiService.ts` | **Telemetría Meteorológica:** Alertas por lluvia torrencial, anegamientos o calor extremo en las coordenadas exactas del barrio. |
+| **IGP (Instituto Geofísico del Perú)** | `supabase/functions/ingest-hazards/` | **Sismos del Perú:** La nube los copia cada 5 minutos, con su departamento y coordenadas. |
+| **SENAMHI (avisos y GeoServer)** | `scripts/senamhi-relay.ts` | **Huaicos, lluvias y avisos:** Polígonos oficiales de quebradas en riesgo y avisos meteorológicos por departamento. |
+| **Open-Meteo** | `src/services/hazardService.ts` | **Pronóstico:** 3 días para el punto exacto del vecino. |
 | **Generador QR Yape / Plin Vecinal** | `src/services/paymentService.ts` | **Micro-pagos P2P:** Pagos directos entre vecinos sin comisiones bancarias escaneando el QR desde la ficha del oficio. |
 
 ---

@@ -16,6 +16,7 @@ import {
   Award
 } from 'lucide-react';
 import { formatDistance, buildWhatsAppLink } from '../utils/geo';
+import { WidenSearchButton } from './WidenSearchButton';
 
 export const ServicesList: React.FC = () => {
   const { 
@@ -61,6 +62,7 @@ export const ServicesList: React.FC = () => {
           <p className="text-xs text-slate-500 mt-1 mb-4">
             Prueba ampliando el filtro de distancia o buscando con otros términos.
           </p>
+          <WidenSearchButton />
           <button
             onClick={() => setIsPublishModalOpen(true)}
             className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl transition"
