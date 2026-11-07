@@ -3,19 +3,17 @@ import { useApp } from '../context/AppContext';
 import { CommunityItem } from '../types';
 import { 
   HeartHandshake, 
-  Wrench, 
-  Gift, 
-  HelpCircle, 
-  Repeat, 
-  Bike, 
   Plus, 
   MapPin, 
   MessageCircle, 
   ShieldCheck, 
   ThumbsUp,
-  Sparkles
+  Sparkles,
+  Handshake
 } from 'lucide-react';
 import { formatDistance, buildWhatsAppLink } from '../utils/geo';
+import { CommunityImpactWidget } from './CommunityImpactWidget';
+import { AyniHandshakeModal } from './AyniHandshakeModal';
 
 export const FavorsWall: React.FC = () => {
   const { 
@@ -26,6 +24,7 @@ export const FavorsWall: React.FC = () => {
   } = useApp();
 
   const [favorFilter, setFavorFilter] = useState<'all' | 'offer' | 'request'>('all');
+  const [selectedHandshakeItem, setSelectedHandshakeItem] = useState<CommunityItem | null>(null);
 
   const displayedFavors = filteredItems.filter((item) => {
     if (favorFilter === 'offer') return item.type === 'favor_offer';
@@ -35,6 +34,9 @@ export const FavorsWall: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      {/* Community Ecological and Savings Impact Widget */}
+      <CommunityImpactWidget />
+
       {/* Module 2 Banner */}
       <div className="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
@@ -60,7 +62,7 @@ export const FavorsWall: React.FC = () => {
         </button>
       </div>
 
-      {/* Sub-filter tabs: Todos / Ofrezco / Necesito */}
+      {/* Sub-filter tabs */}
       <div className="flex items-center justify-between gap-2 bg-slate-100 p-1 rounded-xl max-w-sm">
         <button
           onClick={() => setFavorFilter('all')}
@@ -117,10 +119,18 @@ export const FavorsWall: React.FC = () => {
               item={item} 
               onVistoBueno={() => toggleVistoBueno(item.id)}
               onOpenDetail={() => setSelectedItemForDetail(item)}
+              onAyniHandshake={() => setSelectedHandshakeItem(item)}
             />
           ))}
         </div>
       )}
+
+      {/* Ayni Handshake Modal */}
+      <AyniHandshakeModal
+        item={selectedHandshakeItem}
+        isOpen={Boolean(selectedHandshakeItem)}
+        onClose={() => setSelectedHandshakeItem(null)}
+      />
     </div>
   );
 };
@@ -129,9 +139,15 @@ interface FavorCardProps {
   item: CommunityItem;
   onVistoBueno: () => void;
   onOpenDetail: () => void;
+  onAyniHandshake: () => void;
 }
 
-const FavorCard: React.FC<FavorCardProps> = ({ item, onVistoBueno, onOpenDetail }) => {
+const FavorCard: React.FC<FavorCardProps> = ({ 
+  item, 
+  onVistoBueno, 
+  onOpenDetail,
+  onAyniHandshake 
+}) => {
   const isOffer = item.type === 'favor_offer';
 
   const whatsappUrl = buildWhatsAppLink(
@@ -162,7 +178,6 @@ const FavorCard: React.FC<FavorCardProps> = ({ item, onVistoBueno, onOpenDetail 
             </span>
           </div>
 
-          {/* Visto Bueno Button */}
           <button
             onClick={onVistoBueno}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer active:scale-95 ${
@@ -192,9 +207,23 @@ const FavorCard: React.FC<FavorCardProps> = ({ item, onVistoBueno, onOpenDetail 
         </p>
 
         {/* Solidary Tag: No money involved */}
-        <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50/90 px-2.5 py-1 rounded-lg border border-emerald-200 w-fit">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-          <span>{item.priceInfo || 'Intercambio solidario / Sin dinero'}</span>
+        <div className="mt-3 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50/90 px-2.5 py-1 rounded-lg border border-emerald-200">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{item.priceInfo || 'Intercambio solidario / Sin dinero'}</span>
+          </div>
+
+          {/* Ayni Handshake Button */}
+          {isOffer && (
+            <button
+              onClick={onAyniHandshake}
+              className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-white hover:bg-emerald-600 bg-emerald-100/60 px-2.5 py-1 rounded-lg transition cursor-pointer"
+              title="Registrar préstamo de herramienta y pacto de devolución"
+            >
+              <Handshake className="w-3.5 h-3.5" />
+              <span>Pacto Ayni</span>
+            </button>
+          )}
         </div>
       </div>
 

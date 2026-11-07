@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { PostType } from '../types';
 import { 
@@ -13,7 +13,9 @@ import {
   Phone, 
   WifiOff, 
   ArrowRight,
-  CheckCircle2
+  CheckCircle2,
+  Mic,
+  MicOff
 } from 'lucide-react';
 
 export const ThreeClickPublishModal: React.FC = () => {
@@ -26,9 +28,6 @@ export const ThreeClickPublishModal: React.FC = () => {
     mode 
   } = useApp();
 
-  // Step 1: Type selection (Click 1)
-  // Step 2: Category selection (Click 2)
-  // Step 3: Fast Details & Confirm (Click 3)
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedType, setSelectedType] = useState<PostType>(mode === 'emergency' ? 'emergency_need' : 'service');
   const [selectedCategory, setSelectedCategory] = useState<string>('gasfiteria');
@@ -40,9 +39,19 @@ export const ThreeClickPublishModal: React.FC = () => {
   const [priceInfo, setPriceInfo] = useState<string>('');
   const [urgencyLevel, setUrgencyLevel] = useState<'baja' | 'media' | 'alta' | 'critica'>('alta');
 
+  // Voice Recognition State
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [hasSpeechSupport, setHasSpeechSupport] = useState<boolean>(false);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setHasSpeechSupport(true);
+    }
+  }, []);
+
   if (!isPublishModalOpen) return null;
 
-  // Categories per type
   const categoriesByType = {
     service: [
       { id: 'gasfiteria', label: '🔧 Gasfitería', template: 'Reparación de cañerías y sanitarios' },
@@ -80,7 +89,61 @@ export const ThreeClickPublishModal: React.FC = () => {
 
   const currentCategories = categoriesByType[selectedType] || categoriesByType.service;
 
-  // Step 1: Select Type
+  // Voice Recognition Handler
+  const startVoiceInput = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-PE'; // Spanish (Peru / Latin America)
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const spoken = event.results[0][0].transcript;
+        if (spoken) {
+          setTitle(spoken);
+          setDescription(`Publicado por dictado de voz: "${spoken}"`);
+
+          // Intelligent categorization based on spoken keywords
+          const lower = spoken.toLowerCase();
+          if (lower.includes('agua') || lower.includes('tubería') || lower.includes('caño') || lower.includes('desagüe')) {
+            setSelectedCategory('gasfiteria');
+          } else if (lower.includes('luz') || lower.includes('cable') || lower.includes('corriente') || lower.includes('enchufe')) {
+            setSelectedCategory('electricidad');
+          } else if (lower.includes('taladro') || lower.includes('herramienta') || lower.includes('escalera') || lower.includes('presto')) {
+            setSelectedType('favor_offer');
+            setSelectedCategory('herramientas');
+          } else if (lower.includes('emergencia') || lower.includes('auxilio') || lower.includes('grave') || lower.includes('abuelo')) {
+            setSelectedType('emergency_need');
+            setSelectedCategory('vulnerabilidad_mayor');
+          }
+
+          setStep(3); // Jump straight to confirmation
+        }
+      };
+
+      recognition.onerror = (err: any) => {
+        console.warn('Speech error:', err);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (e) {
+      console.warn('Speech recognition init error:', e);
+      setIsListening(false);
+    }
+  };
+
   const handleSelectType = (type: PostType) => {
     setSelectedType(type);
     const defaults = categoriesByType[type];
@@ -88,19 +151,17 @@ export const ThreeClickPublishModal: React.FC = () => {
       setSelectedCategory(defaults[0].id);
       setTitle(defaults[0].template);
     }
-    setStep(2); // Advance to Click 2
+    setStep(2);
   };
 
-  // Step 2: Select Category
   const handleSelectCategory = (catId: string, defaultTemplate: string) => {
     setSelectedCategory(catId);
     if (!title || title.length < 3) {
       setTitle(defaultTemplate);
     }
-    setStep(3); // Advance to Click 3
+    setStep(3);
   };
 
-  // Step 3: Final Submit (Click 3)
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
@@ -125,7 +186,6 @@ export const ThreeClickPublishModal: React.FC = () => {
       status: 'active'
     });
 
-    // Reset and close
     setStep(1);
     setTitle('');
     setDescription('');
@@ -135,7 +195,7 @@ export const ThreeClickPublishModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
-        {/* Modal Top Header */}
+        {/* Top Header */}
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center font-black text-xs text-white">
@@ -161,7 +221,7 @@ export const ThreeClickPublishModal: React.FC = () => {
           </button>
         </div>
 
-        {/* Offline notice inside modal */}
+        {/* Offline notice */}
         {!isOnline && (
           <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-xs font-bold flex items-center gap-2">
             <WifiOff className="w-4 h-4 shrink-0" />
@@ -169,16 +229,41 @@ export const ThreeClickPublishModal: React.FC = () => {
           </div>
         )}
 
-        {/* Body based on 3-Click Flow */}
+        {/* Voice dictation banner for accessibility */}
+        {hasSpeechSupport && step === 1 && (
+          <div className="px-5 pt-4">
+            <button
+              onClick={startVoiceInput}
+              className={`w-full p-3 rounded-2xl border-2 flex items-center justify-center gap-2.5 font-bold text-xs transition cursor-pointer shadow-sm ${
+                isListening
+                  ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
+                  : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-300 text-amber-900 hover:bg-amber-100'
+              }`}
+            >
+              {isListening ? (
+                <>
+                  <MicOff className="w-4 h-4 animate-bounce" />
+                  <span>Escuchando... Di lo que necesitas o quieres ofrecer</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="w-4 h-4 text-amber-600" />
+                  <span>🎙️ Dictar por Voz (Accesible para Adultos Mayores)</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Modal Body */}
         <div className="p-5">
-          {/* STEP 1: CHOOSE TYPE (CLICK 1) */}
+          {/* STEP 1: CHOOSE TYPE */}
           {step === 1 && (
             <div className="space-y-3">
               <p className="text-xs font-semibold text-slate-600 mb-2">
-                Selecciona la opción que mejor describa lo que deseas:
+                O toca una de las siguientes opciones:
               </p>
 
-              {/* Option 1: Oficio Local */}
               <button
                 onClick={() => handleSelectType('service')}
                 className="w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 transition flex items-center justify-between group cursor-pointer"
@@ -199,7 +284,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-amber-500 transition shrink-0 ml-2" />
               </button>
 
-              {/* Option 2: Prestar / Donar (Sin Dinero) */}
               <button
                 onClick={() => handleSelectType('favor_offer')}
                 className="w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition flex items-center justify-between group cursor-pointer"
@@ -220,7 +304,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-500 transition shrink-0 ml-2" />
               </button>
 
-              {/* Option 3: Necesito Ayuda sin dinero */}
               <button
                 onClick={() => handleSelectType('favor_request')}
                 className="w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 transition flex items-center justify-between group cursor-pointer"
@@ -241,7 +324,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-teal-500 transition shrink-0 ml-2" />
               </button>
 
-              {/* Option 4: Emergencia SOS */}
               <button
                 onClick={() => handleSelectType('emergency_need')}
                 className="w-full text-left p-4 rounded-2xl border-2 border-rose-300 bg-rose-50/40 hover:border-rose-500 hover:bg-rose-100/50 transition flex items-center justify-between group cursor-pointer"
@@ -264,7 +346,7 @@ export const ThreeClickPublishModal: React.FC = () => {
             </div>
           )}
 
-          {/* STEP 2: CHOOSE CATEGORY (CLICK 2) */}
+          {/* STEP 2: CHOOSE CATEGORY */}
           {step === 2 && (
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -298,7 +380,7 @@ export const ThreeClickPublishModal: React.FC = () => {
             </div>
           )}
 
-          {/* STEP 3: CONFIRM & PUBLISH (CLICK 3) */}
+          {/* STEP 3: CONFIRM & PUBLISH */}
           {step === 3 && (
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div className="flex items-center justify-between pb-1">
@@ -314,7 +396,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 </button>
               </div>
 
-              {/* Quick Title */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Título de la publicación *
@@ -329,7 +410,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 />
               </div>
 
-              {/* Author & WhatsApp */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -359,7 +439,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Neighborhood / Location */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Ubicación de referencia en el barrio
@@ -373,7 +452,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 />
               </div>
 
-              {/* Optional brief details */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Detalles adicionales (opcional)
@@ -387,7 +465,6 @@ export const ThreeClickPublishModal: React.FC = () => {
                 />
               </div>
 
-              {/* Final Confirm Button (3rd Click) */}
               <button
                 type="submit"
                 className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-sm shadow-lg transition active:scale-98 cursor-pointer flex items-center justify-center gap-2 mt-4"
