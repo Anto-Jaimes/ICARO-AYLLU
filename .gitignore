@@ -31,3 +31,7 @@ agentes/
 
 # APK compilados: se generan con npm run apk
 *.apk
+
+# Enlace local con Vercel
+.vercel
+.env*

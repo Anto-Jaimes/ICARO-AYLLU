@@ -1,5 +1,5 @@
 import React from 'react';
-import { Boxes, HandHeart, Home, Map, Siren, Store, UsersRound, type LucideIcon } from 'lucide-react';
+import { Boxes, HandHeart, Home, Map, Plus, Siren, Store, UsersRound, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { tapFeedback } from '../lib/native';
 
@@ -26,7 +26,7 @@ const EMERGENCY_ITEMS: NavItem[] = [
 const CELL = 'flex-1 min-w-0 flex flex-col items-center justify-center gap-1 h-[72px] text-meta lg:flex-none lg:flex-row lg:justify-start lg:gap-3 lg:h-14 lg:px-4 lg:text-secondary lg:w-full';
 
 export const BottomNav: React.FC = () => {
-  const { mode, tab, setTab, setIsSosOpen, isAlertsOpen, isNewsOpen } = useApp();
+  const { mode, tab, setTab, setIsSosOpen, isAlertsOpen, isNewsOpen, openPublish } = useApp();
   const isEmergency = mode === 'emergency';
   const items = isEmergency ? EMERGENCY_ITEMS : NORMAL_ITEMS;
 
@@ -42,6 +42,17 @@ export const BottomNav: React.FC = () => {
         <img src="/logo.png" alt="" className="w-9 h-9" />
         AYLLU
       </p>
+
+      <button
+        type="button"
+        onClick={() => openPublish()}
+        className={`hidden lg:flex items-center justify-center gap-2 min-h-14 mb-3 rounded-lg font-bold text-row ${
+          isEmergency ? 'bg-white text-rojo' : 'bg-anil active:bg-anil-press text-white'
+        }`}
+      >
+        <Plus className="w-6 h-6" aria-hidden="true" />
+        {isEmergency ? 'Reportar' : 'Publicar'}
+      </button>
 
       {items.map(({ tab: target, label, icon: Icon }) => {
         const isActive = tab === target && !isAlertsOpen && !isNewsOpen;

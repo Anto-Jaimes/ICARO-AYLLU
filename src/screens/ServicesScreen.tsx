@@ -44,7 +44,8 @@ export const ServicesScreen: React.FC = () => {
     <div className="app-nav-offset">
       <TopBar title="Servicios" />
 
-      <div className="px-4 pt-3 relative">
+      <div className="page">
+      <div className="px-4 pt-3 relative lg:max-w-xl">
         <label htmlFor="services-search" className="sr-only">Buscar un servicio</label>
         <Search className="absolute left-8 top-[30px] w-5 h-5 text-ink-2" aria-hidden="true" />
         <input
@@ -97,12 +98,14 @@ export const ServicesScreen: React.FC = () => {
           />
         )
       ) : (
-        <ul className="list pt-2">
+        <ul className="list grid-wide pt-2">
           {services.map((item) => (
             <li key={item.id}><PostRow item={item} /></li>
           ))}
         </ul>
       )}
+
+      </div>
 
       <BottomSheet open={isDistanceOpen} onClose={() => setIsDistanceOpen(false)} title="¿Qué tan lejos?">
         <ul className="list-plain pb-4">

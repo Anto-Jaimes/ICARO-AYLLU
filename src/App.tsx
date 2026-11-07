@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { AppProvider, useApp } from './context/AppContext';
 import { HazardProvider, SafetyTone, useHazards } from './context/HazardContext';
@@ -17,9 +17,11 @@ import { AlertsScreen } from './screens/AlertsScreen';
 import { EmergencyScreen } from './screens/EmergencyScreen';
 import { FavorsScreen } from './screens/FavorsScreen';
 import { HomeScreen } from './screens/HomeScreen';
-import { MapScreen } from './screens/MapScreen';
 import { NewsScreen } from './screens/NewsScreen';
 import { ServicesScreen } from './screens/ServicesScreen';
+
+// The map library is heavy: it loads only when someone opens the map.
+const MapScreen = lazy(() => import('./screens/MapScreen'));
 
 const DARK_TONES: SafetyTone[] = ['safe', 'rojo', 'unknown', 'offline'];
 
@@ -34,7 +36,7 @@ const OfflineStrip: React.FC = () => {
     <p
       role="status"
       className="fixed z-20 inset-x-0 flex items-center min-h-12 px-4 bg-offline text-white text-secondary lg:left-60"
-      style={{ bottom: 'calc(var(--nav-height) + var(--safe-bottom))' }}
+      style={{ bottom: 'var(--content-bottom)' }}
     >
       {['Sin internet', pending].filter(Boolean).join('. ')}
     </p>
@@ -49,7 +51,7 @@ const PublishButton: React.FC = () => {
     <button
       type="button"
       onClick={() => openPublish()}
-      className={`fixed z-20 right-4 lg:right-[calc((100vw-960px)/2+16px)] inline-flex items-center gap-2 min-h-14 pl-4 pr-5 rounded-lg font-bold text-row shadow-[0_4px_16px_#12182647] ${
+      className={`fixed z-20 right-4 lg:hidden inline-flex items-center gap-2 min-h-14 pl-4 pr-5 rounded-lg font-bold text-row shadow-[0_4px_16px_#12182647] ${
         isEmergency ? 'bg-rojo active:bg-rojo-press text-white' : 'bg-anil active:bg-anil-press text-white'
       }`}
       style={{ bottom: `calc(var(--nav-height) + var(--safe-bottom) + ${isOnline ? 16 : 64}px)` }}
@@ -89,7 +91,13 @@ const Shell: React.FC = () => {
   const screen = (() => {
     if (isAlertsOpen) return <AlertsScreen />;
     if (isNewsOpen) return <NewsScreen />;
-    if (tab === 'map') return <MapScreen />;
+    if (tab === 'map') {
+      return (
+        <Suspense fallback={<p className="p-4 text-secondary text-ink-2">Abriendo el mapa...</p>}>
+          <MapScreen />
+        </Suspense>
+      );
+    }
     if (isEmergency) return <EmergencyScreen />;
     if (tab === 'services') return <ServicesScreen />;
     if (tab === 'favors') return <FavorsScreen />;
@@ -100,7 +108,7 @@ const Shell: React.FC = () => {
     <div data-mode={mode}>
       <main className="lg:ml-60">
         {isEmergency && !isAlertsOpen && !isNewsOpen && <EmergencyBar onExit={() => setIsExitOpen(true)} />}
-        <div className="lg:max-w-[720px] lg:mx-auto">{screen}</div>
+        {screen}
       </main>
 
       {tab !== 'map' && !isAlertsOpen && !isNewsOpen && <PublishButton />}

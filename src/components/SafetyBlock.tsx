@@ -42,7 +42,7 @@ export const SafetyBlock: React.FC = () => {
       className={`relative ${tone.field}`}
       style={{ paddingTop: 'var(--safe-top)' }}
     >
-      <div className="flex items-center h-14 pl-2 pr-1">
+      <div className="page flex items-center h-14 pl-2 pr-1">
         <button
           type="button"
           onClick={() => setIsAlertsOpen(true)}
@@ -55,9 +55,10 @@ export const SafetyBlock: React.FC = () => {
       </div>
 
       <div
-        className="px-4 pb-11"
+        className="page px-4 pb-11 lg:flex lg:items-end lg:justify-between lg:gap-8 lg:pb-14"
         role={verdict.tone === 'rojo' ? 'alert' : 'status'}
       >
+        <div className="min-w-0">
         {levelName ? (
           <p className="flex items-center gap-2 text-row font-bold">
             <LevelGlyph level={verdict.tone as 'amarillo' | 'naranja' | 'rojo'} />
@@ -67,15 +68,16 @@ export const SafetyBlock: React.FC = () => {
           <Icon className="w-8 h-8" aria-hidden="true" />
         )}
 
-        <h1 id="verdict-title" className="mt-1 text-sign font-bold">
+        <h1 id="verdict-title" className="mt-1 text-sign font-bold lg:text-[2.5rem] lg:leading-[3rem]">
           {verdict.title}
         </h1>
         <p className="mt-1 text-secondary">{verdict.line}</p>
+        </div>
 
         <button
           type="button"
           onClick={() => (verdict.action === 'locate' ? requestCurrentGPS() : setIsAlertsOpen(true))}
-          className={`mt-1 min-h-12 text-secondary font-bold underline underline-offset-4 ${tone.link}`}
+          className={`mt-1 min-h-12 shrink-0 text-secondary font-bold underline underline-offset-4 lg:mt-0 lg:px-5 lg:no-underline lg:rounded-lg lg:border-2 lg:border-current ${tone.link}`}
         >
           {verdict.actionLabel}
         </button>

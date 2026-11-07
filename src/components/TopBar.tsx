@@ -19,7 +19,7 @@ export const HelpButton: React.FC<{ className?: string }> = ({ className = '' })
 
 export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => (
   <header className="sticky top-0 z-20 bg-surface border-b border-line" style={{ paddingTop: 'var(--safe-top)' }}>
-    <div className="flex items-center h-14 pl-4 pr-1 gap-1">
+    <div className="page flex items-center h-14 pl-4 pr-1 gap-1">
       {onBack && (
         <button type="button" onClick={onBack} aria-label="Volver" className="icon-btn -ml-3">
           <ArrowLeft className="w-6 h-6" aria-hidden="true" />
@@ -34,7 +34,7 @@ export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => (
 /** The red frame of emergency mode: always says where you are and how to leave. */
 export const EmergencyBar: React.FC<{ onExit: () => void }> = ({ onExit }) => (
   <header className="sticky top-0 z-20 bg-rojo text-white" style={{ paddingTop: 'var(--safe-top)' }}>
-    <div className="flex items-center h-14 pl-4 pr-2 gap-2">
+    <div className="page flex items-center h-14 pl-4 pr-2 gap-2">
       <h1 className="flex-1 min-w-0 truncate text-title font-bold">Modo emergencia</h1>
       <button
         type="button"

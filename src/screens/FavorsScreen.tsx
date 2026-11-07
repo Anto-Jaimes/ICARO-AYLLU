@@ -28,9 +28,10 @@ export const FavorsScreen: React.FC = () => {
   return (
     <div className="app-nav-offset">
       <TopBar title="Favores" />
+      <div className="page">
       <p className="px-4 pt-3 text-secondary text-ink-2">Vecinos que se ayudan sin dinero.</p>
 
-      <div className="px-4 pt-3" role="group" aria-label="Qué quieres ver">
+      <div className="px-4 pt-3 lg:max-w-md" role="group" aria-label="Qué quieres ver">
         <div className="grid grid-cols-2 gap-1 p-1 rounded-lg bg-sunken">
           {SIDES.map((option) => (
             <button
@@ -74,12 +75,13 @@ export const FavorsScreen: React.FC = () => {
           />
         )
       ) : (
-        <ul className="list pt-2">
+        <ul className="list grid-wide pt-2">
           {favors.map((item) => (
             <li key={item.id}><PostRow item={item} showRecommendations={false} /></li>
           ))}
         </ul>
       )}
+      </div>
     </div>
   );
 };

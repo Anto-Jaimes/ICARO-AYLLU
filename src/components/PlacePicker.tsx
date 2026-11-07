@@ -30,7 +30,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
   const required = !anyLabel;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-2">
       <div>
         <label htmlFor={`${idPrefix}-department`} className="block pb-1 text-secondary font-bold">Departamento</label>
         <select
@@ -47,7 +47,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
         </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 lg:col-span-2">
         <div className="min-w-0">
           <label htmlFor={`${idPrefix}-province`} className="block pb-1 text-secondary font-bold">Provincia</label>
           <select

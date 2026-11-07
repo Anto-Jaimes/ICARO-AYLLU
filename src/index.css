@@ -49,6 +49,7 @@
   --row-min: 80px;
   --top-bar: 0px;
   --map-top-inset: var(--safe-top);
+  --content-bottom: calc(var(--nav-height) + var(--safe-bottom));
 }
 
 /* Emergency: red frame, pure white page for sunlight, black text, bigger targets. */
@@ -264,6 +265,59 @@
     line-height: var(--text-body--line-height);
   }
 
+  .camera {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+  }
+
+  .camera[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .camera-shutter {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .camera-shutter::after {
+    content: '';
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #fff;
+    transition: width 150ms, height 150ms, border-radius 150ms;
+  }
+
+  .camera-shutter[data-mode='video']::after {
+    background: var(--color-rojo);
+  }
+
+  .camera-shutter[data-recording]::after {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+  }
+
+  .camera-shutter:disabled {
+    opacity: 0.4;
+  }
+
   .sheet {
     position: fixed;
     inset: auto 0 0 0;
@@ -310,7 +364,46 @@
     padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 88px);
   }
 
-  .leaflet-container {
+  .page {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+  }
+
+  .map-screen {
+    height: calc(100dvh - var(--content-bottom) - var(--top-bar));
+  }
+
+  /* 44px around a smaller dot: easy to hit without covering the map. */
+  .map-pin {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .map-pin::before {
+    content: '';
+    width: 26px;
+    height: 26px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background: var(--pin-color);
+    box-shadow: 0 1px 4px #12182680;
+  }
+
+  .map-me {
+    width: 22px;
+    height: 22px;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    background: #121826;
+    box-shadow: 0 0 0 2px #121826;
+  }
+
+  .maplibregl-map {
     font-family: var(--font-sans);
   }
 }
@@ -346,6 +439,41 @@
 }
 
 @media (min-width: 1024px) {
+  :root {
+    --content-bottom: 0px;
+  }
+
+  .page {
+    padding-inline: 16px;
+  }
+
+  .chip-row {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  /* Rows use the width: two columns, each with its own divider. */
+  .grid-wide {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 32px;
+  }
+
+  .grid-wide > li,
+  .grid-wide > li + li {
+    margin-left: 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .grid-wide > li + li > * {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .grid-wide > li:nth-child(-n + 2) {
+    border-top: 0;
+  }
+
   .sheet {
     inset: 0;
     width: 560px;
@@ -355,7 +483,7 @@
   }
 
   .app-nav-offset {
-    padding-bottom: 96px;
+    padding-bottom: 48px;
   }
 }
 

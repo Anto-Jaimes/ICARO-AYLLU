@@ -23,7 +23,7 @@ export async function reverseGeocode(lat: number, lon: number): Promise<string> 
   }
 
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=es`;
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',

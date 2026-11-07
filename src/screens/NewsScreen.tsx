@@ -100,6 +100,7 @@ export const NewsScreen: React.FC = () => {
     <div className="app-nav-offset">
       <TopBar title="Noticias" onBack={close} />
 
+      <div className="page">
       <div className="px-4 pt-3">
         <PlacePicker idPrefix="news-place" anyLabel="Todos" value={place} onChange={setPlace} />
       </div>
@@ -116,12 +117,13 @@ export const NewsScreen: React.FC = () => {
           />
         )
       ) : (
-        <ul className="list-plain pt-2">
+        <ul className="list-plain grid-wide pt-2">
           {reports.map((report) => (
             <li key={report.id}><ReportItem report={report} onChanged={reload} /></li>
           ))}
         </ul>
       )}
+      </div>
     </div>
   );
 };

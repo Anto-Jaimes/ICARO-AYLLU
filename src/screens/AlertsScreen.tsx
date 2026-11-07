@@ -3,12 +3,12 @@ import { CircleHelp, ShieldAlert } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { PERU_DEPARTMENTS } from '../data/departments';
+import { ForecastStrip } from '../components/ForecastStrip';
 import { LevelTag } from '../components/LevelTag';
 import { TopBar } from '../components/TopBar';
 import { useBackHandler } from '../hooks/useBackHandler';
+import { useForecast } from '../hooks/useForecast';
 import {
-  DayForecast,
-  fetchForecast,
   HazardFeed,
   HazardZone,
   isSenamhiFresh,
@@ -18,7 +18,6 @@ import {
 import { formatDayRange, formatRelativeTime } from '../utils/time';
 
 const LEVEL_NAMES: Record<number, NoticeLevel> = { 2: 'amarillo', 3: 'naranja', 4: 'rojo' };
-const DAY_NAMES = ['Hoy', 'Mañana', 'Pasado'];
 const ZONE_TITLES: Record<HazardZone['kind'], string> = {
   huaico: 'Riesgo de huaico',
   lluvia_intensa: 'Lluvia intensa'
@@ -31,31 +30,12 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
   </section>
 );
 
-const Forecast: React.FC<{ days: DayForecast[] | null }> = ({ days }) => {
-  if (days === null) return <p className="px-4 text-secondary text-ink-2">Consultando el pronóstico...</p>;
-  if (days.length === 0) return <p className="px-4 text-secondary text-ink-2">Pronóstico no disponible.</p>;
-
-  return (
-    <ul className="grid grid-cols-3 divide-x divide-line">
-      {days.map((day, index) => (
-        <li key={day.date} className="px-3 text-center">
-          <p className="text-secondary font-bold">{DAY_NAMES[index]}</p>
-          <p className="text-section font-bold">{day.tempMax}°</p>
-          <p className="text-meta text-ink-2">{day.condition}</p>
-          <p className="text-meta text-ink-2">Lluvia {day.rainProbability ?? 0}%</p>
-        </li>
-      ))}
-    </ul>
-  );
-};
-
 export const AlertsScreen: React.FC = () => {
   const { setIsAlertsOpen, hasLocation, userLocation } = useApp();
   const { feed: ownFeed, savedAt: ownSavedAt } = useHazards();
   // null follows the neighbour; an id is a department they chose to look at.
   const [departmentId, setDepartmentId] = useState<string | null>(null);
   const [otherFeed, setOtherFeed] = useState<HazardFeed | null>(null);
-  const [forecast, setForecast] = useState<DayForecast[] | null>(null);
   const latestLoad = useRef(0);
 
   const close = () => setIsAlertsOpen(false);
@@ -77,23 +57,7 @@ export const AlertsScreen: React.FC = () => {
   const forecastLat = departmentId || !hasLocation ? feed?.department?.lat : userLocation.lat;
   const forecastLng = departmentId || !hasLocation ? feed?.department?.lng : userLocation.lng;
 
-  useEffect(() => {
-    if (forecastLat === undefined || forecastLng === undefined) return;
-
-    let isCurrent = true;
-    setForecast(null);
-    fetchForecast(forecastLat, forecastLng)
-      .then((days) => {
-        if (isCurrent) setForecast(days);
-      })
-      .catch((err) => {
-        console.warn('Pronóstico no disponible:', err);
-        if (isCurrent) setForecast([]);
-      });
-    return () => {
-      isCurrent = false;
-    };
-  }, [forecastLat, forecastLng]);
+  const forecast = useForecast(forecastLat, forecastLng);
 
   const departmentName = feed?.department?.name ?? 'el Perú';
   const isFresh = feed ? isSenamhiFresh(feed) : false;
@@ -103,7 +67,8 @@ export const AlertsScreen: React.FC = () => {
     <div className="app-nav-offset">
       <TopBar title="Alertas" onBack={close} />
 
-      <div className="px-4 pt-3">
+      <div className="page">
+      <div className="px-4 pt-3 lg:max-w-sm">
         <label htmlFor="alerts-department" className="block pb-1 text-secondary font-bold">Departamento</label>
         <select
           id="alerts-department"
@@ -129,7 +94,7 @@ export const AlertsScreen: React.FC = () => {
           {departmentId ? 'Consultando alertas...' : 'Conéctate a internet para ver las alertas.'}
         </p>
       ) : (
-        <>
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
           {feed.zones_here.length > 0 && (
             <Section title="Qué hacer">
               <ul className="list-plain">
@@ -220,14 +185,15 @@ export const AlertsScreen: React.FC = () => {
           </Section>
 
           <Section title="Pronóstico">
-            <Forecast days={forecast} />
+            <ForecastStrip days={forecast} />
           </Section>
 
-          <p className="px-4 pt-6 text-meta text-ink-2">
+          <p className="px-4 pt-6 text-meta text-ink-2 lg:col-span-2">
             Fuentes oficiales: IGP y SENAMHI. Pronóstico: Open-Meteo.
           </p>
-        </>
+        </div>
       )}
+      </div>
     </div>
   );
 };

@@ -70,7 +70,7 @@ export const EmergencyScreen: React.FC = () => {
   }, [items, view.type, hasLocation]);
 
   return (
-    <div className="app-nav-offset">
+    <div className="app-nav-offset page">
       <p className="px-4 pt-3 text-secondary font-bold">{verdict.title}</p>
       <h2 className="px-4 pt-3 pb-1 text-section font-bold">{view.heading}</h2>
 
@@ -81,7 +81,7 @@ export const EmergencyScreen: React.FC = () => {
           <EmptyState icon={view.icon} title={view.empty} line="Toca Reportar si necesitas ayuda o puedes darla." />
         )
       ) : (
-        <ul className="list-plain">
+        <ul className="list-plain grid-wide">
           {posts.map((item) => (
             <li key={item.id}><EmergencyRow item={item} /></li>
           ))}

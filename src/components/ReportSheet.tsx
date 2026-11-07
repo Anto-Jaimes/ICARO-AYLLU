@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Camera, Check, Trash2 } from 'lucide-react';
+import { Camera, Check, ImagePlus, Trash2, Video } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { departmentName, districtCoordinates, loadUbigeo, nearestPlace } from '../data/ubigeo';
 import { inspectMedia, MediaOutcome, validateFile } from '../services/mediaCheck';
 import { REPORT_KINDS, ReportKind, submitReport } from '../services/reportsService';
 import { loadContact, saveContact } from '../utils/storage';
 import { BottomSheet } from './BottomSheet';
+import { CameraCapture, CameraMode, canRecordVideo, canUseCamera } from './CameraCapture';
 import { EMPTY_PLACE, PlacePicker, PlaceValue } from './PlacePicker';
 
 const MAX_DESCRIPTION = 500;
+const MEDIA_OPTION = 'flex-1 basis-0 flex flex-col items-center gap-1 min-h-20 px-2 py-3 rounded-lg bg-sunken text-secondary font-bold text-anil text-center cursor-pointer active:bg-line';
 
 export const ReportSheet: React.FC = () => {
   const { reportKind, closeReport, isOnline, hasLocation, userLocation, showNotice, refreshReports } = useApp();
@@ -23,6 +25,7 @@ export const ReportSheet: React.FC = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  const [cameraMode, setCameraMode] = useState<CameraMode | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const clearMedia = () => {
@@ -40,6 +43,7 @@ export const ReportSheet: React.FC = () => {
     setKind(reportKind);
     setDescription('');
     setProblem(null);
+    setCameraMode(null);
     clearMedia();
     setPlace(EMPTY_PLACE);
     if (hasLocation) {
@@ -50,10 +54,7 @@ export const ReportSheet: React.FC = () => {
     }
   }, [isOpen, reportKind]);
 
-  const pickFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = event.target.files?.[0];
-    if (!picked) return;
-
+  const acceptFile = async (picked: File) => {
     clearMedia();
     setProblem(null);
 
@@ -75,6 +76,16 @@ export const ReportSheet: React.FC = () => {
     setFile(picked);
     setPreviewUrl(URL.createObjectURL(picked));
     setMediaOutcome(result.outcome);
+  };
+
+  const pickFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = event.target.files?.[0];
+    if (picked) acceptFile(picked);
+  };
+
+  const receiveCapture = (captured: File) => {
+    setCameraMode(null);
+    acceptFile(captured);
   };
 
   const send = async (event: React.FormEvent) => {
@@ -124,101 +135,120 @@ export const ReportSheet: React.FC = () => {
   const isVideo = file?.type.startsWith('video/');
 
   return (
-    <BottomSheet
-      open={isOpen}
-      onClose={closeReport}
-      title="Avisar a tus vecinos"
-      footer={
-        <button
-          type="submit"
-          form="report-form"
-          disabled={!isOnline || isChecking || isSending}
-          className="btn btn-primary disabled:opacity-50"
-        >
-          {isSending ? 'Enviando...' : 'Publicar noticia'}
-        </button>
-      }
-    >
-      <form id="report-form" onSubmit={send} className="pb-4 space-y-4">
-        {!isOnline && (
-          <p role="status" className="mx-4 p-3 rounded-lg bg-offline text-white text-secondary">
-            Necesitas internet para enviar una noticia. Si es urgente, toca SOS.
-          </p>
-        )}
-
-        <fieldset className="border-0 p-0 m-0">
-          <legend className="px-4 pb-1 text-secondary font-bold">¿Qué pasó?</legend>
-          <div className="chip-row">
-            {REPORT_KINDS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                className="chip"
-                aria-pressed={kind === option.id}
-                onClick={() => setKind(option.id)}
-              >
-                {kind === option.id && <Check className="w-4 h-4" aria-hidden="true" />}
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        <div className="px-4">
-          <input
-            ref={inputRef}
-            id="report-file"
-            type="file"
-            accept="image/*,video/*"
-            onChange={pickFile}
-            className="sr-only"
-          />
-
-          {previewUrl ? (
-            <div>
-              {isVideo ? (
-                <video src={previewUrl} controls playsInline className="w-full max-h-56 rounded-lg bg-black" />
-              ) : (
-                <img src={previewUrl} alt="Vista previa" className="w-full max-h-56 object-cover rounded-lg" />
-              )}
-              <button type="button" onClick={clearMedia} className="mt-1 min-h-12 flex items-center gap-2 text-secondary font-bold text-anil">
-                <Trash2 className="w-5 h-5" aria-hidden="true" />
-                Quitar
-              </button>
-            </div>
-          ) : (
-            <label
-              htmlFor="report-file"
-              className="flex items-center justify-center gap-2 min-h-14 rounded-lg bg-sunken text-row font-bold text-anil cursor-pointer active:bg-line"
-            >
-              <Camera className="w-6 h-6" aria-hidden="true" />
-              {isChecking ? 'Revisando el archivo...' : 'Agregar foto o video'}
-            </label>
+    <>
+      <BottomSheet
+        open={isOpen}
+        onClose={closeReport}
+        title="Avisar a tus vecinos"
+        footer={
+          <button
+            type="submit"
+            form="report-form"
+            disabled={!isOnline || isChecking || isSending}
+            className="btn btn-primary disabled:opacity-50"
+          >
+            {isSending ? 'Enviando...' : 'Publicar noticia'}
+          </button>
+        }
+      >
+        <form id="report-form" onSubmit={send} className="pb-4 space-y-4">
+          {!isOnline && (
+            <p role="status" className="mx-4 p-3 rounded-lg bg-offline text-white text-secondary">
+              Necesitas internet para enviar una noticia. Si es urgente, toca SOS.
+            </p>
           )}
-          <p className="pt-1 text-meta text-ink-2">Opcional. Video de hasta 1 minuto.</p>
-        </div>
 
-        <div className="px-4">
-          <label htmlFor="report-description" className="block pb-1 text-secondary font-bold">Cuéntalo en pocas palabras</label>
-          <textarea
-            id="report-description"
-            required
-            rows={3}
-            maxLength={MAX_DESCRIPTION}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            className="field"
-          />
-        </div>
+          <fieldset className="border-0 p-0 m-0">
+            <legend className="px-4 pb-1 text-secondary font-bold">¿Qué pasó?</legend>
+            <div className="chip-row">
+              {REPORT_KINDS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className="chip"
+                  aria-pressed={kind === option.id}
+                  onClick={() => setKind(option.id)}
+                >
+                  {kind === option.id && <Check className="w-4 h-4" aria-hidden="true" />}
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
 
-        <div className="px-4">
-          <PlacePicker idPrefix="report-place" value={place} onChange={setPlace} />
-        </div>
+          <div className="px-4">
+            <p className="pb-1 text-secondary font-bold">Agregar foto o video</p>
+            <input
+              ref={inputRef}
+              id="report-file"
+              type="file"
+              accept="image/*,video/*"
+              onChange={pickFile}
+              className="sr-only"
+            />
 
-        {problem && (
-          <p role="alert" className="mx-4 p-3 rounded-lg bg-sunken text-secondary font-bold">{problem}</p>
-        )}
-      </form>
-    </BottomSheet>
+            {previewUrl ? (
+              <div>
+                {isVideo ? (
+                  <video src={previewUrl} controls playsInline className="w-full max-h-56 rounded-lg bg-black" />
+                ) : (
+                  <img src={previewUrl} alt="Vista previa" className="w-full max-h-56 object-cover rounded-lg" />
+                )}
+                <button type="button" onClick={clearMedia} className="mt-1 min-h-12 flex items-center gap-2 text-secondary font-bold text-anil">
+                  <Trash2 className="w-5 h-5" aria-hidden="true" />
+                  Quitar
+                </button>
+              </div>
+            ) : isChecking ? (
+              <p role="status" className="grid place-items-center min-h-20 rounded-lg bg-sunken text-row font-bold text-anil">
+                Revisando el archivo...
+              </p>
+            ) : (
+              <div className="flex gap-2">
+                {canUseCamera() && (
+                  <button type="button" onClick={() => setCameraMode('photo')} className={MEDIA_OPTION}>
+                    <Camera className="w-6 h-6" aria-hidden="true" />
+                    Tomar foto
+                  </button>
+                )}
+                {canRecordVideo() && (
+                  <button type="button" onClick={() => setCameraMode('video')} className={MEDIA_OPTION}>
+                    <Video className="w-6 h-6" aria-hidden="true" />
+                    Grabar video
+                  </button>
+                )}
+                <label htmlFor="report-file" className={MEDIA_OPTION}>
+                  <ImagePlus className="w-6 h-6" aria-hidden="true" />
+                  Elegir archivo
+                </label>
+              </div>
+            )}
+            <p className="pt-1 text-meta text-ink-2">Opcional. Video de hasta 1 minuto.</p>
+          </div>
+
+          <div className="px-4">
+            <label htmlFor="report-description" className="block pb-1 text-secondary font-bold">Cuéntalo en pocas palabras</label>
+            <textarea
+              id="report-description"
+              required
+              rows={3}
+              maxLength={MAX_DESCRIPTION}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              className="field"
+            />
+          </div>
+
+          <div className="px-4">
+            <PlacePicker idPrefix="report-place" value={place} onChange={setPlace} />
+          </div>
+
+          {problem && (
+            <p role="alert" className="mx-4 p-3 rounded-lg bg-sunken text-secondary font-bold">{problem}</p>
+          )}
+        </form>
+      </BottomSheet>
+      {cameraMode && <CameraCapture mode={cameraMode} onCapture={receiveCapture} onClose={() => setCameraMode(null)} />}
+    </>
   );
 };
