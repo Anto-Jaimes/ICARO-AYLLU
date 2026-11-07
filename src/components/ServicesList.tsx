@@ -11,7 +11,9 @@ import {
   Plus, 
   Sparkles,
   ShieldCheck,
-  Clock
+  Footprints,
+  Clock,
+  Award
 } from 'lucide-react';
 import { formatDistance, buildWhatsAppLink } from '../utils/geo';
 
@@ -26,38 +28,38 @@ export const ServicesList: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Module 1 Header & Intro Banner */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 border border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-600/15 border border-amber-300/80 p-5 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm backdrop-blur-sm">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-amber-500 text-white rounded-lg shadow-sm">
-              <CheckCircle2 className="w-4 h-4" />
+            <span className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl shadow-md">
+              <ShieldCheck className="w-5 h-5" />
             </span>
-            <h2 className="font-extrabold text-slate-800 text-base sm:text-lg">
-              Servicios de Proximidad & Oficios Locales
+            <h2 className="font-black text-slate-900 text-base sm:text-xl tracking-tight">
+              Directorio de Proximidad & Oficios con "Visto Bueno"
             </h2>
           </div>
-          <p className="text-xs text-slate-600 mt-1 max-w-xl">
-            Conecta con oficios de tu propio barrio (gasfitería, electricidad, cerrajería, carpintería, etc.) validados con el 
-            <strong className="text-amber-800"> "Visto Bueno Vecinal"</strong> de vecinos de tu misma zona, ahorrando tiempo y costos de transporte.
+          <p className="text-xs text-slate-600 mt-1.5 max-w-xl leading-relaxed">
+            Oficios locales verificados por vecinos del cuadrante (gasfitería, cerrajería, electricidad, clases).
+            <strong className="text-amber-800"> Menos de 15 minutos a pie y S/. 0 en costos de transporte.</strong>
           </p>
         </div>
 
         <button
           onClick={() => setIsPublishModalOpen(true)}
-          className="self-stretch sm:self-auto flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition cursor-pointer shrink-0"
+          className="self-stretch sm:self-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-black text-white text-xs font-bold shadow-md transition cursor-pointer shrink-0 active:scale-95"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 text-amber-400" />
           <span>Promover mi oficio</span>
         </button>
       </div>
 
       {/* List of Services */}
       {filteredItems.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-6">
+        <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-slate-300 p-6">
           <p className="text-4xl mb-2">🔍</p>
-          <h3 className="font-bold text-slate-700 text-base">No se encontraron oficios en este radio de distancia</h3>
+          <h3 className="font-bold text-slate-700 text-base">No se encontraron oficios en este radio</h3>
           <p className="text-xs text-slate-500 mt-1 mb-4">
-            Prueba aumentando el radio de distancia o buscando con otros términos.
+            Prueba ampliando el filtro de distancia o buscando con otros términos.
           </p>
           <button
             onClick={() => setIsPublishModalOpen(true)}
@@ -94,101 +96,111 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ item, onVistoBueno, onOpenDet
     `Hola ${item.authorName}, vi tu servicio "${item.title}" en la app vecinal ICARO-AYLLU y me gustaría coordinar un servicio en mi zona.`
   );
 
+  // Estimación de tiempo a pie (80m por minuto aprox)
+  const walkingMinutes = Math.max(1, Math.round((item.distanceMeters || 120) / 80));
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 hover:border-amber-300 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group">
+    <article className="bg-white rounded-3xl border border-slate-200/90 hover:border-amber-400/80 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden group">
       {/* Top Card Bar */}
-      <div className="p-4 sm:p-5 pb-3">
-        <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="p-5 pb-3">
+        <div className="flex items-start justify-between gap-2 mb-2.5">
           {/* Category Tag */}
-          <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200/80 shadow-xs">
             {item.category}
           </span>
 
-          {/* Visto Bueno Badge */}
+          {/* Visto Bueno Badge con Algoritmo */}
           <button
             onClick={onVistoBueno}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold transition cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition cursor-pointer active:scale-95 shadow-sm ${
               item.hasUserVoted
-                ? 'bg-emerald-500 text-white shadow-sm ring-2 ring-emerald-300'
-                : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+                ? 'bg-emerald-600 text-white ring-2 ring-emerald-300 shadow-emerald-500/20'
+                : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
             }`}
-            title="Dar tu Visto Bueno Vecinal (Recomendación vecinal)"
+            title="Dar tu Visto Bueno Vecinal verificado"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{item.vistosBuenos} Vistos Buenos</span>
-            <ThumbsUp className={`w-3 h-3 ${item.hasUserVoted ? 'fill-current' : ''}`} />
+            <Award className="w-3.5 h-3.5 text-amber-400" />
+            <span>{item.vistosBuenos} Visto Bueno</span>
+            <ThumbsUp className={`w-3.5 h-3.5 ${item.hasUserVoted ? 'fill-current' : ''}`} />
           </button>
         </div>
 
         {/* Title */}
         <h3 
           onClick={onOpenDetail}
-          className="font-bold text-slate-900 text-base group-hover:text-amber-600 transition cursor-pointer leading-snug"
+          className="font-extrabold text-slate-900 text-base group-hover:text-amber-600 transition cursor-pointer leading-snug"
         >
           {item.title}
         </h3>
 
         {/* Description */}
-        <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-slate-600 mt-2 line-clamp-2 leading-relaxed font-normal">
           {item.description}
         </p>
 
-        {/* Pricing / Tariff reference */}
-        {item.priceInfo && (
-          <div className="mt-2.5 flex items-center gap-1 text-xs font-semibold text-slate-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
-            <span className="text-amber-600">💵</span>
-            <span>{item.priceInfo}</span>
+        {/* Proximidad & Tiempo a pie */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+          <div className="flex items-center gap-1 text-slate-700 font-semibold bg-slate-100/90 px-2.5 py-1 rounded-xl">
+            <Footprints className="w-3.5 h-3.5 text-amber-600" />
+            <span>{walkingMinutes} min caminando ({formatDistance(item.distanceMeters || 120)})</span>
           </div>
-        )}
 
-        {/* Recent neighbor testimonial snippet if any */}
+          {item.priceInfo && (
+            <div className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200">
+              <span>💵 {item.priceInfo}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Testimonio vecinal */}
         {item.reviews && item.reviews.length > 0 && (
-          <div className="mt-3 p-2 bg-emerald-50/60 rounded-xl border border-emerald-100 text-[11px] text-emerald-900">
-            <p className="italic line-clamp-1">
+          <div className="mt-3.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-[11px] text-slate-700">
+            <p className="italic line-clamp-1 font-medium">
               "{item.reviews[0].comment}"
             </p>
-            <span className="font-semibold text-[10px] text-emerald-700 mt-0.5 block">
-              — {item.reviews[0].authorName} (Vecino verificado)
+            <span className="font-bold text-[10px] text-amber-700 mt-1 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              {item.reviews[0].authorName} (Vecino de {item.neighborhood})
             </span>
           </div>
         )}
       </div>
 
       {/* Footer Info & Actions */}
-      <div className="px-4 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2 mt-auto text-xs">
-        {/* Neighborhood & Distance */}
-        <div className="flex flex-col text-slate-500 min-w-0">
-          <div className="flex items-center gap-1 font-medium text-slate-700 truncate">
-            <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span className="truncate">{item.neighborhood}</span>
-          </div>
-          <span className="text-[11px] text-emerald-600 font-semibold pl-4">
-            {formatDistance(item.distanceMeters)}
-          </span>
+      <div className="px-5 py-3.5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between gap-3 mt-auto text-xs">
+        <div className="flex items-center gap-1.5 text-slate-500 truncate">
+          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="truncate font-medium">{item.neighborhood}</span>
         </div>
 
-        {/* Quick Contact Buttons */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={onOpenDetail}
-            className="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl font-medium text-xs transition cursor-pointer"
-            title="Ver recomendaciones completas y ubicación"
+            className="px-3 py-1.5 text-slate-600 hover:text-slate-900 font-bold transition rounded-xl hover:bg-slate-200/60"
           >
-            Ver más
+            Detalles
           </button>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition"
-            title="Contactar directamente por WhatsApp"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">WhatsApp</span>
-          </a>
+          {item.authorPhone ? (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-sm transition active:scale-95"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Contactar</span>
+            </a>
+          ) : (
+            <button
+              onClick={onOpenDetail}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-black shadow-sm transition active:scale-95"
+            >
+              <span>Conectar</span>
+            </button>
+          )}
         </div>
       </div>
-    </div>
+    </article>
   );
 };

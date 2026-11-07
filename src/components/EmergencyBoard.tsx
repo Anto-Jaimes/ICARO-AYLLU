@@ -3,20 +3,18 @@ import { useApp } from '../context/AppContext';
 import { CommunityItem } from '../types';
 import { 
   AlertTriangle, 
-  LifeBuoy, 
-  BatteryCharging, 
   Droplet, 
   Users, 
   MapPin, 
-  Phone, 
   MessageCircle, 
-  Plus, 
-  CheckCircle, 
   Clock, 
   Radio, 
-  Heart, 
   ShieldAlert,
-  Flame
+  Flame,
+  CheckCircle2,
+  Footprints,
+  Activity,
+  Award
 } from 'lucide-react';
 import { formatDistance, buildWhatsAppLink } from '../utils/geo';
 
@@ -42,117 +40,123 @@ export const EmergencyBoard: React.FC = () => {
     return true;
   });
 
-  // Emergency stats counter
   const criticalCount = emergencyItems.filter(i => i.type === 'emergency_need' && i.status === 'active').length;
   const resourceCount = emergencyItems.filter(i => i.type === 'emergency_resource').length;
   const brigadeCount = emergencyItems.filter(i => i.type === 'support_group').length;
 
   return (
     <div className="space-y-4">
-      {/* Emergency Alert Hero Header */}
-      <div className="bg-gradient-to-r from-rose-950 via-rose-900 to-red-950 text-white p-5 rounded-2xl border-2 border-rose-500 shadow-xl relative overflow-hidden">
+      {/* Tactical Emergency HUD */}
+      <div className="bg-slate-950 text-white p-5 sm:p-6 rounded-3xl border border-red-500/60 shadow-2xl relative overflow-hidden backdrop-blur-md">
+        {/* Glow ambient de fondo */}
+        <div className="absolute -top-24 -right-24 w-72 h-72 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
         <div className="relative z-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="p-2.5 bg-rose-600 rounded-xl animate-emergency-pulse">
+              <span className="p-3 bg-red-600/90 rounded-2xl shadow-lg shadow-red-600/40 animate-emergency-pulse flex items-center justify-center">
                 <ShieldAlert className="w-6 h-6 text-white" />
               </span>
               <div>
-                <span className="bg-rose-500 text-white text-[10px] uppercase font-black px-2 py-0.5 rounded-full tracking-wider animate-pulse">
-                  Centro de Comando Vecinal
-                </span>
-                <h2 className="text-lg sm:text-xl font-black tracking-tight mt-0.5">
-                  Tablero Humanitario & Red de Respuesta Vecinal
+                <div className="flex items-center gap-2">
+                  <span className="bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] uppercase font-black px-2.5 py-0.5 rounded-full tracking-wider animate-pulse">
+                    Puesto de Mando Vecinal
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Despacho en Vivo</span>
+                </div>
+                <h2 className="text-lg sm:text-2xl font-black tracking-tight mt-1 text-white">
+                  Tablero Humanitario & Red de Respuesta Inmediata
                 </h2>
               </div>
             </div>
 
             <button
               onClick={() => setIsPublishModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-rose-950 font-black text-xs sm:text-sm shadow-lg transition active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs sm:text-sm shadow-xl shadow-red-600/30 transition active:scale-95 cursor-pointer ring-2 ring-red-400/40"
             >
-              <AlertTriangle className="w-4 h-4 text-rose-900 animate-bounce" />
-              <span>Reportar Necesidad o Compartir Recurso</span>
+              <AlertTriangle className="w-4 h-4 text-amber-300 animate-bounce" />
+              <span>Reportar Necesidad o Recurso SOS</span>
             </button>
           </div>
 
-          <p className="text-xs text-rose-200 mt-2.5 max-w-2xl leading-relaxed">
-            Espacio geolocalizado para identificar vecinos en alta vulnerabilidad (adultos mayores, salud, sin agua), activar brigadas de primeros auxilios y compartir generadores o suministros críticos sin intermediarios.
+          <p className="text-xs text-slate-300 mt-2.5 max-w-2xl leading-relaxed">
+            Coordinación de auxilio directo a vecinos vulnerables (adultos mayores, salud, corte de agua), brigadas de primeros auxilios y recursos comunitarios compartidos.
           </p>
 
-          {/* Real-time emergency counters */}
-          <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-rose-800/80">
-            <div className="bg-rose-900/60 p-2 rounded-xl text-center border border-rose-800">
-              <span className="text-lg sm:text-xl font-black text-amber-300">{criticalCount}</span>
-              <p className="text-[10px] text-rose-200 font-semibold leading-tight">Casos por Atender</p>
+          {/* Bento Grid de Telemetría Táctica */}
+          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-800">
+            <div className="bg-slate-900/90 p-3 rounded-2xl border border-red-900/40 shadow-inner">
+              <span className="text-xl sm:text-2xl font-black text-red-400 block">{criticalCount}</span>
+              <p className="text-[10px] text-slate-300 font-bold uppercase tracking-wide mt-0.5">Casos por Atender</p>
             </div>
-            <div className="bg-rose-900/60 p-2 rounded-xl text-center border border-rose-800">
-              <span className="text-lg sm:text-xl font-black text-emerald-400">{resourceCount}</span>
-              <p className="text-[10px] text-rose-200 font-semibold leading-tight">Recursos Críticos</p>
+            <div className="bg-slate-900/90 p-3 rounded-2xl border border-emerald-900/40 shadow-inner">
+              <span className="text-xl sm:text-2xl font-black text-emerald-400 block">{resourceCount}</span>
+              <p className="text-[10px] text-slate-300 font-bold uppercase tracking-wide mt-0.5">Recursos Críticos</p>
             </div>
-            <div className="bg-rose-900/60 p-2 rounded-xl text-center border border-rose-800">
-              <span className="text-lg sm:text-xl font-black text-sky-400">{brigadeCount}</span>
-              <p className="text-[10px] text-rose-200 font-semibold leading-tight">Brigadas Activas</p>
+            <div className="bg-slate-900/90 p-3 rounded-2xl border border-sky-900/40 shadow-inner">
+              <span className="text-xl sm:text-2xl font-black text-sky-400 block">{brigadeCount}</span>
+              <p className="text-[10px] text-slate-300 font-bold uppercase tracking-wide mt-0.5">Brigadistas en Guardia</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sub-filter tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      {/* Selector de subsecciones */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         <button
           onClick={() => setSubSection('all')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+          className={`px-4 py-2 rounded-2xl text-xs font-black whitespace-nowrap transition cursor-pointer ${
             subSection === 'all'
-              ? 'bg-rose-600 text-white shadow-md'
-              : 'bg-rose-950/40 text-rose-200 hover:bg-rose-900/50 border border-rose-800'
+              ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 ring-2 ring-red-400/50'
+              : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-800'
           }`}
         >
           🚨 Todos los reportes ({emergencyItems.length})
         </button>
         <button
           onClick={() => setSubSection('needs')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+          className={`px-4 py-2 rounded-2xl text-xs font-black whitespace-nowrap transition cursor-pointer ${
             subSection === 'needs'
-              ? 'bg-rose-600 text-white shadow-md'
-              : 'bg-rose-950/40 text-rose-200 hover:bg-rose-900/50 border border-rose-800'
+              ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 ring-2 ring-red-400/50'
+              : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-800'
           }`}
         >
           👵 Vecinos en Vulnerabilidad ({criticalCount})
         </button>
         <button
           onClick={() => setSubSection('resources')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+          className={`px-4 py-2 rounded-2xl text-xs font-black whitespace-nowrap transition cursor-pointer ${
             subSection === 'resources'
-              ? 'bg-emerald-600 text-white shadow-md'
-              : 'bg-rose-950/40 text-rose-200 hover:bg-rose-900/50 border border-rose-800'
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-2 ring-emerald-400/50'
+              : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-800'
           }`}
         >
           💧 Recursos Críticos (Agua / Luz) ({resourceCount})
         </button>
         <button
           onClick={() => setSubSection('brigades')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+          className={`px-4 py-2 rounded-2xl text-xs font-black whitespace-nowrap transition cursor-pointer ${
             subSection === 'brigades'
-              ? 'bg-sky-600 text-white shadow-md'
-              : 'bg-rose-950/40 text-rose-200 hover:bg-rose-900/50 border border-rose-800'
+              ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/30 ring-2 ring-sky-400/50'
+              : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-800'
           }`}
         >
           🚑 Brigadas & Primeros Auxilios ({brigadeCount})
         </button>
       </div>
 
-      {/* Card Grid */}
+      {/* Grid de Tarjetas Tácticas */}
       {displayed.length === 0 ? (
-        <div className="text-center py-12 bg-rose-950/30 rounded-2xl border border-rose-900 p-6 text-rose-200">
+        <div className="text-center py-12 bg-slate-900/60 rounded-3xl border border-slate-800 p-6 text-slate-300">
           <p className="text-4xl mb-2">🛡️</p>
-          <h3 className="font-bold text-white text-base">Sin alertas activas en esta categoría</h3>
-          <p className="text-xs text-rose-300 mt-1 mb-4">
+          <h3 className="font-black text-white text-base">Sin alertas activas en esta categoría</h3>
+          <p className="text-xs text-slate-400 mt-1 mb-4">
             Si conoces a un vecino en necesidad o puedes habilitar agua o electricidad, compártelo ahora.
           </p>
           <button
             onClick={() => setIsPublishModalOpen(true)}
-            className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs rounded-xl transition cursor-pointer shadow-lg"
           >
             Publicar reporte de auxilio
           </button>
@@ -197,113 +201,123 @@ const EmergencyCard: React.FC<EmergencyCardProps> = ({
     `ALERTA VECINAL ICARO-AYLLU: Me comunico respecto al reporte de emergencia "${item.title}" para ofrecer apoyo inmediato.`
   );
 
+  const walkingMinutes = Math.max(1, Math.round((item.distanceMeters || 100) / 80));
+
   return (
-    <div className={`rounded-2xl border-2 transition-all flex flex-col justify-between overflow-hidden shadow-lg ${
+    <article className={`rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xl ${
       isResolved
-        ? 'bg-slate-900/60 border-emerald-700/60 opacity-80'
+        ? 'bg-slate-900/60 border-emerald-700/40 opacity-75'
         : isNeed
-          ? 'bg-rose-950/70 border-rose-600/80 hover:border-rose-400'
+          ? 'bg-slate-950 border-red-500/70 hover:border-red-400 shadow-red-950/40'
           : isResource
-            ? 'bg-slate-900/80 border-emerald-600/80 hover:border-emerald-400'
-            : 'bg-slate-900/80 border-sky-600/80 hover:border-sky-400'
+            ? 'bg-slate-950 border-emerald-500/60 hover:border-emerald-400 shadow-emerald-950/30'
+            : 'bg-slate-950 border-sky-500/60 hover:border-sky-400 shadow-sky-950/30'
     }`}>
       {/* Header tags */}
-      <div className="p-4 sm:p-5 pb-3">
-        <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="p-5 pb-3">
+        <div className="flex items-start justify-between gap-2 mb-2.5">
           <div className="flex items-center gap-1.5 flex-wrap">
             {isNeed && (
-              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                 item.urgencyLevel === 'critica'
-                  ? 'bg-rose-600 text-white animate-pulse'
-                  : 'bg-amber-500 text-slate-950 font-black'
+                  ? 'bg-red-600 text-white animate-pulse shadow-md shadow-red-600/40'
+                  : 'bg-amber-400 text-slate-950 font-black'
               }`}>
                 ⚠️ Auxilio: Urgencia {item.urgencyLevel || 'Alta'}
               </span>
             )}
 
             {isResource && (
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950">
-                💧 Recurso Crítico Compartido
+              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950">
+                💧 Recurso Crítico
               </span>
             )}
 
             {isBrigade && (
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-sky-500 text-slate-950">
+              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-sky-500 text-slate-950">
                 🚑 Brigada Vecinal / Triage
               </span>
             )}
 
             {isResolved && (
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white">
                 ✅ ATENDIDO / RESUELTO
               </span>
             )}
           </div>
 
-          <span className="text-[11px] text-rose-300 font-semibold flex items-center gap-1">
-            <Clock className="w-3 h-3" /> {item.createdAt}
+          <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+            <Clock className="w-3 h-3 text-slate-500" /> {item.createdAt}
           </span>
         </div>
 
         {/* Title */}
         <h3 
           onClick={onOpenDetail}
-          className="font-black text-white text-base hover:text-amber-300 transition cursor-pointer leading-snug"
+          className="font-black text-white text-base hover:text-red-400 transition cursor-pointer leading-snug"
         >
           {item.title}
         </h3>
 
         {/* Description */}
-        <p className="text-xs text-rose-100/90 mt-2 line-clamp-3 leading-relaxed">
+        <p className="text-xs text-slate-300 mt-2 line-clamp-2 leading-relaxed">
           {item.description}
         </p>
 
-        {/* Insumo / Nota */}
-        {item.priceInfo && (
-          <div className="mt-3 p-2 bg-rose-900/50 rounded-xl border border-rose-800 text-xs text-amber-200 font-semibold">
-            {item.priceInfo}
+        {/* Proximidad urbana OSRM */}
+        <div className="mt-3 flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-1 text-slate-200 font-semibold bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-800">
+            <Footprints className="w-3.5 h-3.5 text-amber-400" />
+            <span>{walkingMinutes} min a pie ({formatDistance(item.distanceMeters || 120)})</span>
           </div>
-        )}
+
+          {/* Sello Visto Bueno */}
+          <button
+            onClick={onToggleVisto}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold transition active:scale-95 ${
+              item.hasUserVoted
+                ? 'bg-emerald-600 text-white'
+                : 'bg-slate-900 text-emerald-400 border border-emerald-900/60 hover:bg-slate-800'
+            }`}
+          >
+            <Award className="w-3 h-3" />
+            <span>{item.vistosBuenos} Vistos Buenos</span>
+          </button>
+        </div>
       </div>
 
       {/* Footer Actions */}
-      <div className="px-4 py-3 bg-black/40 border-t border-rose-900/60 flex items-center justify-between gap-2 mt-auto text-xs">
-        <div className="flex flex-col text-rose-200 min-w-0">
-          <div className="flex items-center gap-1 font-medium text-white truncate">
-            <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span className="truncate">{item.neighborhood}</span>
-          </div>
-          <span className="text-[11px] text-amber-300 font-bold pl-4">
-            {formatDistance(item.distanceMeters)} • Contacto: {item.authorName}
-          </span>
+      <div className="px-5 py-3.5 bg-slate-900/90 border-t border-slate-800/80 flex items-center justify-between gap-3 mt-auto text-xs">
+        <div className="flex items-center gap-1.5 text-slate-400 truncate">
+          <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <span className="truncate font-medium">{item.neighborhood}</span>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
-          {isNeed && (
-            <button
-              onClick={onResolve}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                isResolved
-                  ? 'bg-rose-900 text-rose-200 hover:bg-rose-800'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-              }`}
-              title="Marcar como atendido o reactivar"
-            >
-              {isResolved ? 'Reabrir' : 'Marcar Atendido'}
-            </button>
-          )}
-
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black text-xs shadow-md transition"
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={onResolve}
+            className={`px-3 py-1.5 rounded-xl font-bold transition ${
+              isResolved 
+                ? 'bg-slate-800 text-slate-400 hover:text-white' 
+                : 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-600/30'
+            }`}
           >
-            <Phone className="w-3.5 h-3.5" />
-            <span>Ayudar Ahora</span>
-          </a>
+            {isResolved ? 'Reabrir' : 'Atender'}
+          </button>
+
+          {item.authorPhone && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md transition active:scale-95"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Contactar</span>
+            </a>
+          )}
         </div>
       </div>
-    </div>
+    </article>
   );
 };

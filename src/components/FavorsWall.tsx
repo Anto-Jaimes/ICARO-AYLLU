@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
 import { CommunityItem } from '../types';
 import { 
   HeartHandshake, 
-  Plus, 
   MapPin, 
   MessageCircle, 
-  ShieldCheck, 
-  ThumbsUp,
+  Plus, 
   Sparkles,
-  Handshake
+  Footprints,
+  Award,
+  ArrowRightLeft,
+  Gift
 } from 'lucide-react';
 import { formatDistance, buildWhatsAppLink } from '../utils/geo';
-import { CommunityImpactWidget } from './CommunityImpactWidget';
-import { AyniHandshakeModal } from './AyniHandshakeModal';
 
 export const FavorsWall: React.FC = () => {
   const { 
@@ -23,114 +22,101 @@ export const FavorsWall: React.FC = () => {
     setIsPublishModalOpen 
   } = useApp();
 
-  const [favorFilter, setFavorFilter] = useState<'all' | 'offer' | 'request'>('all');
-  const [selectedHandshakeItem, setSelectedHandshakeItem] = useState<CommunityItem | null>(null);
+  const [filterType, setFilterType] = React.useState<'all' | 'offer' | 'request'>('all');
 
-  const displayedFavors = filteredItems.filter((item) => {
-    if (favorFilter === 'offer') return item.type === 'favor_offer';
-    if (favorFilter === 'request') return item.type === 'favor_request';
+  const favorItems = filteredItems.filter((i) => 
+    i.type === 'favor_offer' || i.type === 'favor_request'
+  );
+
+  const displayed = favorItems.filter((item) => {
+    if (filterType === 'offer') return item.type === 'favor_offer';
+    if (filterType === 'request') return item.type === 'favor_request';
     return true;
   });
 
   return (
     <div className="space-y-4">
-      {/* Community Ecological and Savings Impact Widget */}
-      <CommunityImpactWidget />
-
-      {/* Module 2 Banner */}
-      <div className="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-emerald-600 text-white rounded-lg shadow-sm">
-              <HeartHandshake className="w-4 h-4" />
-            </span>
-            <h2 className="font-extrabold text-slate-800 text-base sm:text-lg">
-              Cadena de Favores & Economía Solidaria
+      {/* Banner sin textos redundantes */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-600/10 border border-amber-300/70 p-4 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="p-2 bg-amber-500 text-white rounded-xl shadow-xs">
+            <HeartHandshake className="w-5 h-5" />
+          </span>
+          <div>
+            <h2 className="font-black text-slate-900 text-base sm:text-lg tracking-tight">
+              Muro de Favores & Red Ayni
             </h2>
+            <p className="text-xs text-slate-600">Préstamo de herramientas, trueque de saberes y donaciones sin dinero.</p>
           </div>
-          <p className="text-xs text-slate-600 mt-1 max-w-xl">
-            Muro colaborativo para <strong className="text-emerald-800">resolver necesidades sin dinero</strong>: préstamo de herramientas, ayuda temporal, donación de materiales, intercambio de saberes y movilidad solidaria entre vecinos.
-          </p>
         </div>
 
         <button
           onClick={() => setIsPublishModalOpen(true)}
-          className="self-stretch sm:self-auto flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition cursor-pointer shrink-0"
+          className="self-stretch sm:self-auto flex items-center justify-center gap-1.5 px-4 py-2 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>Publicar favor</span>
+          <span>Publicar Favor</span>
         </button>
       </div>
 
-      {/* Sub-filter tabs */}
-      <div className="flex items-center justify-between gap-2 bg-slate-100 p-1 rounded-xl max-w-sm">
+      {/* Tabs */}
+      <div className="flex items-center gap-2">
         <button
-          onClick={() => setFavorFilter('all')}
-          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
-            favorFilter === 'all'
-              ? 'bg-white text-emerald-800 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+          onClick={() => setFilterType('all')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+            filterType === 'all'
+              ? 'bg-slate-900 text-white'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
           }`}
         >
-          Todos ({filteredItems.length})
+          Todos ({favorItems.length})
         </button>
         <button
-          onClick={() => setFavorFilter('offer')}
-          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
-            favorFilter === 'offer'
-              ? 'bg-emerald-600 text-white shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+          onClick={() => setFilterType('offer')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+            filterType === 'offer'
+              ? 'bg-emerald-600 text-white'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
           }`}
         >
-          🎁 Ofrezco / Presto
+          🎁 Ofrezco prestar / donar
         </button>
         <button
-          onClick={() => setFavorFilter('request')}
-          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
-            favorFilter === 'request'
-              ? 'bg-amber-600 text-white shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+          onClick={() => setFilterType('request')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+            filterType === 'request'
+              ? 'bg-amber-600 text-white'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
           }`}
         >
-          🙋 Necesito ayuda
+          🤝 Necesito un favor
         </button>
       </div>
 
-      {/* Grid of Favors */}
-      {displayedFavors.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-6">
-          <p className="text-4xl mb-2">🤝</p>
-          <h3 className="font-bold text-slate-700 text-base">No hay publicaciones con estos filtros</h3>
-          <p className="text-xs text-slate-500 mt-1 mb-4">
-            ¿Tienes una herramienta para prestar o necesitas una mano en tu casa?
-          </p>
+      {/* Grid de Favores */}
+      {displayed.length === 0 ? (
+        <div className="text-center py-10 bg-white rounded-3xl border border-dashed border-slate-300 p-6">
+          <p className="text-3xl mb-1">🤝</p>
+          <h3 className="font-bold text-slate-700 text-sm">Sin favores activos en esta categoría</h3>
           <button
             onClick={() => setIsPublishModalOpen(true)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+            className="mt-3 px-4 py-2 bg-slate-900 text-white font-bold text-xs rounded-xl"
           >
-            Publicar en el muro solidario
+            Sé el primero en compartir
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {displayedFavors.map((item) => (
-            <FavorCard 
-              key={item.id} 
-              item={item} 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          {displayed.map((item) => (
+            <FavorCard
+              key={item.id}
+              item={item}
               onVistoBueno={() => toggleVistoBueno(item.id)}
               onOpenDetail={() => setSelectedItemForDetail(item)}
-              onAyniHandshake={() => setSelectedHandshakeItem(item)}
             />
           ))}
         </div>
       )}
-
-      {/* Ayni Handshake Modal */}
-      <AyniHandshakeModal
-        item={selectedHandshakeItem}
-        isOpen={Boolean(selectedHandshakeItem)}
-        onClose={() => setSelectedHandshakeItem(null)}
-      />
     </div>
   );
 };
@@ -139,125 +125,86 @@ interface FavorCardProps {
   item: CommunityItem;
   onVistoBueno: () => void;
   onOpenDetail: () => void;
-  onAyniHandshake: () => void;
 }
 
-const FavorCard: React.FC<FavorCardProps> = ({ 
-  item, 
-  onVistoBueno, 
-  onOpenDetail,
-  onAyniHandshake 
-}) => {
+const FavorCard: React.FC<FavorCardProps> = ({ item, onVistoBueno, onOpenDetail }) => {
   const isOffer = item.type === 'favor_offer';
-
   const whatsappUrl = buildWhatsAppLink(
     item.authorPhone,
-    `Hola ${item.authorName}, te escribo por tu publicación solidaria "${item.title}" en ICARO-AYLLU para coordinar con confianza.`
+    `Hola ${item.authorName}, te contacto desde ICARO-AYLLU por tu publicación solidaria "${item.title}".`
   );
 
-  return (
-    <div className={`rounded-2xl border transition-all flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md ${
-      isOffer
-        ? 'bg-white border-emerald-200/90 hover:border-emerald-400'
-        : 'bg-white border-amber-200/90 hover:border-amber-400'
-    }`}>
-      <div className="p-4 sm:p-5 pb-3">
-        {/* Type Badge & Category */}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex items-center gap-1.5">
-            <span className={`text-[11px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-              isOffer 
-                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
-                : 'bg-amber-100 text-amber-800 border border-amber-300'
-            }`}>
-              {isOffer ? '🎁 Ofrezco / Presto' : '🙋 Necesito Favor'}
-            </span>
+  const walkingMinutes = Math.max(1, Math.round((item.distanceMeters || 100) / 80));
 
-            <span className="text-[10px] text-slate-500 font-semibold uppercase">
-              • {item.category}
-            </span>
-          </div>
+  return (
+    <article className="bg-white rounded-3xl border border-slate-200/90 hover:border-amber-400 shadow-xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden">
+      <div className="p-4 sm:p-5 pb-3">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+            isOffer 
+              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+              : 'bg-amber-100 text-amber-800 border border-amber-200'
+          }`}>
+            {isOffer ? 'Ofrezco Ayuda' : 'Solicito Apoyo'}
+          </span>
 
           <button
             onClick={onVistoBueno}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition active:scale-95 ${
               item.hasUserVoted
-                ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300'
+                ? 'bg-emerald-600 text-white'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
-            title="Dar respaldo vecinal a este favor"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>{item.vistosBuenos}</span>
-            <ThumbsUp className={`w-3 h-3 ${item.hasUserVoted ? 'fill-current' : ''}`} />
+            <Award className="w-3.5 h-3.5" />
+            <span>{item.vistosBuenos} Vistos Buenos</span>
           </button>
         </div>
 
-        {/* Title */}
         <h3 
           onClick={onOpenDetail}
-          className="font-bold text-slate-900 text-base hover:text-emerald-700 transition cursor-pointer leading-snug"
+          className="font-bold text-slate-900 text-base hover:text-amber-600 transition cursor-pointer leading-snug"
         >
           {item.title}
         </h3>
 
-        {/* Description */}
-        <p className="text-xs text-slate-600 mt-1.5 line-clamp-3 leading-relaxed">
+        <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
           {item.description}
         </p>
 
-        {/* Solidary Tag: No money involved */}
-        <div className="mt-3 flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50/90 px-2.5 py-1 rounded-lg border border-emerald-200">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{item.priceInfo || 'Intercambio solidario / Sin dinero'}</span>
-          </div>
+        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-slate-600 font-semibold bg-slate-100 px-2.5 py-1 rounded-xl w-fit">
+          <Footprints className="w-3.5 h-3.5 text-amber-600" />
+          <span>{walkingMinutes} min a pie ({formatDistance(item.distanceMeters || 100)})</span>
+        </div>
+      </div>
 
-          {/* Ayni Handshake Button */}
-          {isOffer && (
-            <button
-              onClick={onAyniHandshake}
-              className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-white hover:bg-emerald-600 bg-emerald-100/60 px-2.5 py-1 rounded-lg transition cursor-pointer"
-              title="Registrar préstamo de herramienta y pacto de devolución"
+      <div className="px-4 py-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-1 text-slate-500 truncate">
+          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="truncate">{item.neighborhood}</span>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={onOpenDetail}
+            className="px-2.5 py-1.5 text-slate-600 font-bold hover:text-slate-900"
+          >
+            Ver
+          </button>
+
+          {item.authorPhone && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs transition active:scale-95"
             >
-              <Handshake className="w-3.5 h-3.5" />
-              <span>Pacto Ayni</span>
-            </button>
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Contactar</span>
+            </a>
           )}
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="px-4 py-3 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between gap-2 mt-auto text-xs">
-        <div className="flex flex-col text-slate-500 min-w-0">
-          <div className="flex items-center gap-1 font-medium text-slate-700 truncate">
-            <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span className="truncate">{item.neighborhood}</span>
-          </div>
-          <span className="text-[11px] text-emerald-600 font-semibold pl-4">
-            {formatDistance(item.distanceMeters)} • Por {item.authorName}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            onClick={onOpenDetail}
-            className="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl font-medium text-xs transition cursor-pointer"
-          >
-            Detalles
-          </button>
-
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm transition"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Coordinar</span>
-          </a>
-        </div>
-      </div>
-    </div>
+    </article>
   );
 };
