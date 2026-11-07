@@ -8,12 +8,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  // Without this Vite scans every .html in the project, including agentes/ and the
-  // copy of the app inside android/, and fails on files that are not part of it.
   optimizeDeps: {
     entries: ['index.html'],
   },
   server: {
+    host: '0.0.0.0',
+    port: 5174,
+    allowedHosts: true,
+    cors: true,
     watch: {
       ignored: ['**/agentes/**', '**/android/**'],
     },
