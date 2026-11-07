@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { fetchRecentSeismicAlerts, fetchWeatherAlerts, SeismicAlert, WeatherAlert } from '../services/emergencyApiService';
-import { Activity, CloudRain, Sun, AlertTriangle, ShieldCheck, ExternalLink, RefreshCw } from 'lucide-react';
+import { Activity, CloudOff, CloudRain, Sun, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export const LiveTelemetryWidget: React.FC = () => {
   const { userLocation, mode, setMode } = useApp();
-  const [seismicAlerts, setSeismicAlerts] = useState<SeismicAlert[]>([]);
+  // null means "no data" (still loading or the feed failed); [] means the feed answered with no quakes.
+  const [seismicAlerts, setSeismicAlerts] = useState<SeismicAlert[] | null>(null);
   const [weather, setWeather] = useState<WeatherAlert | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -13,25 +14,25 @@ export const LiveTelemetryWidget: React.FC = () => {
 
   const loadTelemetry = async () => {
     setLoading(true);
-    try {
-      const [seismic, weatherData] = await Promise.all([
-        fetchRecentSeismicAlerts(userLocation.lat, userLocation.lng),
-        fetchWeatherAlerts(userLocation.lat, userLocation.lng)
-      ]);
-      setSeismicAlerts(seismic);
-      setWeather(weatherData);
-    } catch (err) {
-      console.error('Error loading telemetry:', err);
-    } finally {
-      setLoading(false);
-    }
+    // allSettled: if one feed fails, the other one still shows.
+    const [seismic, weatherData] = await Promise.allSettled([
+      fetchRecentSeismicAlerts(userLocation.lat, userLocation.lng),
+      fetchWeatherAlerts(userLocation.lat, userLocation.lng)
+    ]);
+
+    if (seismic.status === 'rejected') console.warn('Sismos no disponibles:', seismic.reason);
+    if (weatherData.status === 'rejected') console.warn('Clima no disponible:', weatherData.reason);
+
+    setSeismicAlerts(seismic.status === 'fulfilled' ? seismic.value : null);
+    setWeather(weatherData.status === 'fulfilled' ? weatherData.value : null);
+    setLoading(false);
   };
 
   useEffect(() => {
     loadTelemetry();
   }, [userLocation.lat, userLocation.lng]);
 
-  const latestQuake = seismicAlerts[0];
+  const latestQuake = seismicAlerts?.[0];
 
   return (
     <div className={`mb-4 p-3.5 rounded-2xl border transition-all text-xs ${
@@ -64,22 +65,43 @@ export const LiveTelemetryWidget: React.FC = () => {
         {/* Weather API Feed */}
         <div className="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50/70 border border-slate-200/60">
           <div className="p-2 rounded-lg bg-sky-100 text-sky-700 shrink-0">
-            {weather?.isRaining ? <CloudRain className="w-4 h-4 text-sky-600" /> : <Sun className="w-4 h-4 text-amber-500" />}
+            {!weather ? (
+              <CloudOff className="w-4 h-4 text-slate-500" />
+            ) : weather.isRaining ? (
+              <CloudRain className="w-4 h-4 text-sky-600" />
+            ) : (
+              <Sun className="w-4 h-4 text-amber-500" />
+            )}
           </div>
           <div>
-            <div className="flex items-center gap-1.5 font-bold text-slate-900">
-              <span>{weather ? `${weather.temperature}°C` : '...'}</span>
-              <span className="text-[11px] font-medium text-slate-500">
-                • {weather?.weatherCondition || 'Cargando clima...'}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              {weather?.riskDescription ? (
-                <span className="text-amber-700 font-semibold">{weather.riskDescription}</span>
-              ) : (
-                'Condiciones estables en el barrio (Open-Meteo API)'
-              )}
-            </p>
+            {weather ? (
+              <>
+                <div className="flex items-center gap-1.5 font-bold text-slate-900">
+                  <span>{weather.temperature}°C</span>
+                  <span className="text-[11px] font-medium text-slate-500">
+                    • {weather.weatherCondition}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  {weather.riskDescription ? (
+                    <span className="text-amber-700 font-semibold">{weather.riskDescription}</span>
+                  ) : (
+                    'Condiciones estables en el barrio (Open-Meteo API)'
+                  )}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="font-bold text-slate-900">
+                  {loading ? 'Consultando el clima...' : 'Clima no disponible'}
+                </div>
+                {!loading && (
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    No pudimos consultar el clima. Toca Actualizar.
+                  </p>
+                )}
+              </>
+            )}
           </div>
         </div>
 
@@ -89,26 +111,43 @@ export const LiveTelemetryWidget: React.FC = () => {
             <AlertTriangle className="w-4 h-4 text-rose-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-1">
-              <span className="font-bold text-slate-900 flex items-center gap-1 truncate">
-                <span>Sismo M{latestQuake?.magnitude || '4.5+'}</span>
-                <span className="text-[10px] text-slate-400 font-normal">
-                  ({latestQuake?.timeFormatted || 'Reciente'})
-                </span>
-              </span>
+            {latestQuake ? (
+              <>
+                <div className="flex items-center justify-between gap-1">
+                  <span className="font-bold text-slate-900 flex items-center gap-1 truncate">
+                    <span>Sismo M{latestQuake.magnitude}</span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      ({latestQuake.timeFormatted})
+                    </span>
+                  </span>
 
-              {latestQuake?.magnitude && latestQuake.magnitude >= 5.0 && !isEmergency && (
-                <button
-                  onClick={() => setMode('emergency')}
-                  className="text-[10px] bg-rose-600 text-white font-extrabold px-1.5 py-0.5 rounded cursor-pointer animate-pulse shrink-0"
-                >
-                  Activar SOS
-                </button>
-              )}
-            </div>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
-              {latestQuake?.place || 'Monitoreo sísmico activo'} (USGS API)
-            </p>
+                  {latestQuake.isRecent && latestQuake.magnitude >= 5.0 && !isEmergency && (
+                    <button
+                      onClick={() => setMode('emergency')}
+                      className="text-[10px] bg-rose-600 text-white font-extrabold px-1.5 py-0.5 rounded cursor-pointer animate-pulse shrink-0"
+                    >
+                      Activar SOS
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                  {latestQuake.place} (USGS API)
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="font-bold text-slate-900">
+                  {loading ? 'Consultando sismos...' : seismicAlerts ? 'Sin sismos recientes' : 'Sismos no disponibles'}
+                </div>
+                {!loading && (
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {seismicAlerts
+                      ? 'Ningún sismo M4.2+ cerca en los últimos 30 días (USGS API)'
+                      : 'No pudimos consultar los sismos. Toca Actualizar.'}
+                  </p>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
