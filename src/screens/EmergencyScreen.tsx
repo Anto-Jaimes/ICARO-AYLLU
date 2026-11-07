@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Boxes, HandHeart, Phone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
+import { Activity, Boxes, HandHeart, Phone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { EmptyState, LoadingRow } from '../components/EmptyState';
 import { CommunityItem, PostType } from '../types';
 import { describeDistance } from '../utils/geo';
 import { AcousticBeaconSheet } from '../components/AcousticBeaconSheet';
+import { RubbleRescueSheet } from '../components/RubbleRescueSheet';
 
 interface EmergencyView {
   type: PostType;
@@ -59,6 +60,7 @@ export const EmergencyScreen: React.FC = () => {
   const { items, tab, hasLocation, isLoadingItems } = useApp();
   const { verdict } = useHazards();
   const [isAcousticOpen, setIsAcousticOpen] = useState(false);
+  const [isRubbleOpen, setIsRubbleOpen] = useState(false);
   const view = VIEWS[tab] ?? VIEWS.neighbors!;
 
   const posts = useMemo(() => {
@@ -100,6 +102,33 @@ export const EmergencyScreen: React.FC = () => {
         </button>
       </div>
 
+      {/* Banner de Rescate en Escombros (Geófono y Manos Libres) */}
+      <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-neutral-950 to-amber-950 text-white rounded-2xl shadow-sm border border-amber-900/60 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-amber-950/80 text-amber-400 flex items-center justify-center shrink-0 border border-amber-800/60 shadow-inner">
+            <Activity className="w-5 h-5 animate-pulse" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+              Rescate en Escombros
+              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
+                Geófono
+              </span>
+            </span>
+            <span className="block text-caption text-slate-300 truncate">
+              Detecta golpes en muros y activa auxilio con la voz
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsRubbleOpen(true)}
+          className="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
+        >
+          Abrir
+        </button>
+      </div>
+
       <p className="px-4 pt-3 text-secondary font-bold">{verdict.title}</p>
       <h2 className="px-4 pt-3 pb-1 text-section font-bold">{view.heading}</h2>
 
@@ -121,6 +150,12 @@ export const EmergencyScreen: React.FC = () => {
       <AcousticBeaconSheet
         open={isAcousticOpen}
         onClose={() => setIsAcousticOpen(false)}
+      />
+
+      {/* Sheet de Rescate en Escombros */}
+      <RubbleRescueSheet
+        open={isRubbleOpen}
+        onClose={() => setIsRubbleOpen(false)}
       />
     </div>
   );
