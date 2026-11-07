@@ -9,7 +9,17 @@ export default defineConfig({
     tailwindcss(),
   ],
   optimizeDeps: {
-    entries: ['index.html'],
+    entries: ['index.html', 'moderacion/index.html', 'denuncia/index.html'],
+  },
+  // Three pages: the app, the moderators' panel and the public page to report a call.
+  build: {
+    rollupOptions: {
+      input: {
+        app: 'index.html',
+        moderacion: 'moderacion/index.html',
+        denuncia: 'denuncia/index.html',
+      },
+    },
   },
   server: {
     host: '0.0.0.0',
