@@ -33,15 +33,17 @@ export async function speak(text: string): Promise<void> {
     return;
   }
 
-  // Web fallback with window.speechSynthesis
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'es-PE';
-    utterance.rate = 0.92;
+  // In the browser: its own voices. Waits for the end, so the button does not go back to "listen" while it still talks.
+  if (!('speechSynthesis' in window)) throw new Error('Sin voz en español');
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'es-PE';
+  utterance.rate = 0.92;
+  await new Promise<void>((resolve, reject) => {
+    utterance.onend = () => resolve();
+    utterance.onerror = (event) => reject(new Error(event.error));
     window.speechSynthesis.speak(utterance);
-    return;
-  }
+  });
 }
 
 export function stopSpeaking(): void {

@@ -18,6 +18,7 @@ import {
   startVerification,
   watchCall
 } from '../services/callService';
+import { BUSY_NETWORK_MESSAGE, isBusyNetwork } from '../services/postsService';
 import { BottomSheet } from './BottomSheet';
 
 type Step = 'web' | 'loading' | 'error' | 'phone' | 'code' | 'dial' | 'calling';
@@ -120,8 +121,8 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
     setProblem(null);
     try {
       await work();
-    } catch {
-      setProblem(PROBLEMS.network);
+    } catch (err) {
+      setProblem(isBusyNetwork(err) ? BUSY_NETWORK_MESSAGE : PROBLEMS.network);
     } finally {
       setIsBusy(false);
     }

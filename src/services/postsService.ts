@@ -94,6 +94,17 @@ export function ensureSession(): Promise<void> {
 }
 
 /**
+ * Supabase creates only so many new anonymous users per internet connection and hour. Many people
+ * on one Wi-Fi (a fair, a shelter) can reach it: "check your internet" would send them the wrong way.
+ */
+export const BUSY_NETWORK_MESSAGE = 'Muchas personas empezaron a usar AYLLU desde esta misma red. Espera unos minutos y vuelve a intentar.';
+
+export function isBusyNetwork(error: unknown): boolean {
+  const { status, code } = (error ?? {}) as { status?: unknown; code?: unknown };
+  return status === 429 || code === 'over_request_rate_limit';
+}
+
+/**
  * True when the database refused the data, so retrying would fail again.
  * Postgres errors carry a 5-character SQLSTATE; connection failures do not.
  */

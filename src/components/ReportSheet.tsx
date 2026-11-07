@@ -3,6 +3,7 @@ import { Camera, Check, ImagePlus, Trash2, Video } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { departmentName, districtCoordinates, loadUbigeo, nearestPlace } from '../data/ubigeo';
 import { inspectMedia, MediaOutcome, validateFile } from '../services/mediaCheck';
+import { BUSY_NETWORK_MESSAGE, isBusyNetwork } from '../services/postsService';
 import { REPORT_KINDS, ReportKind, submitReport } from '../services/reportsService';
 import { loadContact, saveContact } from '../utils/storage';
 import { BottomSheet } from './BottomSheet';
@@ -126,7 +127,7 @@ export const ReportSheet: React.FC = () => {
       closeReport();
     } catch (err) {
       console.error('No se pudo publicar la noticia:', err);
-      setProblem('No se pudo enviar. Revisa tu internet y vuelve a intentar.');
+      setProblem(isBusyNetwork(err) ? BUSY_NETWORK_MESSAGE : 'No se pudo enviar. Revisa tu internet y vuelve a intentar.');
     } finally {
       setIsSending(false);
     }
