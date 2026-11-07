@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { HeartPulse, Phone, User, AlertCircle, Save, Edit3, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { HeartPulse, Pencil, Phone } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 
 export interface MedicalProfile {
@@ -13,14 +13,33 @@ export interface MedicalProfile {
 
 const STORAGE_KEY = 'ayllu_medical_id_v1';
 
-const DEFAULT_PROFILE: MedicalProfile = {
-  fullName: 'Vecino del Barrio',
-  bloodType: 'O+',
-  allergies: 'Ninguna conocida',
-  conditions: 'Ninguna',
-  emergencyContactName: 'Familiar Directo',
-  emergencyContactPhone: '+51 987 654 321'
+const EMPTY_PROFILE: MedicalProfile = {
+  fullName: '',
+  bloodType: '',
+  allergies: '',
+  conditions: '',
+  emergencyContactName: '',
+  emergencyContactPhone: ''
 };
+
+const BLOOD_TYPES = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
+
+// An earlier version shipped invented sample data. It must never pass for a real record.
+const isOldSample = (profile: MedicalProfile) =>
+  profile.fullName === 'Vecino del Barrio' && profile.emergencyContactPhone === '+51 987 654 321';
+
+function loadProfile(): MedicalProfile {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return EMPTY_PROFILE;
+    const profile = { ...EMPTY_PROFILE, ...JSON.parse(saved) };
+    return isOldSample(profile) ? EMPTY_PROFILE : profile;
+  } catch {
+    return EMPTY_PROFILE;
+  }
+}
+
+const dialable = (phone: string) => phone.replace(/[^\d+]/g, '');
 
 interface MedicalIdSheetProps {
   open: boolean;
@@ -28,200 +47,121 @@ interface MedicalIdSheetProps {
 }
 
 export const MedicalIdSheet: React.FC<MedicalIdSheetProps> = ({ open, onClose }) => {
-  const [profile, setProfile] = useState<MedicalProfile>(() => {
+  const [profile, setProfile] = useState<MedicalProfile>(loadProfile);
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState<MedicalProfile>(profile);
+  const isFilled = profile.fullName.trim().length > 0;
+
+  const startEditing = () => {
+    setDraft(profile);
+    setIsEditing(true);
+  };
+
+  const save = (event: React.FormEvent) => {
+    event.preventDefault();
+    const clean = Object.fromEntries(Object.entries(draft).map(([key, value]) => [key, value.trim()])) as unknown as MedicalProfile;
+    setProfile(clean);
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_PROFILE;
-    } catch {
-      return DEFAULT_PROFILE;
-    }
-  });
-
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [formData, setFormData] = useState<MedicalProfile>(profile);
-
-  useEffect(() => {
-    setFormData(profile);
-  }, [profile]);
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setProfile(formData);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
     } catch (err) {
-      console.warn('Could not save medical profile:', err);
+      console.warn('No se pudo guardar la ficha médica:', err);
     }
     setIsEditing(false);
   };
 
+  const field = (key: keyof MedicalProfile) => ({
+    id: `medical-${key}`,
+    value: draft[key],
+    onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setDraft({ ...draft, [key]: event.target.value }),
+    className: 'field'
+  });
+
+  const footer = isEditing ? (
+    <div className="flex gap-2">
+      <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(false)}>Cancelar</button>
+      <button type="submit" form="medical-form" className="btn btn-primary">Guardar</button>
+    </div>
+  ) : (
+    <button type="button" className="btn btn-secondary" onClick={startEditing}>
+      <Pencil className="w-5 h-5" aria-hidden="true" />
+      {isFilled ? 'Cambiar mis datos' : 'Llenar mi ficha'}
+    </button>
+  );
+
   return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      title="Ficha Médica (ICE)"
-      footer={
-        !isEditing ? (
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setIsEditing(true)}
-          >
-            <Edit3 className="w-5 h-5 mr-1" aria-hidden="true" />
-            Editar mi ficha médica
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="btn btn-secondary flex-1"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary flex-1"
-              onClick={handleSave}
-            >
-              <Save className="w-5 h-5 mr-1" aria-hidden="true" />
-              Guardar datos
-            </button>
-          </div>
-        )
-      }
-    >
-      <div className="px-4 pb-4 space-y-4 text-ink">
-        <div className="p-3 bg-red-50 rounded-xl border border-red-200 text-xs text-rojo flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <p>
-            Información médica para rescatistas, paramédicos o vecinos en emergencias. <strong>Funciona sin internet</strong> y se almacena solo en este teléfono.
-          </p>
-        </div>
+    <BottomSheet open={open} onClose={onClose} title="Ficha médica" footer={footer}>
+      <div className="px-4 pb-4 space-y-4">
+        <p className="text-secondary text-ink-2">
+          Para que un rescatista sepa tu tipo de sangre, tus alergias y a quién llamar. Se guarda solo en este teléfono y se abre sin internet.
+        </p>
 
-        {!isEditing ? (
-          <div className="space-y-3">
-            {/* Header Card */}
-            <div className="p-4 bg-surface rounded-2xl border border-line flex items-center justify-between">
-              <div>
-                <span className="text-meta text-ink-2 uppercase font-bold tracking-wider">Titular</span>
-                <h3 className="text-title font-bold text-ink mt-0.5">{profile.fullName}</h3>
-              </div>
-              <div className="text-center px-3 py-1.5 bg-rojo text-white rounded-xl shadow-xs">
-                <span className="text-[10px] uppercase font-black block">Sangre</span>
-                <span className="text-lg font-black">{profile.bloodType || 'Desc.'}</span>
-              </div>
-            </div>
-
-            {/* Critical Info */}
-            <div className="grid grid-cols-1 gap-2.5">
-              <div className="p-3 bg-surface rounded-xl border border-line">
-                <span className="text-meta text-ink-2 font-bold uppercase block">Alergias Conocidas</span>
-                <p className="font-semibold text-rojo mt-0.5">{profile.allergies || 'Ninguna'}</p>
-              </div>
-
-              <div className="p-3 bg-surface rounded-xl border border-line">
-                <span className="text-meta text-ink-2 font-bold uppercase block">Condiciones o Enfermedades</span>
-                <p className="font-semibold text-ink mt-0.5">{profile.conditions || 'Ninguna'}</p>
-              </div>
-            </div>
-
-            {/* Emergency Contact */}
-            <div className="p-4 bg-surface rounded-2xl border-2 border-anil/30 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <span className="text-meta text-anil font-bold uppercase tracking-wider block">
-                  Contacto de Emergencia Familiar
-                </span>
-                <h4 className="font-bold text-row truncate mt-0.5">{profile.emergencyContactName}</h4>
-                <p className="text-secondary text-ink-2">{profile.emergencyContactPhone}</p>
-              </div>
-
-              <a
-                href={`tel:${profile.emergencyContactPhone}`}
-                className="flex items-center gap-1.5 px-4 py-2.5 bg-anil text-white font-bold text-secondary rounded-xl no-underline shrink-0"
-              >
-                <Phone className="w-4 h-4" />
-                <span>Llamar</span>
-              </a>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSave} className="space-y-3">
+        {isEditing ? (
+          <form id="medical-form" onSubmit={save} className="space-y-3">
             <div>
-              <label className="block text-meta font-bold text-ink-2 mb-1">Nombre Completo</label>
-              <input
-                type="text"
-                required
-                value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-line text-row bg-surface"
-              />
+              <label htmlFor="medical-fullName" className="block pb-1 text-secondary font-bold">Tu nombre completo</label>
+              <input type="text" required autoComplete="name" {...field('fullName')} />
             </div>
-
             <div>
-              <label className="block text-meta font-bold text-ink-2 mb-1">Grupo Sanguíneo</label>
-              <select
-                value={formData.bloodType}
-                onChange={(e) => setFormData({ ...formData, bloodType: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-line text-row bg-surface"
-              >
-                <option value="O+">O Positivo (O+)</option>
-                <option value="O-">O Negativo (O-)</option>
-                <option value="A+">A Positivo (A+)</option>
-                <option value="A-">A Negativo (A-)</option>
-                <option value="B+">B Positivo (B+)</option>
-                <option value="B-">B Negativo (B-)</option>
-                <option value="AB+">AB Positivo (AB+)</option>
-                <option value="AB-">AB Negativo (AB-)</option>
-                <option value="Desconocido">No lo sé</option>
+              <label htmlFor="medical-bloodType" className="block pb-1 text-secondary font-bold">Tipo de sangre</label>
+              <select {...field('bloodType')}>
+                <option value="">No lo sé</option>
+                {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
               </select>
             </div>
-
             <div>
-              <label className="block text-meta font-bold text-ink-2 mb-1">Alergias Críticas (ej: Penicilina)</label>
-              <input
-                type="text"
-                value={formData.allergies}
-                onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
-                placeholder="Penicilina, mariscos, polen, etc."
-                className="w-full px-3 py-2 rounded-xl border border-line text-row bg-surface"
-              />
+              <label htmlFor="medical-allergies" className="block pb-1 text-secondary font-bold">Alergias</label>
+              <input type="text" placeholder="Por ejemplo: penicilina" {...field('allergies')} />
             </div>
-
             <div>
-              <label className="block text-meta font-bold text-ink-2 mb-1">Condiciones Médicas (ej: Diabetes, Asma)</label>
-              <input
-                type="text"
-                value={formData.conditions}
-                onChange={(e) => setFormData({ ...formData, conditions: e.target.value })}
-                placeholder="Hipertensión, diabetes, marcapasos..."
-                className="w-full px-3 py-2 rounded-xl border border-line text-row bg-surface"
-              />
+              <label htmlFor="medical-conditions" className="block pb-1 text-secondary font-bold">Enfermedades o medicinas que tomas</label>
+              <input type="text" placeholder="Por ejemplo: diabetes, asma" {...field('conditions')} />
             </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-line">
-              <div>
-                <label className="block text-meta font-bold text-ink-2 mb-1">Nombre Familiar</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.emergencyContactName}
-                  onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-line text-row bg-surface"
-                />
-              </div>
-              <div>
-                <label className="block text-meta font-bold text-ink-2 mb-1">Celular Familiar</label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.emergencyContactPhone}
-                  onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-line text-row bg-surface"
-                />
-              </div>
+            <div>
+              <label htmlFor="medical-emergencyContactName" className="block pb-1 text-secondary font-bold">A quién llamar</label>
+              <input type="text" placeholder="Nombre de un familiar" {...field('emergencyContactName')} />
+            </div>
+            <div>
+              <label htmlFor="medical-emergencyContactPhone" className="block pb-1 text-secondary font-bold">Su celular</label>
+              <input type="tel" inputMode="tel" autoComplete="tel" {...field('emergencyContactPhone')} />
             </div>
           </form>
+        ) : isFilled ? (
+          <dl className="list">
+            <div className="py-3">
+              <dt className="text-meta text-ink-2">Nombre</dt>
+              <dd className="text-row font-bold">{profile.fullName}</dd>
+            </div>
+            <div className="py-3">
+              <dt className="text-meta text-ink-2">Tipo de sangre</dt>
+              <dd className="text-row font-bold">{profile.bloodType || 'No lo sabe'}</dd>
+            </div>
+            <div className="py-3">
+              <dt className="text-meta text-ink-2">Alergias</dt>
+              <dd className="text-row font-bold">{profile.allergies || 'No anotó ninguna'}</dd>
+            </div>
+            <div className="py-3">
+              <dt className="text-meta text-ink-2">Enfermedades o medicinas</dt>
+              <dd className="text-row font-bold">{profile.conditions || 'No anotó ninguna'}</dd>
+            </div>
+            {profile.emergencyContactPhone && (
+              <div className="py-3 flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <dt className="text-meta text-ink-2">A quién llamar</dt>
+                  <dd className="text-row font-bold truncate">{profile.emergencyContactName || 'Familiar'}</dd>
+                  <dd className="text-secondary text-ink-2">{profile.emergencyContactPhone}</dd>
+                </div>
+                <a href={`tel:${dialable(profile.emergencyContactPhone)}`} className="btn btn-primary w-auto shrink-0">
+                  <Phone className="w-5 h-5" aria-hidden="true" />
+                  Llamar
+                </a>
+              </div>
+            )}
+          </dl>
+        ) : (
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-sunken">
+            <HeartPulse className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
+            <p className="text-secondary">Todavía no llenaste tu ficha. Toma un minuto y puede ayudar a salvarte.</p>
+          </div>
         )}
       </div>
     </BottomSheet>

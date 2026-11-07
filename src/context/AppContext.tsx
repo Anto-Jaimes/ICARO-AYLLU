@@ -1,5 +1,8 @@
 import React, { createContext, useCallback, useContext, useState, useEffect, useMemo, useRef, ReactNode } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { CommunityItem, Mode, PostType, UserLocation, Review } from '../types';
+import { fetchUserCode } from '../services/userCodeService';
+import { clearQueuedCall, queueCall, queuedCall, requestCall } from '../services/callService';
 import { DEFAULT_USER_LOCATION } from '../data/defaultLocation';
 import {
   loadItemsFromStorage,
@@ -313,6 +316,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     requestCurrentGPS();
   }, [requestCurrentGPS]);
+
+  // In the installed app every neighbour gets a code from the first launch. On the web it is
+  // created only when someone asks for it, so passing visitors do not become accounts.
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) fetchUserCode().catch(() => {});
+  }, []);
+
+  // A free call asked for without signal leaves as soon as the phone is back online.
+  useEffect(() => {
+    if (!isOnline) return;
+    const waiting = queuedCall();
+    if (!waiting) return;
+    clearQueuedCall();
+    const place = hasLocation ? { lat: userLocation.lat, lng: userLocation.lng, name: userLocation.name } : null;
+    requestCall(waiting.destination, place)
+      .then((result) => setNotice(result.status === 'ok'
+        ? 'Volvió la señal: pedimos tu llamada gratis. Tu celular sonará en unos segundos.'
+        : 'No se pudo hacer tu llamada guardada. Ábrela otra vez en SOS.'))
+      .catch(() => queueCall(waiting.destination));
+  }, [isOnline]);
 
   // The database enforces both rules too; checking here gives the neighbour a clear reason.
   const canRecommend = (item: CommunityItem | undefined): item is CommunityItem => {

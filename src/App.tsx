@@ -87,8 +87,8 @@ const Shell: React.FC = () => {
 
   useEffect(() => {
     const isOverHero = !isEmergency && tab === 'home' && !isAlertsOpen && !isNewsOpen;
-    setStatusBarOverDark(isEmergency || (isOverHero && DARK_TONES.includes(verdict.tone)));
-  }, [isEmergency, tab, isAlertsOpen, isNewsOpen, verdict.tone]);
+    setStatusBarOverDark(isBatterySaver || isEmergency || (isOverHero && DARK_TONES.includes(verdict.tone)));
+  }, [isBatterySaver, isEmergency, tab, isAlertsOpen, isNewsOpen, verdict.tone]);
 
   const screen = (() => {
     if (isAlertsOpen) return <AlertsScreen />;
@@ -105,6 +105,9 @@ const Shell: React.FC = () => {
     if (tab === 'favors') return <FavorsScreen />;
     return <HomeScreen />;
   })();
+
+  // A full black screen: nothing else is drawn, so the phone lights as few pixels as possible.
+  if (isBatterySaver) return <BatterySaverScreen onExit={() => setIsBatterySaver(false)} />;
 
   return (
     <div data-mode={mode}>

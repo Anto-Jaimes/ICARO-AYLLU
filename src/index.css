@@ -507,3 +507,15 @@
     transform: none;
   }
 }
+
+/* The printable mural is drawn outside #root: printing shows only the mural. */
+@media print {
+  body.printing-mural #root {
+    display: none !important;
+  }
+
+  body.printing-mural .mural {
+    position: static;
+    overflow: visible;
+  }
+}

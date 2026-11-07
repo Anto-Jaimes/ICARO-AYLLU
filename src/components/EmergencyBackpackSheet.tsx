@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Backpack, Check, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Check } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 
 interface EmergencyBackpackSheetProps {
@@ -9,120 +9,82 @@ interface EmergencyBackpackSheetProps {
 
 const STORAGE_KEY = 'ayllu_backpack_items_v1';
 
-interface BackpackItem {
-  id: string;
-  label: string;
-  category: 'vital' | 'salud' | 'comunicacion' | 'abrigo';
-}
-
-const ALL_ITEMS: BackpackItem[] = [
-  { id: 'agua', label: '💧 Botellas de agua (2 litros por persona)', category: 'vital' },
-  { id: 'comida', label: '🥫 Alimentos no perecibles (atún, galletas, barras)', category: 'vital' },
-  { id: 'mascotas', label: '🐾 Alimento para mascotas (si tienes animales)', category: 'vital' },
-  { id: 'linterna', label: '🔦 Linterna con pilas de repuesto', category: 'comunicacion' },
-  { id: 'radio', label: '📻 Radio portátil a pilas para noticias oficiales', category: 'comunicacion' },
-  { id: 'silbato', label: '🗣️ Silbato de rescate para alertar ubicación', category: 'comunicacion' },
-  { id: 'botiquin', label: '🩹 Botiquín básico (gasa, alcohol, vendas, analgésico)', category: 'salud' },
-  { id: 'mascarillas', label: '😷 Mascarillas y toallas húmedas', category: 'salud' },
-  { id: 'abrigo', label: '🧥 Manta polar o chaqueta cortaviento', category: 'abrigo' },
-  { id: 'documentos', label: '📁 Fotocopia de DNI familiar y llaves en bolsa hermética', category: 'abrigo' },
+const ALL_ITEMS = [
+  { id: 'agua', label: 'Agua: 2 litros por persona' },
+  { id: 'comida', label: 'Comida que no se malogra: atún, galletas, menestras' },
+  { id: 'mascotas', label: 'Comida para tus mascotas, si tienes' },
+  { id: 'linterna', label: 'Linterna con pilas de repuesto' },
+  { id: 'radio', label: 'Radio a pilas para escuchar las noticias oficiales' },
+  { id: 'silbato', label: 'Silbato para que te encuentren' },
+  { id: 'botiquin', label: 'Botiquín: gasa, alcohol, vendas y tus medicinas' },
+  { id: 'mascarillas', label: 'Mascarillas y toallas húmedas' },
+  { id: 'abrigo', label: 'Manta o casaca abrigadora' },
+  { id: 'documentos', label: 'Copia del DNI de tu familia y llaves, en una bolsa cerrada' }
 ];
 
+function loadChecked(): string[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
 export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ open, onClose }) => {
-  const [checkedIds, setCheckedIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : ['linterna', 'silbato'];
-    } catch {
-      return ['linterna', 'silbato'];
-    }
-  });
+  const [checkedIds, setCheckedIds] = useState<string[]>(loadChecked);
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedIds));
     } catch (err) {
-      console.warn('Could not save backpack items:', err);
+      console.warn('No se pudo guardar la mochila:', err);
     }
   }, [checkedIds]);
 
   const toggleItem = (id: string) => {
-    setCheckedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setCheckedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
   };
 
-  const percentage = Math.round((checkedIds.length / ALL_ITEMS.length) * 100);
+  const ready = ALL_ITEMS.filter((item) => checkedIds.includes(item.id)).length;
+  const summary = ready === ALL_ITEMS.length
+    ? 'Tu mochila está completa.'
+    : `Tienes ${ready} de ${ALL_ITEMS.length} cosas. Te faltan ${ALL_ITEMS.length - ready}.`;
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Mochila de Emergencia (INDECI)">
-      <div className="px-4 pb-6 space-y-4 text-ink">
-        <p className="text-secondary text-ink-2">
-          Guía interactiva offline para preparar la mochila familiar ante sismos o huaicos.
-        </p>
-
-        {/* Progress Bar Card */}
-        <div className="p-4 bg-surface rounded-2xl border-2 border-line">
-          <div className="flex justify-between items-center mb-1.5">
-            <span className="font-bold text-row flex items-center gap-1.5">
-              <Backpack className="w-5 h-5 text-anil" />
-              <span>Preparación de tu hogar</span>
-            </span>
-            <span className={`font-black text-section ${
-              percentage >= 80 ? 'text-emerald-600' : percentage >= 50 ? 'text-amber-600' : 'text-rojo'
-            }`}>
-              {percentage}%
-            </span>
-          </div>
-
-          <div className="w-full h-3 bg-surface-press rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-500 rounded-full ${
-                percentage >= 80 ? 'bg-emerald-500' : percentage >= 50 ? 'bg-amber-500' : 'bg-rojo'
-              }`}
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
-
-          <p className="text-meta text-ink-2 mt-2">
-            {percentage === 100
-              ? '🎉 ¡Excelente! Tu familia tiene la mochila completa al 100%.'
-              : percentage >= 70
-                ? '👍 Vas muy bien. Revisa los elementos que aún te faltan.'
-                : '⚠️ Alerta: Te faltan insumos críticos para las primeras 24 horas.'}
-          </p>
+    <BottomSheet open={open} onClose={onClose} title="Mochila de emergencia">
+      <div className="pb-6">
+        <p className="px-4 text-secondary text-ink-2">Prepárala antes de un sismo o huaico, y tenla cerca de la puerta. Marca lo que ya tienes.</p>
+        <p className="px-4 pt-3 text-row font-bold" aria-live="polite">{summary}</p>
+        <div
+          className="mx-4 mt-2 h-3 rounded-full bg-sunken overflow-hidden"
+          role="progressbar"
+          aria-label="Mochila lista"
+          aria-valuemin={0}
+          aria-valuemax={ALL_ITEMS.length}
+          aria-valuenow={ready}
+        >
+          <div className="h-full rounded-full bg-verde" style={{ width: `${(ready / ALL_ITEMS.length) * 100}%` }} />
         </div>
 
-        {/* Checklist */}
-        <div className="space-y-2">
+        <ul className="list-plain mt-3">
           {ALL_ITEMS.map((item) => {
             const isChecked = checkedIds.includes(item.id);
             return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => toggleItem(item.id)}
-                className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition cursor-pointer ${
-                  isChecked
-                    ? 'bg-emerald-50/60 border-emerald-300 text-ink'
-                    : 'bg-surface border-line text-ink hover:bg-surface-press'
-                }`}
-              >
-                <span className={`text-secondary font-medium leading-snug pr-2 ${isChecked ? 'line-through text-ink-2' : ''}`}>
-                  {item.label}
-                </span>
-
-                <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border transition ${
-                  isChecked
-                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                    : 'border-line bg-surface'
-                }`}>
-                  {isChecked && <Check className="w-4 h-4 stroke-[3]" />}
-                </div>
-              </button>
+              <li key={item.id}>
+                <button type="button" className="row" aria-pressed={isChecked} onClick={() => toggleItem(item.id)}>
+                  <span
+                    aria-hidden="true"
+                    className={`grid place-items-center w-7 h-7 shrink-0 rounded-md border-2 ${isChecked ? 'bg-verde border-verde text-white' : 'border-line'}`}
+                  >
+                    {isChecked && <Check className="w-5 h-5" />}
+                  </span>
+                  <span className="flex-1 text-row">{item.label}</span>
+                </button>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </BottomSheet>
   );

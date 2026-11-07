@@ -35,3 +35,12 @@ agentes/
 # Enlace local con Vercel
 .vercel
 .env*
+
+# Proyecto de llamadas de referencia: tiene credenciales reales de la central, nunca subirlo
+rentafacil/
+
+# Grabaciones de la prueba de llamadas: tienen voces reales
+call-test-out/
+
+# Registros de los servicios que corren en la PC
+logs/

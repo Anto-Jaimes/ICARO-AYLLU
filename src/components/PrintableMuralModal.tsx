@@ -1,153 +1,131 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { Capacitor } from '@capacitor/core';
+import { Printer, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { Printer, X, ShieldAlert, Wrench, HeartHandshake } from 'lucide-react';
+import { useBackHandler } from '../hooks/useBackHandler';
+import { CommunityItem } from '../types';
 
 interface PrintableMuralModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const OFFICIAL_NUMBERS = [
+  { number: '105', label: 'Policía' },
+  { number: '106', label: 'Ambulancia (SAMU)' },
+  { number: '116', label: 'Bomberos' },
+  { number: '115', label: 'Defensa Civil' },
+  { number: '119', label: 'Mensajes de voz en emergencias' }
+];
+
+const EMERGENCY_TYPES = ['emergency_need', 'emergency_resource', 'support_group'];
+
+/** A sheet to stick on the wall of a shop or a tambo, for neighbours without a smartphone or during a blackout. */
 export const PrintableMuralModal: React.FC<PrintableMuralModalProps> = ({ isOpen, onClose }) => {
-  const { items, userLocation } = useApp();
-
   if (!isOpen) return null;
+  // Drawn outside the app so that printing leaves the app's own screens out.
+  return createPortal(<Mural onClose={onClose} />, document.body);
+};
 
-  const services = items.filter((i) => i.type === 'service');
-  const favors = items.filter((i) => i.type === 'favor_offer');
-  const emergencies = items.filter((i) =>
-    ['emergency_need', 'emergency_resource', 'support_group'].includes(i.type)
+const MuralSection: React.FC<{ title: string; items: CommunityItem[]; showVotes?: boolean }> = ({ title, items, showVotes }) => {
+  if (items.length === 0) return null;
+  return (
+    <section className="break-inside-avoid">
+      <h3 className="pb-2 text-section font-bold border-b-2 border-ink">{title}</h3>
+      <ul className="list-plain">
+        {items.map((item) => (
+          <li key={item.id} className="py-2 break-inside-avoid">
+            <p className="text-row font-bold">{item.title}</p>
+            <p className="text-secondary text-ink-2">
+              {item.authorName}{item.neighborhood ? `, ${item.neighborhood}` : ''}
+              {showVotes && item.vistosBuenos > 0 ? `. Recomendado por ${item.vistosBuenos} vecinos` : ''}
+            </p>
+            {item.authorPhone && <p className="text-row font-bold">{item.authorPhone}</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
+};
 
-  const handlePrint = () => {
-    window.print();
-  };
+const Mural: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const { items, userLocation, hasLocation } = useApp();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
+  const isNative = Capacitor.isNativePlatform();
+
+  useBackHandler(true, () => close.current());
+
+  useEffect(() => {
+    document.body.classList.add('printing-mural');
+    titleRef.current?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close.current();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.classList.remove('printing-mural');
+      window.removeEventListener('keydown', onKey);
+    };
+  }, []);
+
+  const services = items.filter((item) => item.type === 'service').slice(0, 6);
+  const favors = items.filter((item) => item.type === 'favor_offer').slice(0, 4);
+  const emergencies = items.filter((item) => EMERGENCY_TYPES.includes(item.type)).slice(0, 4);
+  const today = new Date().toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn print:p-0 print:bg-white print:fixed print:inset-0">
-      <div className="bg-white text-slate-900 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-300 relative print:shadow-none print:border-none print:rounded-none print:p-4">
-        {/* Modal Controls (Hidden when printed) */}
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-line print:hidden">
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-anil text-white rounded-xl font-bold">
-              <Printer className="w-5 h-5" />
-            </span>
-            <div>
-              <h3 className="font-extrabold text-base sm:text-lg">
-                Mural Comunal Imprimible (Bodega / Tambo)
-              </h3>
-              <p className="text-xs text-ink-2">
-                Pega este resumen en la pared para vecinos sin smartphone o ante apagones.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="px-4 py-2 bg-anil hover:bg-anil-press text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-md"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Imprimir / PDF</span>
+    <div className="mural fixed inset-0 z-50 overflow-y-auto bg-surface text-ink" role="dialog" aria-modal="true" aria-labelledby="mural-title">
+      <div className="print:hidden sticky top-0 z-10 bg-surface border-b border-line" style={{ paddingTop: 'var(--safe-top)' }}>
+        <div className="page flex items-center gap-2 min-h-14 pl-4 pr-1">
+          <h2 id="mural-title" ref={titleRef} tabIndex={-1} className="flex-1 text-title font-bold outline-none">Mural para imprimir</h2>
+          {!isNative && (
+            <button type="button" onClick={() => window.print()} className="btn btn-primary w-auto min-h-12">
+              <Printer className="w-5 h-5" aria-hidden="true" />
+              Imprimir
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 text-ink-2 hover:text-ink transition cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          )}
+          <button type="button" onClick={() => close.current()} aria-label="Cerrar" className="icon-btn">
+            <X className="w-6 h-6" aria-hidden="true" />
+          </button>
         </div>
-
-        {/* PRINTABLE SHEET */}
-        <div className="space-y-6">
-          <div className="border-b-4 border-black pb-3 flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">☀️</span>
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight uppercase">
-                  Mural Comunal • AYLLU
-                </h1>
-              </div>
-              <p className="text-xs font-bold text-slate-600 mt-0.5">
-                Red Vecinal de Proximidad, Economía Solidaria y Resiliencia Comunitaria
-              </p>
-            </div>
-            <div className="text-right text-xs">
-              <p className="font-black">Zona: {userLocation.name}</p>
-              <p className="text-slate-500">Fecha: {new Date().toLocaleDateString('es-PE')}</p>
-            </div>
-          </div>
-
-          {/* Section 1: Emergency & Brigades */}
-          <div className="border-2 border-rojo rounded-2xl p-4 bg-red-50/50">
-            <div className="flex items-center gap-1.5 font-black text-rojo text-sm mb-2 uppercase">
-              <ShieldAlert className="w-4 h-4" />
-              <span>Teléfonos de Auxilio y Brigadas de Emergencia</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {emergencies.slice(0, 4).map((emg) => (
-                <div key={emg.id} className="bg-white p-2.5 rounded-lg border border-red-200">
-                  <span className="font-bold block text-slate-900 truncate">{emg.title}</span>
-                  <div className="flex justify-between text-[11px] text-slate-600 mt-1">
-                    <span>Contacto: {emg.authorName}</span>
-                    <strong className="text-rojo">{emg.authorPhone || 'Comunidad'}</strong>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section 2: Verified Local Services */}
-          <div>
-            <div className="flex items-center gap-1.5 font-black text-slate-800 text-sm mb-2 border-b-2 border-slate-300 pb-1 uppercase">
-              <Wrench className="w-4 h-4 text-anil" />
-              <span>Directorio de Oficios con Visto Bueno Vecinal</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-              {services.slice(0, 6).map((srv) => (
-                <div key={srv.id} className="p-2.5 rounded-xl border border-slate-300 bg-slate-50">
-                  <div className="flex justify-between items-start">
-                    <span className="font-bold text-slate-900">{srv.title}</span>
-                    <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-1.5 py-0.5 rounded">
-                      {srv.vistosBuenos} Vistos Buenos
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-600 line-clamp-1 mt-1">{srv.description}</p>
-                  <div className="mt-2 flex justify-between items-center text-[11px] border-t border-slate-200 pt-1">
-                    <span className="font-medium text-slate-700">{srv.authorName} ({srv.neighborhood})</span>
-                    <span className="font-bold text-slate-900">{srv.authorPhone || 'En la zona'}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section 3: Ayni Tool Lending */}
-          <div>
-            <div className="flex items-center gap-1.5 font-black text-slate-800 text-sm mb-2 border-b-2 border-slate-300 pb-1 uppercase">
-              <HeartHandshake className="w-4 h-4 text-emerald-600" />
-              <span>Herramientas en Préstamo Solidario (Pacto Ayni)</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {favors.slice(0, 4).map((fav) => (
-                <div key={fav.id} className="p-2 rounded-xl border border-emerald-300 bg-emerald-50/50">
-                  <span className="font-bold text-slate-900 block">{fav.title}</span>
-                  <div className="flex justify-between items-center text-[11px] text-slate-600 mt-1">
-                    <span>Dueño: {fav.authorName}</span>
-                    <span className="font-bold text-emerald-800">{fav.authorPhone || 'En la zona'}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-slate-300 pt-3 text-center text-[11px] text-slate-500">
-            <p>Pacto de reciprocidad comunitaria • La verdadera riqueza del barrio es la ayuda mutua entre vecinos.</p>
-          </div>
-        </div>
+        <p className="page px-4 pb-3 text-secondary text-ink-2">
+          {isNative
+            ? 'Para imprimirlo, abre ayllu-five.vercel.app en una computadora y entra a Ayuda.'
+            : 'Pégalo en una bodega o en el tambo para los vecinos sin celular o cuando no haya luz.'}
+        </p>
       </div>
+
+      <article className="page px-4 py-5 space-y-6">
+        <header className="pb-3 border-b-4 border-ink">
+          <h1 className="text-sign font-bold">Mural del barrio</h1>
+          <p className="text-secondary text-ink-2">
+            Red de vecinos AYLLU. {hasLocation ? `Zona: ${userLocation.name}. ` : ''}Actualizado el {today}.
+          </p>
+        </header>
+
+        <section className="break-inside-avoid p-4 rounded-lg border-2 border-rojo">
+          <h3 className="pb-2 text-section font-bold text-rojo">En una emergencia llama gratis, sin saldo</h3>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
+            {OFFICIAL_NUMBERS.map(({ number, label }) => (
+              <li key={number} className="flex items-baseline gap-2">
+                <span className="text-title font-bold">{number}</span>
+                <span className="text-secondary">{label}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <MuralSection title="Pedidos y ofertas de ayuda" items={emergencies} />
+        <MuralSection title="Oficios recomendados por vecinos" items={services} showVotes />
+        <MuralSection title="Préstamos y favores" items={favors} />
+
+        <p className="pt-3 border-t border-line text-secondary text-ink-2 text-center">
+          La verdadera riqueza del barrio es la ayuda entre vecinos.
+        </p>
+      </article>
     </div>
   );
 };

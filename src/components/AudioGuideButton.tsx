@@ -1,81 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { audioGuide } from '../utils/audioGuide';
+import { canSpeak, speak, stopSpeaking } from '../utils/audioGuide';
 
 interface AudioGuideButtonProps {
   className?: string;
   screenTitle?: string;
 }
 
-export const AudioGuideButton: React.FC<AudioGuideButtonProps> = ({ className = '', screenTitle = '' }) => {
-  const { mode, tab, userLocation, items, isAlertsOpen, isNewsOpen } = useApp();
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+export const AudioGuideButton: React.FC<AudioGuideButtonProps> = ({ className = '' }) => {
+  const { mode, tab, userLocation, hasLocation, items, isAlertsOpen, isNewsOpen, showNotice } = useApp();
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const wasStopped = useRef(false);
 
-  useEffect(() => {
-    return () => {
-      audioGuide.stop();
-    };
-  }, []);
+  useEffect(() => () => stopSpeaking(), []);
 
-  const getSpokenText = (): string => {
+  if (!canSpeak()) return null;
+
+  const spokenText = (): string => {
     if (mode === 'emergency') {
-      return 'Modo Emergencia activado. En esta pantalla puedes ver los vecinos que necesitan auxilio urgente y los grupos de apoyo. Para llamar a los Bomberos marca el ciento dieciséis. Para la Policía marca el ciento cinco. O toca el botón rojo S.O.S. abajo a la derecha.';
+      return 'Modo emergencia activado. En esta pantalla puedes ver a los vecinos que necesitan ayuda urgente y los grupos de apoyo. Para llamar a los Bomberos marca el ciento dieciséis. Para la Policía, el ciento cinco. O toca el botón rojo S.O.S.';
     }
-
     if (isAlertsOpen) {
-      return 'Pantalla de alertas oficiales del Perú. Aquí verás los reportes sísmicos del Instituto Geofísico del Perú y avisos de lluvias o huaicos del Senamhi.';
+      return 'Alertas oficiales del Perú. Aquí verás los sismos del Instituto Geofísico del Perú y los avisos de lluvias o huaicos del Senamhi.';
     }
-
     if (isNewsOpen) {
-      return 'Noticias y reportes de tu barrio. Aquí los vecinos comparten fotos y avisos de lo que ocurre en tu zona.';
+      return 'Noticias de tu barrio. Aquí los vecinos comparten fotos y avisos de lo que pasa en tu zona.';
     }
-
     if (tab === 'services') {
-      return 'Directorio de oficios y trabajos de tu barrio. Aquí encuentras gasfitería, electricidad, cerrajería y más, recomendados por tus propios vecinos a pocos minutos caminando. Puedes tocar cualquier servicio para llamarlo directamente por teléfono.';
+      return 'Oficios de tu barrio. Aquí encuentras gasfitería, electricidad, cerrajería y más, recomendados por tus propios vecinos. Toca un servicio para ver cómo contactarlo.';
     }
-
     if (tab === 'favors') {
-      return 'Cadena de favores y Ayni solidario. En esta sección los vecinos prestan herramientas como taladros o escaleras, y ofrecen ayuda temporal sin gastar dinero. Toca cualquier favor para coordinar.';
+      return 'Favores entre vecinos. Aquí los vecinos prestan herramientas como taladros o escaleras, y ofrecen ayuda sin cobrar. Toca un favor para coordinar.';
     }
-
     if (tab === 'map') {
-      return 'Mapa interactivo de tu zona. Muestra con círculos de colores los oficios, herramientas y puntos de emergencia alrededor de tu casa.';
+      return 'Mapa de tu zona. Los círculos de colores muestran los oficios, los favores y los puntos de emergencia cerca de ti.';
     }
-
-    // Default Home Screen description
-    const servicesCount = items.filter((i) => i.type === 'service').length;
-    return `Bienvenido a AYLLU, tu red comunitaria. Tu ubicación es ${userLocation.name}. Tienes ${servicesCount} oficios y favores disponibles cerca de ti. Abajo a la derecha tienes el botón rojo de S.O.S. para emergencias que funciona sin internet ni saldo, y el botón azul para publicar.`;
+    const nearby = items.filter((item) => item.type === 'service' || item.type === 'favor_offer').length;
+    const place = hasLocation ? `Estás en ${userLocation.name}. ` : '';
+    return `Bienvenido a AYLLU, tu red de vecinos. ${place}Hay ${nearby} oficios y favores cerca de ti. Abajo tienes el botón rojo S.O.S. para emergencias, que funciona sin internet ni saldo, y el botón azul para publicar.`;
   };
 
-  const handleToggleAudio = () => {
+  const toggle = () => {
     if (isSpeaking) {
-      audioGuide.stop();
+      wasStopped.current = true;
+      stopSpeaking();
       setIsSpeaking(false);
-    } else {
-      const text = getSpokenText();
-      const started = audioGuide.speak(text, (speaking) => {
-        setIsSpeaking(speaking);
-      });
-      if (started) setIsSpeaking(true);
+      return;
     }
+    wasStopped.current = false;
+    setIsSpeaking(true);
+    speak(spokenText())
+      .catch(() => {
+        if (!wasStopped.current) showNotice('Tu teléfono no tiene una voz en español. Puedes instalarla en los ajustes de texto a voz.');
+      })
+      .finally(() => setIsSpeaking(false));
   };
 
   return (
     <button
       type="button"
-      onClick={handleToggleAudio}
-      aria-label={isSpeaking ? 'Detener lectura en voz alta' : 'Escuchar pantalla en voz alta (Audioguía)'}
-      className={`icon-btn flex items-center justify-center transition-all cursor-pointer ${
-        isSpeaking ? 'bg-amber-100 text-amber-900 ring-2 ring-amber-400' : 'text-ink-2 hover:text-ink'
-      } ${className}`}
-      title={isSpeaking ? 'Detener voz' : '🔊 Escuchar pantalla en voz alta (Accesible sin internet)'}
+      onClick={toggle}
+      aria-label={isSpeaking ? 'Detener la lectura' : 'Escuchar esta pantalla'}
+      aria-pressed={isSpeaking}
+      title={isSpeaking ? 'Detener la lectura' : 'Escuchar esta pantalla'}
+      className={`icon-btn ${isSpeaking ? 'bg-sunken text-anil' : ''} ${className}`}
     >
-      {isSpeaking ? (
-        <VolumeX className="w-6 h-6 text-amber-700 animate-pulse" aria-hidden="true" />
-      ) : (
-        <Volume2 className="w-6 h-6" aria-hidden="true" />
-      )}
+      {isSpeaking ? <VolumeX className="w-6 h-6" aria-hidden="true" /> : <Volume2 className="w-6 h-6" aria-hidden="true" />}
     </button>
   );
 };

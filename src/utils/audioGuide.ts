@@ -1,69 +1,36 @@
 /**
- * Web Speech Synthesis Audio Guide for universal accessibility.
- * Reads screen descriptions out loud for elderly, visually impaired,
- * and low-literacy users. Works 100% offline without internet.
+ * Reads a screen aloud for people who cannot read it well. On the phone it uses the voice
+ * installed on Android, which works without internet: the app's WebView has no voice of its own.
+ * On the web it uses the browser's voices.
  */
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
-class AudioGuideService {
-  private synth: SpeechSynthesis | null = null;
-  private currentUtterance: SpeechSynthesisUtterance | null = null;
-  private onStateChangeCallback: ((speaking: boolean) => void) | null = null;
+const SPANISH = ['es-PE', 'es-US', 'es-419', 'es-MX', 'es-ES'];
 
-  constructor() {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      this.synth = window.speechSynthesis;
-    }
-  }
-
-  public speak(text: string, onStateChange?: (speaking: boolean) => void): boolean {
-    if (!this.synth) return false;
-
-    // If already speaking, stop
-    if (this.synth.speaking) {
-      this.stop();
-      return false;
-    }
-
-    this.synth.cancel(); // Clear any queued utterances
-
-    this.onStateChangeCallback = onStateChange || null;
-    this.currentUtterance = new SpeechSynthesisUtterance(text);
-    this.currentUtterance.lang = 'es-PE'; // Spanish (Peru / Latin America)
-    this.currentUtterance.rate = 0.92; // Slightly slower, calm and very clear pace
-    this.currentUtterance.pitch = 1.0;
-
-    this.currentUtterance.onstart = () => {
-      if (this.onStateChangeCallback) this.onStateChangeCallback(true);
-    };
-
-    this.currentUtterance.onend = () => {
-      if (this.onStateChangeCallback) this.onStateChangeCallback(false);
-      this.currentUtterance = null;
-    };
-
-    this.currentUtterance.onerror = (e) => {
-      console.warn('SpeechSynthesis error:', e);
-      if (this.onStateChangeCallback) this.onStateChangeCallback(false);
-      this.currentUtterance = null;
-    };
-
-    this.synth.speak(this.currentUtterance);
-    return true;
-  }
-
-  public stop(): void {
-    if (this.synth) {
-      this.synth.cancel();
-      if (this.onStateChangeCallback) {
-        this.onStateChangeCallback(false);
-      }
-      this.currentUtterance = null;
-    }
-  }
-
-  public isSpeaking(): boolean {
-    return Boolean(this.synth?.speaking);
-  }
+export function canSpeak(): boolean {
+  return Capacitor.isNativePlatform() || 'speechSynthesis' in window;
 }
 
-export const audioGuide = new AudioGuideService();
+async function pickSpanish(): Promise<string | null> {
+  for (const lang of SPANISH) {
+    try {
+      if ((await TextToSpeech.isLanguageSupported({ lang })).supported) return lang;
+    } catch {
+      // try the next one
+    }
+  }
+  // Browsers list their voices late; they still find a Spanish one from the language alone.
+  return Capacitor.isNativePlatform() ? null : 'es-ES';
+}
+
+/** Resolves when the reading ends. Rejects when the phone has no Spanish voice or it is stopped. */
+export async function speak(text: string): Promise<void> {
+  const lang = await pickSpanish();
+  if (!lang) throw new Error('Sin voz en español');
+  await TextToSpeech.speak({ text, lang, rate: 0.92, pitch: 1, volume: 1, category: 'playback' });
+}
+
+export function stopSpeaking(): void {
+  TextToSpeech.stop().catch(() => {});
+}

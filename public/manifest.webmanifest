@@ -1,20 +1,20 @@
 {
-  "name": "AYLLU | Red Vecinal y Economía Solidaria",
+  "name": "AYLLU: red de vecinos",
   "short_name": "AYLLU",
   "description": "Encuentra servicios recomendados por tus vecinos, ayúdense sin dinero y revisa las alertas oficiales de tu zona.",
+  "lang": "es-PE",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0d3b66",
-  "orientation": "portrait-primary",
+  "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "/favicon.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/favicon.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

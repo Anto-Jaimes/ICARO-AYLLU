@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { BatteryLow, CircleHelp, HandHeart, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { Backpack, BatteryLow, CircleHelp, HandHeart, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { BottomSheet } from './BottomSheet';
+import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
+import { UserCodeSection } from './UserCodeSection';
 
 interface Slide {
   icon: LucideIcon;
@@ -68,65 +70,89 @@ export const TutorialSheet: React.FC = () => {
 
 export const MenuSheet: React.FC = () => {
   const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver } = useApp();
+  const [isBackpackOpen, setIsBackpackOpen] = useState(false);
 
   return (
-    <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title="Ayuda">
-      <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-        <ul className="list-plain">
-          <li>
-            <button
-              type="button"
-              className="row"
-              onClick={() => {
-                setIsMenuOpen(false);
-                setIsTutorialOpen(true);
-              }}
-            >
-              <CircleHelp className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-              <span className="flex-1 text-row font-semibold">Cómo se usa</span>
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className="row"
-              onClick={() => {
-                setIsMenuOpen(false);
-                setIsMuralOpen(true);
-              }}
-            >
-              <Printer className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-              <span className="flex-1 text-row font-semibold">Imprimir mural comunal</span>
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className="row"
-              onClick={() => {
-                setIsMenuOpen(false);
-                setIsBatterySaver(true);
-              }}
-            >
-              <BatteryLow className="w-6 h-6 shrink-0 text-amber-500" aria-hidden="true" />
-              <span className="flex-1 text-row font-semibold">Modo batería crítica (Apagón)</span>
-            </button>
-          </li>
-        </ul>
-        <section className="px-4 pt-4 border-t border-line">
-          <h3 className="flex items-center gap-2 text-row font-bold">
-            <HandHeart className="w-5 h-5 text-anil" aria-hidden="true" />
-            Qué es el ayllu
-          </h3>
-          <p className="mt-1 text-secondary text-ink-2">
-            Es la comunidad andina que se ayuda entre sí. Esta app conecta a los vecinos de tu barrio.
-          </p>
-          <h3 className="mt-4 text-row font-bold">De dónde vienen las alertas</h3>
-          <p className="mt-1 text-secondary text-ink-2">
-            Sismos del IGP. Huaicos, lluvias y avisos de SENAMHI. Son datos oficiales del Perú. Ante una emergencia, sigue a las autoridades.
-          </p>
-        </section>
-      </div>
-    </BottomSheet>
+    <>
+      <EmergencyBackpackSheet open={isBackpackOpen} onClose={() => setIsBackpackOpen(false)} />
+      <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title="Ayuda">
+        <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
+          <UserCodeSection isVisible={isMenuOpen} />
+          <ul className="list-plain">
+            <li>
+              <button
+                type="button"
+                className="row"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsTutorialOpen(true);
+                }}
+              >
+                <CircleHelp className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <span className="flex-1 text-row font-semibold">Cómo se usa</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="row"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsMuralOpen(true);
+                }}
+              >
+                <Printer className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <span className="flex-1 text-row font-semibold">Imprimir mural comunal</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="row"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsBatterySaver(true);
+                }}
+              >
+                <BatteryLow className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <span className="flex-1">
+                  <span className="block text-row font-semibold">Modo apagón</span>
+                  <span className="block text-secondary text-ink-2">Pantalla negra para cuidar la batería</span>
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="row"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsBackpackOpen(true);
+                }}
+              >
+                <Backpack className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <span className="flex-1">
+                  <span className="block text-row font-semibold">Mochila de emergencia</span>
+                  <span className="block text-secondary text-ink-2">Revisa qué te falta antes de un sismo</span>
+                </span>
+              </button>
+            </li>
+          </ul>
+          <section className="px-4 pt-4 border-t border-line">
+            <h3 className="flex items-center gap-2 text-row font-bold">
+              <HandHeart className="w-5 h-5 text-anil" aria-hidden="true" />
+              Qué es el ayllu
+            </h3>
+            <p className="mt-1 text-secondary text-ink-2">
+              Es la comunidad andina que se ayuda entre sí. Esta app conecta a los vecinos de tu barrio.
+            </p>
+            <h3 className="mt-4 text-row font-bold">De dónde vienen las alertas</h3>
+            <p className="mt-1 text-secondary text-ink-2">
+              Sismos del IGP. Huaicos, lluvias y avisos de SENAMHI. Son datos oficiales del Perú. Ante una emergencia, sigue a las autoridades.
+            </p>
+          </section>
+        </div>
+      </BottomSheet>
+    </>
   );
 };
