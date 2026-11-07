@@ -27,7 +27,7 @@ export async function reverseGeocode(lat: number, lon: number): Promise<string> 
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'ICARO-AYLLU-App/1.0'
+        'User-Agent': 'AYLLU-App/1.0'
       }
     });
 
@@ -39,16 +39,17 @@ export async function reverseGeocode(lat: number, lon: number): Promise<string> 
     const address = data.address || {};
     
     // Pick the most relevant local details
-    const road = address.road || address.pedestrian || address.neighbourhood || address.suburb || 'Calle comunitaria';
+    const road = address.road || address.pedestrian || address.neighbourhood || address.suburb || '';
     const houseNumber = address.house_number ? ` #${address.house_number}` : '';
     const district = address.suburb || address.city_district || address.town || address.city || '';
 
-    const formatted = district ? `${road}${houseNumber}, ${district}` : `${road}${houseNumber}`;
+    const street = road ? `${road}${houseNumber}` : '';
+    const formatted = [street, district].filter(Boolean).join(', ') || 'Tu ubicación';
     geocodeCache.set(cacheKey, formatted);
     return formatted;
   } catch (error) {
     console.warn('Reverse geocoding fallback used:', error);
-    return `Zona vecinal (${lat.toFixed(3)}, ${lon.toFixed(3)})`;
+    return 'Tu ubicación';
   }
 }
 

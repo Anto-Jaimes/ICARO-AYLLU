@@ -86,8 +86,8 @@ function writeCache(key: string, feed: HazardFeed): void {
 
 /** Live data, or the last saved copy for this view. Null only if there is neither. */
 export async function loadHazardFeed(
-  lat: number,
-  lng: number,
+  lat: number | null,
+  lng: number | null,
   departmentId: string | null
 ): Promise<LoadedFeed | null> {
   const cacheKey = CACHE_PREFIX + (departmentId ?? 'here');

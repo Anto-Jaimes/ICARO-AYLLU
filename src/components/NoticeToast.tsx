@@ -17,10 +17,11 @@ export const NoticeToast: React.FC = () => {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-sm pointer-events-none"
+      className="fixed z-[60] inset-x-4 pointer-events-none lg:left-64 lg:right-auto lg:w-[560px]"
+      style={{ bottom: 'calc(var(--nav-height) + var(--safe-bottom) + 8px)' }}
     >
       {notice && (
-        <p className="px-4 py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold text-center shadow-xl animate-fadeIn">
+        <p className="flex items-center min-h-14 px-4 py-3 rounded-lg bg-ink text-white text-secondary shadow-[0_4px_16px_#12182647]">
           {notice}
         </p>
       )}

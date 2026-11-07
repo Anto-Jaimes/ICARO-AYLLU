@@ -1,4 +1,4 @@
-# ☀️ ICARO-AYLLU | Red Vecinal y Economía Solidaria
+# AYLLU | Red Vecinal y Economía Solidaria
 
 > **Reto 48 Horas:** Aplicativo para que los ciudadanos obtengan con costos mínimos y sin necesidad de transporte mayor productos y servicios recomendados por vecinos, con mecanismos de intercambios solidarios y evolución a situaciones de emergencia.
 
@@ -11,9 +11,9 @@
 
 ---
 
-## 🌟 ¿Qué es ICARO-AYLLU?
+## 🌟 ¿Qué es AYLLU?
 
-Inspirada en el vocablo quechua **Ayllu** (*comunidad unida por vínculos de reciprocidad, ayuda mutua y solidaridad*), **ICARO-AYLLU** es una plataforma ciudadana hiperlocal diseñada para transformar la convivencia de los barrios en dos frentes:
+Inspirada en el vocablo quechua **Ayllu** (*comunidad unida por vínculos de reciprocidad, ayuda mutua y solidaridad*), **AYLLU** es una plataforma ciudadana hiperlocal diseñada para transformar la convivencia de los barrios en dos frentes:
 
 1. **Día a Día:** Fortalecer la economía local de proximidad y la economía solidaria sin dinero.
 2. **Emergencias:** Convertirse en un centro de comando vecinal resiliente para coordinar auxilio humanitario inmediato y compartir recursos críticos ante cortes, desastres naturales o situaciones críticas.
@@ -100,6 +100,28 @@ La aplicación integra fuentes oficiales del Perú y servicios abiertos, sin cos
 
 ---
 
+## 📱 Generar el APK
+
+La app Android es el mismo código web empaquetado con [Capacitor](https://capacitorjs.com/).
+
+1. **Requisitos:** Android SDK con `ANDROID_HOME` configurado y **Java 21** en `JAVA_HOME` (ni el 17 ni el 25 sirven).
+2. **Compilar:**
+   ```bash
+   npm run apk
+   ```
+3. El APK queda en `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+## 🛰️ Datos de SENAMHI
+
+SENAMHI no responde desde la nube, así que sus datos entran desde una PC en Perú:
+
+1. Crea `.env.relay` con `SUPABASE_SECRET_KEY=sb_secret_...` (nunca lo subas al repositorio).
+2. Ejecuta `npm run relay` y deja esa terminal abierta. Actualiza cada 30 minutos.
+
+Si el relevo se detiene, la app avisa que no tiene datos actualizados en lugar de afirmar que no hay riesgo.
+
+---
+
 ## 👥 Integración Comunitaria
 
-*ICARO-AYLLU* demuestra que la mejor tecnología no es la que aísla, sino la que fortalece el tejido social, la economía local y la resiliencia ciudadana ante cualquier adversidad.
+*AYLLU* demuestra que la mejor tecnología no es la que aísla, sino la que fortalece el tejido social, la economía local y la resiliencia ciudadana ante cualquier adversidad.

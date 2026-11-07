@@ -1,3 +1,7 @@
+const WALKING_METERS_PER_MINUTE = 75;
+const STREET_DETOUR = 1.25; // streets are longer than a straight line
+const MAX_WALKING_MINUTES = 30;
+
 /** The "Sin límite" option of the distance filter. */
 export const UNLIMITED_RADIUS_M = 100000;
 
@@ -27,11 +31,11 @@ export function calculateDistanceMeters(
   return Math.round(R * c);
 }
 
-export function formatDistance(meters?: number): string {
-  if (meters === undefined || isNaN(meters)) return 'Cerca de ti';
-  if (meters < 100) return 'A pocos pasos (<100m)';
-  if (meters < 1000) return `A ${meters} metros`;
-  return `A ${(meters / 1000).toFixed(1)} km`;
+/** "a 6 min a pie" when walkable, otherwise kilometres. Null without a real position. */
+export function describeDistance(meters?: number): string | null {
+  if (meters === undefined || Number.isNaN(meters)) return null;
+  const minutes = Math.max(1, Math.round((meters * STREET_DETOUR) / WALKING_METERS_PER_MINUTE));
+  return minutes <= MAX_WALKING_MINUTES ? `a ${minutes} min a pie` : `a ${(meters / 1000).toFixed(1)} km`;
 }
 
 /** Returns a number that WhatsApp and the dialer can open, or undefined if it is not one. */

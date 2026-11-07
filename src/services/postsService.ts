@@ -79,7 +79,7 @@ function toCommunityItem(row: PostRow): CommunityItem {
 let pendingSession: Promise<void> | null = null;
 
 // Shared promise: simultaneous first writes must not create two anonymous users.
-function ensureSession(): Promise<void> {
+export function ensureSession(): Promise<void> {
   pendingSession ??= (async () => {
     const { data } = await supabase.auth.getSession();
     if (data.session) return;

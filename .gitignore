@@ -28,3 +28,6 @@ agentes/
 
 # Clave secreta del relevo de SENAMHI: nunca subirla
 .env.relay
+
+# APK compilados: se generan con npm run apk
+*.apk

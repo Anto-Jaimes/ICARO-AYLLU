@@ -1,47 +1,381 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
+@import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
+
+/*
+ * Andén: the app is a hillside. A coloured sky says what is coming, above level
+ * full-width rows where neighbours stand. Boldness lives only in the terrace edge
+ * of the Inicio status block; everything else stays flat and quiet.
+ */
+
+@theme {
+  --font-sans: 'Atkinson Hyperlegible Next Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --color-surface: #ffffff;
+  --color-sunken: #eef1f6;
+  --color-line: #c9d0dc;
+  --color-ink: #121826;
+  --color-ink-2: #3a4456;
+  --color-anil: #1e3f8f;
+  --color-anil-press: #16306e;
+  --color-verde: #0b5a3c;
+  --color-amarillo: #ffd02e;
+  --color-naranja: #f58a07;
+  --color-rojo: #a90f1c;
+  --color-rojo-press: #860a15;
+  --color-unknown: #4b5463;
+  --color-offline: #5a4632;
+  --color-link-on-ink: #b9cbff;
+
+  --text-sign: 1.875rem;
+  --text-sign--line-height: 2.25rem;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.75rem;
+  --text-section: 1.25rem;
+  --text-section--line-height: 1.625rem;
+  --text-row: 1.125rem;
+  --text-row--line-height: 1.5rem;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.625rem;
+  --text-secondary: 1rem;
+  --text-secondary--line-height: 1.5rem;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.25rem;
+}
 
 :root {
-  --font-heading: 'Space Grotesk', -apple-system, sans-serif;
-  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  --nav-height: 72px;
+  --row-min: 80px;
+  --top-bar: 0px;
+  --map-top-inset: var(--safe-top);
+}
 
-  /* Paleta Sobria & Institucional (Slate, Navy y Terracota apagado) */
-  --color-slate-base: #0F172A;
-  --color-slate-card: #FFFFFF;
-  --color-border-subtle: #E2E8F0;
-  --color-brand-muted: #B45309; /* Ámbar apagado / Ocre formal */
-  --color-emergency-muted: #991B1B; /* Carmesí / Borgoña sobrio */
+/* Emergency: red frame, pure white page for sunlight, black text, bigger targets. */
+[data-mode='emergency'] {
+  --color-ink: #000000;
+  --color-ink-2: #000000;
+  --color-line: #000000;
+  --row-min: 96px;
+  --top-bar: calc(56px + var(--safe-top));
+  --map-top-inset: 0px;
 }
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
+    background: var(--color-surface);
+    /* A reserved scrollbar lane would leave a dead strip beside the full-bleed sky. */
+    scrollbar-width: thin;
+  }
+
   body {
-    @apply antialiased text-slate-800 bg-[#F8FAFC] selection:bg-slate-200 selection:text-slate-900;
-    font-family: var(--font-body);
+    margin: 0;
+    min-height: 100dvh;
+    overflow-x: clip;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    letter-spacing: -0.02em;
+  button,
+  a,
+  select,
+  input,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    background: none;
+    border: 0;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-anil);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    margin: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 }
 
-/* Paneles limpios y discretos */
-.clean-card {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+@layer components {
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: var(--text-row);
+    line-height: var(--text-row--line-height);
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: transform 120ms ease, background-color 120ms ease;
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn-primary {
+    background: var(--color-anil);
+    color: #ffffff;
+  }
+
+  .btn-primary:active {
+    background: var(--color-anil-press);
+  }
+
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-anil);
+    box-shadow: inset 0 0 0 2px var(--color-anil);
+  }
+
+  .btn-secondary:active {
+    background: var(--color-sunken);
+  }
+
+  .btn-danger {
+    background: var(--color-rojo);
+    color: #ffffff;
+  }
+
+  .btn-danger:active {
+    background: var(--color-rojo-press);
+  }
+
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+  }
+
+  .chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+    min-height: 40px;
+    margin-block: 4px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: var(--color-sunken);
+    color: var(--color-ink);
+    font-size: var(--text-secondary);
+    line-height: var(--text-secondary--line-height);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .chip::after {
+    content: '';
+    position: absolute;
+    inset: -4px 0; /* 48px real tap area around the 40px chip */
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--color-anil);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-inline: 16px;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+
+  .chip-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: var(--row-min);
+    padding: 12px 16px;
+    text-align: left;
+    text-decoration: none;
+    transition: background-color 120ms ease;
+  }
+
+  .row:active {
+    background: var(--color-sunken);
+    transition: none;
+  }
+
+  /* Dividers only between rows of one list, starting at the text. */
+  .list > li + li {
+    border-top: 1px solid var(--color-line);
+    margin-left: 72px;
+  }
+
+  .list > li + li > * {
+    margin-left: -72px;
+    width: calc(100% + 72px);
+  }
+
+  .list-plain > li + li {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .field {
+    display: block;
+    width: 100%;
+    min-height: 56px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-ink-2);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  .sheet {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 16px 16px 0 0;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: 0 -8px 24px #1218262e;
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .sheet::backdrop {
+    background: #1218268f;
+    animation: scrim-in 200ms ease both;
+  }
+
+  .sheet[open] {
+    display: flex;
+    flex-direction: column;
+    animation: sheet-in 280ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  .sheet[data-closing] {
+    animation: sheet-out 200ms ease-in both;
+  }
+
+  .sheet[data-closing]::backdrop {
+    animation: scrim-out 200ms ease both;
+  }
+
+  .sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .app-nav-offset {
+    padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 88px);
+  }
+
+  .leaflet-container {
+    font-family: var(--font-sans);
+  }
 }
 
-.clean-card-dark {
-  background: #0F172A;
-  border: 1px solid #1E293B;
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
 }
 
-/* Map adjustments */
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  border-radius: 1rem;
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-only {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sheet {
+    inset: 0;
+    width: 560px;
+    max-height: 85dvh;
+    margin: auto;
+    border-radius: 16px;
+  }
+
+  .app-nav-offset {
+    padding-bottom: 96px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open],
+  .sheet::backdrop {
+    animation: fade-only 150ms ease both;
+  }
+
+  .sheet[data-closing],
+  .sheet[data-closing]::backdrop {
+    animation: scrim-out 150ms ease both;
+  }
+
+  .btn,
+  .row {
+    transition: none;
+  }
+
+  .btn:active {
+    transform: none;
+  }
 }

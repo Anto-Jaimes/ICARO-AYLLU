@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useState, useEffect, useMemo, useRef, ReactNode } from 'react';
-import { CommunityItem, Mode, UserLocation, Review } from '../types';
+import { CommunityItem, Mode, PostType, UserLocation, Review } from '../types';
 import { DEFAULT_USER_LOCATION } from '../data/defaultLocation';
 import {
   loadItemsFromStorage,
@@ -7,7 +7,9 @@ import {
   queueOfflineItem,
   getOfflineQueue,
   getOfflineQueueCount,
-  removeFromOfflineQueue
+  loadLastLocation,
+  removeFromOfflineQueue,
+  saveLastLocation
 } from '../utils/storage';
 import { calculateDistanceMeters, isInPeru } from '../utils/geo';
 import { reverseGeocode } from '../services/geoService';
@@ -20,15 +22,27 @@ import {
   submitReview,
   subscribeToPostChanges
 } from '../services/postsService';
-import confetti from 'canvas-confetti';
+import { tapFeedback } from '../lib/native';
+import type { ReportKind } from '../services/reportsService';
 
-function celebrate(particleCount: number, spread: number, originY: number) {
-  try {
-    confetti({ particleCount, spread, origin: { y: originY } });
-  } catch {
-    // Purely decorative: never let it interrupt the action.
-  }
+export type Tab = 'home' | 'services' | 'favors' | 'map' | 'neighbors' | 'resources' | 'groups';
+export type LocationStatus = 'locating' | 'ready' | 'denied' | 'unavailable';
+
+/** What a publish flow starts from when another screen already knows the intent. */
+export interface PublishPreset {
+  type: PostType;
+  category: string;
+  title: string;
 }
+
+export interface ServicesFilter {
+  category?: string;
+  query?: string;
+}
+
+const NORMAL_HOME: Tab = 'home';
+const EMERGENCY_HOME: Tab = 'neighbors';
+const LOCATED_NAME = 'Tu ubicación';
 
 // Posts still waiting to reach the server stay visible to their author.
 function withPendingPosts(items: CommunityItem[]): CommunityItem[] {
@@ -39,33 +53,50 @@ function withPendingPosts(items: CommunityItem[]): CommunityItem[] {
 interface AppContextType {
   mode: Mode;
   setMode: (mode: Mode) => void;
-  toggleMode: () => void;
-  activeTab: 'services' | 'favors' | 'emergency_board' | 'map';
-  setActiveTab: (tab: 'services' | 'favors' | 'emergency_board' | 'map') => void;
+  tab: Tab;
+  setTab: (tab: Tab) => void;
+  homeTab: Tab;
+  isAlertsOpen: boolean;
+  setIsAlertsOpen: (open: boolean) => void;
+  isNewsOpen: boolean;
+  setIsNewsOpen: (open: boolean) => void;
+  reportKind: ReportKind | null;
+  openReport: (kind: ReportKind) => void;
+  closeReport: () => void;
+  /** Changes after publishing, so every news list reloads. */
+  reportsVersion: number;
+  refreshReports: () => void;
+  servicesFilter: ServicesFilter;
+  openServices: (filter?: ServicesFilter) => void;
   items: CommunityItem[];
-  filteredItems: CommunityItem[];
   userLocation: UserLocation;
-  updateUserLocation: (lat: number, lng: number, name?: string) => void;
+  /** False while userLocation is only the default point, so nothing may claim to describe "your zone". */
+  hasLocation: boolean;
+  locationStatus: LocationStatus;
   requestCurrentGPS: () => void;
   isOnline: boolean;
   pendingOfflineCount: number;
-  maxDistanceMeters: number;
-  setMaxDistanceMeters: (val: number) => void;
-  selectedCategory: string;
-  setSelectedCategory: (cat: string) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedItemForDetail: CommunityItem | null;
-  setSelectedItemForDetail: (item: CommunityItem | null) => void;
-  isPublishModalOpen: boolean;
-  setIsPublishModalOpen: (open: boolean) => void;
+  /** True until the first answer, so an empty list is not read as "nobody nearby". */
+  isLoadingItems: boolean;
+  selectedItem: CommunityItem | null;
+  openItem: (id: string) => void;
+  closeItem: () => void;
+  isPublishOpen: boolean;
+  publishPreset: PublishPreset | null;
+  openPublish: (preset?: PublishPreset) => void;
+  closePublish: () => void;
+  isSosOpen: boolean;
+  setIsSosOpen: (open: boolean) => void;
   isTutorialOpen: boolean;
   setIsTutorialOpen: (open: boolean) => void;
+  isMenuOpen: boolean;
+  setIsMenuOpen: (open: boolean) => void;
   toggleVistoBueno: (id: string) => void;
   addReview: (itemId: string, comment: string, reviewerName: string) => void;
   addItem: (item: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => void;
-  updateItemStatus: (id: string, status: 'active' | 'in_progress' | 'resolved') => void;
+  updateItemStatus: (id: string, status: CommunityItem['status']) => void;
   notice: string | null;
+  showNotice: (message: string) => void;
   clearNotice: () => void;
 }
 
@@ -75,27 +106,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [mode, setModeState] = useState<Mode>(() => {
     return (localStorage.getItem('icaro_ayllu_mode') as Mode) || 'normal';
   });
-  
-  const [activeTab, setActiveTabState] = useState<'services' | 'favors' | 'emergency_board' | 'map'>('services');
+  const homeTab = mode === 'emergency' ? EMERGENCY_HOME : NORMAL_HOME;
+
+  const [tab, setTabState] = useState<Tab>(homeTab);
+  const [isAlertsOpen, setIsAlertsOpen] = useState<boolean>(false);
+  const [isNewsOpen, setIsNewsOpen] = useState<boolean>(false);
+  const [reportKind, setReportKind] = useState<ReportKind | null>(null);
+  const [reportsVersion, setReportsVersion] = useState<number>(0);
+  const [servicesFilter, setServicesFilter] = useState<ServicesFilter>({});
+
   const [items, setItems] = useState<CommunityItem[]>(() => withPendingPosts(loadItemsFromStorage()));
-  const [userLocation, setUserLocation] = useState<UserLocation>(DEFAULT_USER_LOCATION);
+  const [savedLocation] = useState<UserLocation | null>(() => loadLastLocation());
+  const [userLocation, setUserLocation] = useState<UserLocation>(savedLocation ?? DEFAULT_USER_LOCATION);
+  const [hasLocation, setHasLocation] = useState<boolean>(savedLocation !== null);
+  const [locationStatus, setLocationStatus] = useState<LocationStatus>('locating');
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [pendingOfflineCount, setPendingOfflineCount] = useState<number>(getOfflineQueueCount());
   const [notice, setNotice] = useState<string | null>(null);
+  const [isLoadingItems, setIsLoadingItems] = useState<boolean>(true);
 
-  const [maxDistanceMeters, setMaxDistanceMeters] = useState<number>(3000);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-  // Each tab has its own categories: one chosen in Favores must not silently empty Oficios.
-  const setActiveTab = (tab: 'services' | 'favors' | 'emergency_board' | 'map') => {
-    setActiveTabState(tab);
-    setSelectedCategory('all');
-  };
-
-  // Keep the id, not a copy, so an open detail shows live votes and recommendations.
+  // Keep the id, not a copy, so an open sheet shows live votes and recommendations.
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+  const [isPublishOpen, setIsPublishOpen] = useState<boolean>(false);
+  const [publishPreset, setPublishPreset] = useState<PublishPreset | null>(null);
+  const [isSosOpen, setIsSosOpen] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(() => {
     return !localStorage.getItem('icaro_ayllu_tutorial_seen');
   });
@@ -104,6 +139,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const isFlushingQueue = useRef(false);
 
   const clearNotice = useCallback(() => setNotice(null), []);
+  const showNotice = useCallback((message: string) => setNotice(message), []);
+
+  const setTab = useCallback((next: Tab) => {
+    setTabState(next);
+    setIsAlertsOpen(false);
+    setIsNewsOpen(false);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const openServices = useCallback((filter: ServicesFilter = {}) => {
+    setServicesFilter(filter);
+    setTab('services');
+  }, [setTab]);
+
+  const openPublish = useCallback((preset?: PublishPreset) => {
+    setPublishPreset(preset ?? null);
+    setIsPublishOpen(true);
+  }, []);
+  const closePublish = useCallback(() => setIsPublishOpen(false), []);
+
+  const openReport = useCallback((kind: ReportKind) => setReportKind(kind), []);
+  const closeReport = useCallback(() => setReportKind(null), []);
+  const refreshReports = useCallback(() => setReportsVersion((version) => version + 1), []);
+
+  const openItem = useCallback((id: string) => setSelectedItemId(id), []);
+  const closeItem = useCallback(() => setSelectedItemId(null), []);
 
   const refreshItems = useCallback(async () => {
     const fetchId = ++latestFetch.current;
@@ -113,7 +174,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (fetchId === latestFetch.current) setItems(withPendingPosts(remoteItems));
     } catch (err) {
       console.warn('No se pudieron actualizar las publicaciones:', err);
-      if (navigator.onLine) setNotice('No pudimos actualizar. Mostrando lo último guardado.');
+    } finally {
+      if (fetchId === latestFetch.current) setIsLoadingItems(false);
     }
   }, [userLocation.lat, userLocation.lng]);
 
@@ -137,7 +199,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           console.error('Publicación rechazada por el servidor:', err);
           removeFromOfflineQueue(id);
           setItems((prev) => prev.filter((existing) => existing.id !== id));
-          setNotice(`No se pudo publicar "${title}". Revisa los datos e inténtalo de nuevo.`);
+          setNotice(`No se pudo publicar "${title}". Revisa los datos y vuelve a intentar.`);
         }
       }
     } finally {
@@ -175,67 +237,86 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     saveItemsToStorage(items);
   }, [items]);
 
-  const setMode = (newMode: Mode) => {
+  const setMode = useCallback((newMode: Mode) => {
     setModeState(newMode);
     localStorage.setItem('icaro_ayllu_mode', newMode);
-    if (newMode === 'emergency') {
-      setActiveTab('emergency_board');
-    } else {
-      if (activeTab === 'emergency_board') {
-        setActiveTab('services');
-      }
-    }
-  };
+    setTab(newMode === 'emergency' ? EMERGENCY_HOME : NORMAL_HOME);
+  }, [setTab]);
 
-  const toggleMode = () => {
-    setMode(mode === 'normal' ? 'emergency' : 'normal');
-  };
-
-  const updateUserLocation = async (lat: number, lng: number, name?: string) => {
-    let resolvedName = name;
-    if (!resolvedName) {
-      resolvedName = await reverseGeocode(lat, lng);
+  const applyPosition = useCallback((lat: number, lng: number) => {
+    if (!isInPeru(lat, lng)) {
+      setLocationStatus('unavailable');
+      setNotice('Estás fuera del Perú. Elige un departamento en Alertas.');
+      return;
     }
-    setUserLocation({
-      lat,
-      lng,
-      name: resolvedName
+
+    setHasLocation(true);
+    setLocationStatus('ready');
+    setUserLocation((current) => {
+      const next = { lat, lng, name: current.name === DEFAULT_USER_LOCATION.name ? LOCATED_NAME : current.name };
+      saveLastLocation(next);
+      return next;
     });
-  };
 
-  const requestCurrentGPS = () => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude: lat, longitude: lng } = pos.coords;
-          if (!isInPeru(lat, lng)) {
-            setNotice('Tu ubicación está fuera del Perú. Elige un departamento para ver sus alertas.');
-            return;
-          }
-          updateUserLocation(lat, lng);
-        },
-        (err) => {
-          console.warn('Geolocation unavailable, keeping current coordinates:', err);
-        },
-        { enableHighAccuracy: true, timeout: 8000 }
-      );
-    }
-  };
-
-  // The home screen shows the neighbour's own area, so locate them as soon as the app opens.
-  useEffect(() => {
-    requestCurrentGPS();
+    // The name is only a nicety: the position must not wait for it, or for a connection.
+    reverseGeocode(lat, lng).then((name) => {
+      setUserLocation((current) => {
+        if (current.lat !== lat || current.lng !== lng) return current;
+        const next = { ...current, name };
+        saveLastLocation(next);
+        return next;
+      });
+    });
   }, []);
 
+  const requestCurrentGPS = useCallback(() => {
+    if (!('geolocation' in navigator)) {
+      setLocationStatus('unavailable');
+      return;
+    }
+
+    setLocationStatus('locating');
+    const onFix = (position: GeolocationPosition) => {
+      applyPosition(position.coords.latitude, position.coords.longitude);
+    };
+    const onFail = (error: GeolocationPositionError) => {
+      console.warn('Ubicación no disponible:', error.message);
+      setLocationStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable');
+    };
+
+    // Satellite GPS often times out indoors. The network position is plenty to find a
+    // department, so fall back to it instead of silently staying on the default point.
+    navigator.geolocation.getCurrentPosition(
+      onFix,
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          onFail(error);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(onFix, onFail, {
+          enableHighAccuracy: false,
+          timeout: 15_000,
+          maximumAge: 600_000
+        });
+      },
+      { enableHighAccuracy: true, timeout: 8_000, maximumAge: 60_000 }
+    );
+  }, [applyPosition]);
+
+  // The home screen describes the neighbour's own area, so locate them as soon as it opens.
+  useEffect(() => {
+    requestCurrentGPS();
+  }, [requestCurrentGPS]);
+
   // The database enforces both rules too; checking here gives the neighbour a clear reason.
-  const canRecommend =(item: CommunityItem | undefined): item is CommunityItem => {
+  const canRecommend = (item: CommunityItem | undefined): item is CommunityItem => {
     if (!item) return false;
     if (item.isMine) {
       setNotice('No puedes recomendar tu propia publicación.');
       return false;
     }
     if (!navigator.onLine) {
-      setNotice('Necesitas conexión para recomendar.');
+      setNotice('Necesitas internet para recomendar.');
       return false;
     }
     return true;
@@ -256,13 +337,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!canRecommend(item)) return;
 
     const voted = !item.hasUserVoted;
-    if (voted) celebrate(40, 60, 0.7);
+    tapFeedback();
     applyVote(id, voted);
 
     setVote(id, voted).catch((err) => {
       console.error('No se pudo guardar el voto:', err);
       applyVote(id, !voted);
-      setNotice('No se pudo guardar tu recomendación. Inténtalo de nuevo.');
+      setNotice('No se guardó tu Visto Bueno. Vuelve a intentar.');
     });
   };
 
@@ -296,7 +377,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       await submitReview(itemId, authorName, comment, userLocation.lat, userLocation.lng);
     } catch (err) {
       console.error('No se pudo guardar la recomendación:', err);
-      setNotice('No se pudo guardar tu recomendación. Inténtalo de nuevo.');
+      setNotice('No se guardó tu recomendación. Vuelve a intentar.');
     }
     await refreshItems();
   };
@@ -317,18 +398,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     queueOfflineItem(newItem);
     setPendingOfflineCount(getOfflineQueueCount());
     setItems((prev) => [newItem, ...prev]);
-    celebrate(60, 80, 0.6);
+    tapFeedback();
+    setNotice(navigator.onLine ? 'Publicado' : 'Guardado. Se publicará cuando vuelva internet.');
 
     await flushOfflineQueue();
     if (navigator.onLine) await refreshItems();
   };
 
-  const updateItemStatus = (id: string, status: 'active' | 'in_progress' | 'resolved') => {
+  const updateItemStatus = (id: string, status: CommunityItem['status']) => {
     const previousStatus = items.find((item) => item.id === id)?.status;
     if (!previousStatus) return;
 
     if (!navigator.onLine) {
-      setNotice('Necesitas conexión para cambiar el estado.');
+      setNotice('Necesitas internet para avisar a tus vecinos.');
       return;
     }
 
@@ -336,105 +418,76 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item)));
     };
 
+    tapFeedback();
     applyStatus(status);
     setPostStatus(id, status).catch((err) => {
       console.error('No se pudo cambiar el estado:', err);
       applyStatus(previousStatus);
-      setNotice('No se pudo cambiar el estado. Inténtalo de nuevo.');
+      setNotice('No se pudo avisar. Vuelve a intentar.');
     });
   };
 
   const itemsWithDistance = useMemo(() => {
-    return items.map((item) => {
-      const distance = calculateDistanceMeters(
-        userLocation.lat,
-        userLocation.lng,
-        item.coordinates[0],
-        item.coordinates[1]
-      );
-      return {
-        ...item,
-        distanceMeters: distance
-      };
-    });
-  }, [items, userLocation]);
+    return items.map((item) => ({
+      ...item,
+      // Without a real position any distance would be invented.
+      distanceMeters: hasLocation
+        ? calculateDistanceMeters(userLocation.lat, userLocation.lng, item.coordinates[0], item.coordinates[1])
+        : undefined
+    }));
+  }, [items, userLocation, hasLocation]);
 
-  const selectedItemForDetail = useMemo(
+  const selectedItem = useMemo(
     () => itemsWithDistance.find((item) => item.id === selectedItemId) ?? null,
     [itemsWithDistance, selectedItemId]
   );
-
-  const setSelectedItemForDetail = (item: CommunityItem | null) => setSelectedItemId(item?.id ?? null);
-
-  const filteredItems = useMemo(() => {
-    return itemsWithDistance.filter((item) => {
-      if (mode === 'emergency') {
-        if (activeTab === 'emergency_board') {
-          if (!['emergency_need', 'emergency_resource', 'support_group'].includes(item.type)) {
-            return false;
-          }
-        }
-      } else {
-        if (activeTab === 'services' && item.type !== 'service') return false;
-        if (activeTab === 'favors' && !['favor_offer', 'favor_request'].includes(item.type)) return false;
-      }
-
-      if (item.distanceMeters !== undefined && item.distanceMeters > maxDistanceMeters) {
-        return false;
-      }
-
-      if (selectedCategory !== 'all' && item.category !== selectedCategory) {
-        return false;
-      }
-
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchesTitle = item.title.toLowerCase().includes(q);
-        const matchesDesc = item.description.toLowerCase().includes(q);
-        const matchesAuthor = item.authorName.toLowerCase().includes(q);
-        const matchesCat = item.category.toLowerCase().includes(q);
-        const matchesNeighbor = item.neighborhood.toLowerCase().includes(q);
-        if (!matchesTitle && !matchesDesc && !matchesAuthor && !matchesCat && !matchesNeighbor) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [itemsWithDistance, mode, activeTab, maxDistanceMeters, selectedCategory, searchQuery]);
 
   return (
     <AppContext.Provider
       value={{
         mode,
         setMode,
-        toggleMode,
-        activeTab,
-        setActiveTab,
+        tab,
+        setTab,
+        homeTab,
+        isAlertsOpen,
+        setIsAlertsOpen,
+        isNewsOpen,
+        setIsNewsOpen,
+        reportKind,
+        openReport,
+        closeReport,
+        reportsVersion,
+        refreshReports,
+        servicesFilter,
+        openServices,
         items: itemsWithDistance,
-        filteredItems,
         userLocation,
-        updateUserLocation,
+        hasLocation,
+        locationStatus,
         requestCurrentGPS,
         isOnline,
         pendingOfflineCount,
-        maxDistanceMeters,
-        setMaxDistanceMeters,
-        selectedCategory,
-        setSelectedCategory,
-        searchQuery,
-        setSearchQuery,
-        selectedItemForDetail,
-        setSelectedItemForDetail,
-        isPublishModalOpen,
-        setIsPublishModalOpen,
+        isLoadingItems,
+        selectedItem,
+        openItem,
+        closeItem,
+        isPublishOpen,
+        publishPreset,
+        openPublish,
+        closePublish,
+        isSosOpen,
+        setIsSosOpen,
         isTutorialOpen,
         setIsTutorialOpen,
+        isMenuOpen,
+        setIsMenuOpen,
         toggleVistoBueno,
         addReview,
         addItem,
         updateItemStatus,
         notice,
+        showNotice,
         clearNotice
       }}
     >
