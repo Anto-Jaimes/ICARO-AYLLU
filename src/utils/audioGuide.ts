@@ -26,11 +26,28 @@ async function pickSpanish(): Promise<string | null> {
 
 /** Resolves when the reading ends. Rejects when the phone has no Spanish voice or it is stopped. */
 export async function speak(text: string): Promise<void> {
-  const lang = await pickSpanish();
-  if (!lang) throw new Error('Sin voz en español');
-  await TextToSpeech.speak({ text, lang, rate: 0.92, pitch: 1, volume: 1, category: 'playback' });
+  if (Capacitor.isNativePlatform()) {
+    const lang = await pickSpanish();
+    if (!lang) throw new Error('Sin voz en español');
+    await TextToSpeech.speak({ text, lang, rate: 0.92, pitch: 1, volume: 1, category: 'playback' });
+    return;
+  }
+
+  // Web fallback with window.speechSynthesis
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'es-PE';
+    utterance.rate = 0.92;
+    window.speechSynthesis.speak(utterance);
+    return;
+  }
 }
 
 export function stopSpeaking(): void {
-  TextToSpeech.stop().catch(() => {});
+  if (Capacitor.isNativePlatform()) {
+    TextToSpeech.stop().catch(() => {});
+  } else if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
 }
