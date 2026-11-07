@@ -1,33 +1,56 @@
 /**
- * Registers AYLLU's services to start hidden every time this Windows user logs in, so nobody has
- * to type a command. Only this user, without administrator rights.
- *   npm run servicios:instalar
- *   npm run servicios:quitar
+ * Makes AYLLU's services start hidden every time this Windows user logs in, so nobody has to type
+ * a command. It uses the user's own Startup folder: no administrator rights needed.
+ *   npm run servicios:instalar   starts them now and at every login
+ *   npm run servicios:quitar     stops them and removes the automatic start
  */
-import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-const TASK = 'AYLLU servicios';
 const root = resolve('.');
+const startupFolder = join(process.env.APPDATA ?? '', 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup');
+const launcher = join(startupFolder, 'AYLLU servicios.vbs');
+const LOCK = join(root, 'logs', 'servicios.pid');
+
+function stopRunning(): boolean {
+  if (!existsSync(LOCK)) return false;
+  const pid = readFileSync(LOCK, 'utf8').trim();
+  try {
+    // /T also stops the two programs the supervisor started.
+    execFileSync('taskkill', ['/PID', pid, '/T', '/F'], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    rmSync(LOCK, { force: true });
+  }
+}
 
 if (process.argv.includes('--quitar')) {
-  execFileSync('schtasks', ['/Delete', '/TN', TASK, '/F'], { stdio: 'inherit' });
-  console.log('Listo: los servicios ya no arrancarán solos. Si están corriendo, se detienen al cerrar sesión.');
+  rmSync(launcher, { force: true });
+  const stopped = stopRunning();
+  console.log(`Listo: los servicios ya no arrancarán solos${stopped ? ' y se detuvieron' : ''}.`);
   process.exit(0);
 }
 
-// A tiny launcher that starts Node without opening a window.
+if (!existsSync(startupFolder)) {
+  console.error(`No encontré la carpeta de Inicio de Windows: ${startupFolder}`);
+  process.exit(1);
+}
+
 mkdirSync(join(root, 'logs'), { recursive: true });
-const launcher = join(root, 'logs', 'servicios-inicio.vbs');
+rmSync(join(root, 'logs', 'servicios-inicio.vbs'), { force: true });
+
+// A tiny launcher that starts Node without opening a window.
 writeFileSync(launcher, [
-  "' Starts AYLLU's services hidden. Made by npm run servicios:instalar.",
+  "' Starts AYLLU's services hidden at login. Made by npm run servicios:instalar; remove with npm run servicios:quitar.",
   'Set shell = CreateObject("WScript.Shell")',
   `shell.CurrentDirectory = "${root}"`,
   `shell.Run """${process.execPath}"" scripts\\services.ts", 0, False`,
   ''
 ].join('\r\n'));
 
-execFileSync('schtasks', ['/Create', '/TN', TASK, '/TR', `wscript.exe "${launcher}"`, '/SC', 'ONLOGON', '/RL', 'LIMITED', '/F'], { stdio: 'inherit' });
-execFileSync('schtasks', ['/Run', '/TN', TASK], { stdio: 'inherit' });
+spawn('wscript.exe', [launcher], { detached: true, stdio: 'ignore', windowsHide: true }).unref();
 console.log('Listo: los servicios de AYLLU ya están corriendo y arrancarán solos cada vez que inicies sesión.');
+console.log('Su registro queda en la carpeta logs/. Para desactivarlos: npm run servicios:quitar');
