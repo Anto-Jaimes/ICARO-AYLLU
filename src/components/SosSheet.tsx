@@ -24,6 +24,7 @@ import { BottomSheet } from './BottomSheet';
 import { FirstAidSheet } from './FirstAidSheet';
 import { FreeCallSheet } from './FreeCallSheet';
 import { MedicalIdSheet } from './MedicalIdSheet';
+import { NearbyHelp } from './NearbyHelp';
 import { SafetyCheckinSheet } from './SafetyCheckinSheet';
 
 const EMERGENCY_NUMBERS = [
@@ -99,6 +100,8 @@ export const SosSheet: React.FC = () => {
               </li>
             ))}
           </ul>
+
+          <NearbyHelp isVisible={isSosOpen} />
 
           <ul className="list-plain mt-3">
             <li>

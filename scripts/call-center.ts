@@ -93,8 +93,14 @@ function reportProblem(where: string, message?: string): void {
   lastProblem = problem;
 }
 
-async function claim<T extends { id: string }>(table: 'call_requests' | 'phone_verifications', columns: string, nextStatus: string): Promise<T | null> {
-  const { data, error } = await db.from(table).select(columns).eq('status', 'pending').order('created_at').limit(1);
+// 900000000 to 900000099 belong to the automatic tests, which play the center's part themselves.
+// The center never dials them: once it picked up a test's job and called one of them for real.
+const TEST_NUMBERS = '9000000%';
+
+async function claim<T extends { id: string }>(table: 'call_requests' | 'phone_verifications', columns: string, nextStatus: string, phoneColumns: string[]): Promise<T | null> {
+  let query = db.from(table).select(columns).eq('status', 'pending');
+  for (const column of phoneColumns) query = query.not(column, 'like', TEST_NUMBERS);
+  const { data, error } = await query.order('created_at').limit(1);
   reportProblem(`leer ${table}`, error?.message);
   const row = data?.[0] as unknown as T | undefined;
   if (!row) return null;
@@ -232,12 +238,12 @@ async function tick(): Promise<void> {
   if (isBusy) return;
   isBusy = true;
   try {
-    const verification = await claim<Verification>('phone_verifications', 'id, phone, code, expires_at', 'calling');
+    const verification = await claim<Verification>('phone_verifications', 'id, phone, code, expires_at', 'calling', ['phone']);
     if (verification) {
       await withLimit(runVerification(verification), () => update('phone_verifications', verification.id, { status: 'failed' }));
       return;
     }
-    const call = await claim<CallRequest>('call_requests', 'id, user_code, caller_phone, destination', 'calling_caller');
+    const call = await claim<CallRequest>('call_requests', 'id, user_code, caller_phone, destination', 'calling_caller', ['caller_phone', 'destination']);
     if (call) {
       log('nuevo pedido de llamada');
       await withLimit(

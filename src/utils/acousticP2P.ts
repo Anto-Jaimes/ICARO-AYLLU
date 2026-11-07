@@ -105,7 +105,7 @@ export function toneSequence(beacon: AcousticBeaconPayload, mode: AcousticMode):
 }
 
 /** The sound of one message as samples, with soft edges so tones do not click. */
-export function renderBeacon(beacon: AcousticBeaconPayload, mode: AcousticMode, sampleRate: number, volume = 0.6): Float32Array {
+export function renderBeacon(beacon: AcousticBeaconPayload, mode: AcousticMode, sampleRate: number, volume = 0.6): Float32Array<ArrayBuffer> {
   const sequence = toneSequence(beacon, mode);
   const total = Math.ceil(sequence.reduce((sum, tone) => sum + tone.seconds, 0) * sampleRate);
   const samples = new Float32Array(total);

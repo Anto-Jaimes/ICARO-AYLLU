@@ -4,6 +4,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { HazardProvider, SafetyTone, useHazards } from './context/HazardContext';
 import { BottomNav } from './components/BottomNav';
 import { BottomSheet } from './components/BottomSheet';
+import { EmergencySuggestion } from './components/EmergencySuggestion';
 import { MenuSheet, TutorialSheet } from './components/HelpSheets';
 import { NoticeToast } from './components/NoticeToast';
 import { PostSheet } from './components/PostSheet';
@@ -124,6 +125,7 @@ const Shell: React.FC = () => {
       <PublishSheet />
       <ReportSheet />
       <SosSheet />
+      <EmergencySuggestion />
       <MenuSheet />
       <TutorialSheet />
 
