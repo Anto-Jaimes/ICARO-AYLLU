@@ -20,12 +20,26 @@ Inspirada en el vocablo quechua **Ayllu** (*comunidad unida por vínculos de rec
 
 ---
 
+## 🌐 APIs Integradas en Código Limpio (`src/services/`)
+
+La aplicación integra 4 APIs reales en producción sin costo y sin fricción de API Keys:
+
+| API | Servicio en Código | Utilidad para el Reto |
+| :--- | :--- | :--- |
+| **OpenStreetMap Nominatim** | `src/services/geoService.ts` | **Geocodificación Inversa:** Convierte las coordenadas GPS del vecino en su nombre de calle y distrito exacto automáticamente. |
+| **OSRM Foot Routing** | `src/services/geoService.ts` | **Rutas Peatonales a Pie:** Calcula el tiempo real caminando (ej. *"A 3 min a pie (240m)"*), garantizando el cumplimiento de *"sin necesidad de transporte mayor"*. |
+| **USGS Real-Time Earthquake API** | `src/services/emergencyApiService.ts` | **Monitoreo Sísmico en Vivo:** Detecta sismos recientes en la región y sugiere la activación del Modo Emergencia SOS ante eventos mayores. |
+| **Open-Meteo Weather API** | `src/services/emergencyApiService.ts` | **Telemetría Meteorológica:** Alertas por lluvia torrencial, anegamientos o calor extremo en las coordenadas exactas del barrio. |
+| **Generador QR Yape / Plin Vecinal** | `src/services/paymentService.ts` | **Micro-pagos P2P:** Pagos directos entre vecinos sin comisiones bancarias escaneando el QR desde la ficha del oficio. |
+
+---
+
 ## 🚀 Módulos y Características Principales
 
 ### 1. Servicios de Proximidad (Economía Local)
 - **Directorio de Oficios y Profesiones Barriales:** Gasfitería, electricidad, cerrajería, carpintería, cuidado de mascotas, clases particulares, etc.
 - **Sistema de "Visto Bueno Vecinal":** Respaldado por testimonios y recomendaciones de vecinos de la misma zona para garantizar confianza y honradez sin depender de intermediarios comerciales.
-- **Sin necesidad de transporte mayor:** Filtro por distancia hiperlocal (a pie: 500m, 1km, 3km) para resolver necesidades en minutos y a menor costo.
+- **Sin necesidad de transporte mayor:** Estimación en tiempo real de minutos caminando a pie mediante la API de OSRM.
 - **Contacto Directo:** Integración instantánea con WhatsApp y llamadas telefónicas con plantillas de mensajes vecinales listas.
 
 ### 2. Cadena de Favores & Red de Solidaridad (Economía Solidaria)
@@ -48,19 +62,8 @@ Inspirada en el vocablo quechua **Ayllu** (*comunidad unida por vínculos de rec
   - **Clic 2:** Selección de categoría en cuadrícula táctil con iconos claros.
   - **Clic 3:** Confirmación con plantilla rápida y publicación inmediata.
 - **Geolocalización Interactiva:** Mapa en vivo (OpenStreetMap + Leaflet) con pines por código de color y círculos de radio de proximidad.
-- **Soporte Online y Offline (PWA):** Si se cae la red o el internet durante una emergencia, la app almacena todo en almacenamiento local (`localStorage`) y sincroniza automáticamente las publicaciones al reconectarse.
+- **Soporte Online y Offline (PWA):** Si se cae la red o el internet durante una emergencia, la app almacena todo en almacenamiento local (`localStorage`) y sincroniza automáticamente las publicaciones al reconectarte.
 - **Tutorial Interactivo Integrado:** Guía interactiva paso a paso para cualquier vecino del barrio accesible en cualquier momento desde el botón "¿Cómo funciona?".
-
----
-
-## 🛠️ Tecnologías Empleadas
-
-- **Framework:** React 19 + TypeScript
-- **Empaquetador y Servidor Dev:** Vite 6
-- **Estilos:** Tailwind CSS v4 con animaciones de pulso y estados de emergencia
-- **Mapas y Geolocalización:** Leaflet + OpenStreetMap + API de Geolocalización del navegador
-- **Iconografía:** Lucide React
-- **Micro-interacciones:** Canvas Confetti para celebración comunitaria al dar Visto Bueno Vecinal
 
 ---
 

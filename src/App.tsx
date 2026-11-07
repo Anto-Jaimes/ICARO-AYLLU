@@ -3,6 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
 import { FilterBar } from './components/FilterBar';
+import { LiveTelemetryWidget } from './components/LiveTelemetryWidget';
 import { ServicesList } from './components/ServicesList';
 import { FavorsWall } from './components/FavorsWall';
 import { EmergencyBoard } from './components/EmergencyBoard';
@@ -26,6 +27,9 @@ const MainContent: React.FC = () => {
 
       {/* Main Container */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-4 py-4 pb-24 md:pb-12">
+        {/* Live Telemetry Widget (USGS Earthquake & Open-Meteo Weather APIs) */}
+        <LiveTelemetryWidget />
+
         {/* Search, Distance & Category filters */}
         <FilterBar />
 
@@ -50,7 +54,7 @@ const MainContent: React.FC = () => {
             ICARO-AYLLU • Plataforma Comunitaria de Proximidad, Economía Solidaria y Resiliencia Vecinal
           </p>
           <p className="text-[11px] text-slate-400">
-            Diseñado para funcionar 100% online y offline con persistencia local • Publicaciones en máximo 3 clics
+            APIs Integradas: OpenStreetMap Nominatim • OSRM Walking Routes • USGS Real-Time Seismology • Open-Meteo Weather
           </p>
           <div className="pt-2">
             <button

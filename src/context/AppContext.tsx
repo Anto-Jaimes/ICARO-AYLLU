@@ -3,6 +3,7 @@ import { CommunityItem, Mode, UserLocation, Review } from '../types';
 import { INITIAL_USER_LOCATION } from '../data/mockData';
 import { loadItemsFromStorage, saveItemsToStorage, queueOfflineItem, getOfflineQueueCount, clearOfflineQueue } from '../utils/storage';
 import { calculateDistanceMeters } from '../utils/geo';
+import { reverseGeocode } from '../services/geoService';
 import confetti from 'canvas-confetti';
 
 interface AppContextType {
@@ -18,7 +19,7 @@ interface AppContextType {
   requestCurrentGPS: () => void;
   isOnline: boolean;
   pendingOfflineCount: number;
-  maxDistanceMeters: number; // 500, 1000, 3000, or 100000 (all)
+  maxDistanceMeters: number;
   setMaxDistanceMeters: (val: number) => void;
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
@@ -50,7 +51,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [pendingOfflineCount, setPendingOfflineCount] = useState<number>(getOfflineQueueCount());
   
-  const [maxDistanceMeters, setMaxDistanceMeters] = useState<number>(3000); // 3 km default
+  const [maxDistanceMeters, setMaxDistanceMeters] = useState<number>(3000);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
@@ -64,7 +65,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      // Attempt auto sync
       const count = getOfflineQueueCount();
       if (count > 0) {
         clearOfflineQueue();
@@ -86,7 +86,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     saveItemsToStorage(items);
   }, [items]);
 
-  // Sync mode with emergency tab
   const setMode = (newMode: Mode) => {
     setModeState(newMode);
     localStorage.setItem('icaro_ayllu_mode', newMode);
@@ -103,29 +102,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setMode(mode === 'normal' ? 'emergency' : 'normal');
   };
 
-  const updateUserLocation = (lat: number, lng: number, name?: string) => {
+  const updateUserLocation = async (lat: number, lng: number, name?: string) => {
+    let resolvedName = name;
+    if (!resolvedName) {
+      resolvedName = await reverseGeocode(lat, lng);
+    }
     setUserLocation({
       lat,
       lng,
-      name: name || 'Mi ubicación actual'
+      name: resolvedName
     });
   };
 
   const requestCurrentGPS = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          updateUserLocation(pos.coords.latitude, pos.coords.longitude, 'Mi GPS en vivo');
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const streetAddress = await reverseGeocode(lat, lng);
+          updateUserLocation(lat, lng, streetAddress);
         },
         (err) => {
-          console.warn('Geolocation denied or unavailable, using neighborhood center:', err);
+          console.warn('Geolocation unavailable, keeping current coordinates:', err);
         },
         { enableHighAccuracy: true, timeout: 8000 }
       );
     }
   };
 
-  // Give Visto Bueno Vecinal
   const toggleVistoBueno = (id: string) => {
     setItems((prev) =>
       prev.map((item) => {
@@ -139,7 +144,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                 origin: { y: 0.7 }
               });
             } catch {
-              // Ignore confetti error
+              // Ignore
             }
           }
           return {
@@ -153,7 +158,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
   };
 
-  // Add review
   const addReview = (itemId: string, comment: string, reviewerName: string) => {
     const newReview: Review = {
       id: `rev-${Date.now()}`,
@@ -177,13 +181,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
   };
 
-  // Add item (with 3-click fast publish & offline support)
   const addItem = (itemData: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => {
     const newItem: CommunityItem = {
       ...itemData,
       id: `post-${Date.now()}`,
       createdAt: 'Hace un momento',
-      vistosBuenos: 1, // First visto bueno by default
+      vistosBuenos: 1,
       reviews: [],
       isOfflineCreated: !isOnline
     };
@@ -202,7 +205,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         origin: { y: 0.6 }
       });
     } catch {
-      // Ignore confetti
+      // Ignore
     }
   };
 
@@ -218,7 +221,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     window.location.reload();
   };
 
-  // Calculated items with distance
   const itemsWithDistance = useMemo(() => {
     return items.map((item) => {
       const distance = calculateDistanceMeters(
@@ -234,34 +236,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   }, [items, userLocation]);
 
-  // Filtered items according to active tab, mode, search, distance, category
   const filteredItems = useMemo(() => {
     return itemsWithDistance.filter((item) => {
-      // Tab filter
       if (mode === 'emergency') {
-        // In emergency mode, emergency_board and map display emergency items
         if (activeTab === 'emergency_board') {
           if (!['emergency_need', 'emergency_resource', 'support_group'].includes(item.type)) {
             return false;
           }
         }
       } else {
-        // Normal mode
         if (activeTab === 'services' && item.type !== 'service') return false;
         if (activeTab === 'favors' && !['favor_offer', 'favor_request'].includes(item.type)) return false;
       }
 
-      // Distance filter
       if (item.distanceMeters !== undefined && item.distanceMeters > maxDistanceMeters) {
         return false;
       }
 
-      // Category filter
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
       }
 
-      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesTitle = item.title.toLowerCase().includes(q);
