@@ -45,6 +45,9 @@ call-test-out/
 # Registros de los servicios que corren en la PC
 logs/
 
-# Firebase service account: a secret key, never in git
-firebase-servicio.json
+# Firebase service account: a secret key, never in git (also with a doubled extension or a (1) copy)
+firebase-servicio*.json
 *firebase-adminsdk*.json
+
+# Firebase settings for the Android app: not secret (it goes inside the APK), but kept out of the public repo
+android/app/google-services*.json

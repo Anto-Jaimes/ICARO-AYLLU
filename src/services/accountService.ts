@@ -6,6 +6,7 @@
  * the verified number and reads a 4-digit code (supabase/functions/phone-login).
  */
 import { supabase } from '../lib/supabase';
+import { forgetPushAccount } from './pushService';
 
 const SIGNED_OUT_KEY = 'ayllu_signed_out';
 
@@ -34,6 +35,8 @@ export async function myVerifiedPhone(): Promise<string | null> {
 
 /** Closes the session on this phone only; the account stays as it is, waiting for the number. */
 export async function signOutOfApp(): Promise<void> {
+  // The phone keeps the alerts of its zone, but no longer gets this account's comments.
+  await forgetPushAccount().catch(() => {});
   await supabase.auth.signOut({ scope: 'local' });
   setSignedOut(true);
   try {

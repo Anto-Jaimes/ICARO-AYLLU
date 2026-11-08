@@ -119,6 +119,9 @@ interface AppContextType {
   setIsMenuOpen: (open: boolean) => void;
   isMuralOpen: boolean;
   setIsMuralOpen: (open: boolean) => void;
+  /** "Avisos en tu celular": turn the phone alerts on or off, and send a test. */
+  isPushOpen: boolean;
+  setIsPushOpen: (open: boolean) => void;
   isBatterySaver: boolean;
   setIsBatterySaver: (active: boolean) => void;
   toggleVistoBueno: (id: string) => void;
@@ -179,6 +182,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isSosOpen, setIsSosOpen] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isMuralOpen, setIsMuralOpen] = useState<boolean>(false);
+  const [isPushOpen, setIsPushOpen] = useState<boolean>(false);
   const [isBatterySaver, setIsBatterySaver] = useState<boolean>(false);
   // On the web's first visit the door comes first; the tutorial follows the choice.
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(() => {
@@ -624,6 +628,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsMenuOpen,
         isMuralOpen,
         setIsMuralOpen,
+        isPushOpen,
+        setIsPushOpen,
         isBatterySaver,
         setIsBatterySaver,
         toggleVistoBueno,

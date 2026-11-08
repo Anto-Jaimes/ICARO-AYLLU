@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { Backpack, BatteryLow, CircleHelp, HandHeart, LogIn, LogOut, Printer } from 'lucide-react';
+import { Backpack, BatteryLow, Bell, BellOff, CircleHelp, HandHeart, LogIn, LogOut, Printer } from 'lucide-react';
+import { pushChoice } from '../services/pushService';
 import { useApp } from '../context/AppContext';
 import { BottomSheet } from './BottomSheet';
 import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
@@ -12,7 +13,7 @@ import { useT } from '../i18n/LanguageContext';
 import { LanguagePicker } from './LanguagePicker';
 
 export const MenuSheet: React.FC = () => {
-  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, canWrite, openAccess, showNotice } = useApp();
+  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, setIsPushOpen, canWrite, openAccess, showNotice } = useApp();
   const [isBackpackOpen, setIsBackpackOpen] = useState(false);
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
   const isNative = Capacitor.isNativePlatform();
@@ -68,6 +69,26 @@ export const MenuSheet: React.FC = () => {
                 </span>
               </button>
             </li>
+            {isNative && canWrite && (
+              <li>
+                <button
+                  type="button"
+                  className="row"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsPushOpen(true);
+                  }}
+                >
+                  {pushChoice() === 'on'
+                    ? <Bell className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                    : <BellOff className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
+                  <span className="flex-1">
+                    <span className="block text-row font-semibold">{t('Avisos en tu celular')}</span>
+                    <span className="block text-secondary text-ink-2">{t(pushChoice() === 'on' ? 'Activados' : 'Desactivados')}</span>
+                  </span>
+                </button>
+              </li>
+            )}
             <li>
               <button
                 type="button"

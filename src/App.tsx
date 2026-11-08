@@ -9,6 +9,7 @@ import { BottomSheet } from './components/BottomSheet';
 import { EmergencySuggestion } from './components/EmergencySuggestion';
 import { MenuSheet } from './components/HelpSheets';
 import { GuidedTour } from './components/GuidedTour';
+import { PushSetup, PushSheet } from './components/PushSheet';
 import { NoticeToast } from './components/NoticeToast';
 import { PostSheet } from './components/PostSheet';
 import { PublishSheet } from './components/PublishSheet';
@@ -144,6 +145,8 @@ const Shell: React.FC = () => {
       {Capacitor.isNativePlatform() ? <AppSignInSheet /> : <WebAccessSheet />}
       <MenuSheet />
       <GuidedTour />
+      <PushSheet />
+      <PushSetup />
 
       <BottomSheet open={isExitOpen} onClose={() => setIsExitOpen(false)} title={t('¿Salir del modo emergencia?')}>
         <div className="px-4 space-y-2" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
