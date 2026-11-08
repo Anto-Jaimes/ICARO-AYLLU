@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { Backpack, BatteryLow, CircleHelp, HandHeart, LogIn, LogOut, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { Backpack, BatteryLow, CircleHelp, HandHeart, LogIn, LogOut, Printer } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { BottomSheet } from './BottomSheet';
 import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
@@ -10,70 +10,6 @@ import { SignOutSheet } from './SignOutSheet';
 import { signOutOfWeb } from '../services/webLoginService';
 import { useT } from '../i18n/LanguageContext';
 import { LanguagePicker } from './LanguagePicker';
-
-interface Slide {
-  icon: LucideIcon;
-  title: string;
-  text: string;
-}
-
-const SLIDES: Slide[] = [
-  {
-    icon: TriangleAlert,
-    title: 'Mira si tu zona está bien',
-    text: 'Arriba verás un color y una frase con las alertas oficiales de tu zona.'
-  },
-  {
-    icon: Store,
-    title: 'Encuentra y ayuda a tus vecinos',
-    text: 'Busca servicios que otros vecinos recomiendan, y regala o pide donaciones sin dinero.'
-  },
-  {
-    icon: Plus,
-    title: 'Publica con 3 toques',
-    text: 'Toca Publicar y elige: avisar de un accidente o huaico con foto o video, ofrecer tu trabajo, o pedir un favor.'
-  },
-  {
-    icon: Siren,
-    title: 'En una emergencia, toca SOS',
-    text: 'Está siempre abajo a la derecha. Llama a los números de auxilio aunque no tengas internet.'
-  }
-];
-
-export const TutorialSheet: React.FC = () => {
-  const t = useT();
-  const { isTutorialOpen, setIsTutorialOpen } = useApp();
-  const [slide, setSlide] = useState(0);
-
-  const finish = () => {
-    localStorage.setItem('icaro_ayllu_tutorial_seen', 'true');
-    setIsTutorialOpen(false);
-    setSlide(0);
-  };
-
-  const { icon: Icon, title, text } = SLIDES[slide];
-  const isLast = slide === SLIDES.length - 1;
-
-  return (
-    <BottomSheet
-      open={isTutorialOpen}
-      onClose={finish}
-      title={t("Cómo se usa")}
-      footer={
-        <button type="button" className="btn btn-primary" onClick={() => (isLast ? finish() : setSlide(slide + 1))}>
-          {isLast ? t('Empezar') : t('Siguiente')}
-        </button>
-      }
-    >
-      <div className="px-4 pb-4">
-        <Icon className="w-10 h-10 text-anil" aria-hidden="true" />
-        <h3 className="mt-3 text-section font-bold">{t(title)}</h3>
-        <p className="mt-1">{t(text)}</p>
-        <p className="mt-3 text-meta text-ink-2">{t('Paso {step} de {total}', { step: slide + 1, total: SLIDES.length })}</p>
-      </div>
-    </BottomSheet>
-  );
-};
 
 export const MenuSheet: React.FC = () => {
   const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, canWrite, openAccess, showNotice } = useApp();

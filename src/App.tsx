@@ -7,7 +7,8 @@ import { HazardProvider, SafetyTone, useHazards } from './context/HazardContext'
 import { BottomNav } from './components/BottomNav';
 import { BottomSheet } from './components/BottomSheet';
 import { EmergencySuggestion } from './components/EmergencySuggestion';
-import { MenuSheet, TutorialSheet } from './components/HelpSheets';
+import { MenuSheet } from './components/HelpSheets';
+import { GuidedTour } from './components/GuidedTour';
 import { NoticeToast } from './components/NoticeToast';
 import { PostSheet } from './components/PostSheet';
 import { PublishSheet } from './components/PublishSheet';
@@ -64,6 +65,7 @@ const PublishButton: React.FC = () => {
   return (
     <button
       type="button"
+      data-tour="publish"
       onClick={() => openPublish()}
       className={`fixed z-20 right-4 lg:hidden inline-flex items-center gap-2 min-h-14 pl-4 pr-5 rounded-lg font-bold text-row shadow-[0_4px_16px_#12182647] ${
         isEmergency ? 'bg-rojo active:bg-rojo-press text-white' : 'bg-anil active:bg-anil-press text-white'
@@ -141,7 +143,7 @@ const Shell: React.FC = () => {
       <NewsDetailSheet />
       {Capacitor.isNativePlatform() ? <AppSignInSheet /> : <WebAccessSheet />}
       <MenuSheet />
-      <TutorialSheet />
+      <GuidedTour />
 
       <BottomSheet open={isExitOpen} onClose={() => setIsExitOpen(false)} title={t('¿Salir del modo emergencia?')}>
         <div className="px-4 space-y-2" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>

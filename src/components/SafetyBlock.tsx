@@ -44,6 +44,7 @@ export const SafetyBlock: React.FC = () => {
   return (
     <section
       aria-labelledby="verdict-title"
+      data-tour="verdict"
       className={`relative ${tone.field}`}
       style={{ paddingTop: 'var(--safe-top)' }}
     >
@@ -56,8 +57,10 @@ export const SafetyBlock: React.FC = () => {
           <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
           <span className="truncate text-secondary font-medium">{place}</span>
         </button>
-        <TopBarLanguageSelector />
-        <HelpButton />
+        <div data-tour="help" className="flex items-center">
+          <TopBarLanguageSelector />
+          <HelpButton />
+        </div>
       </div>
 
       <div

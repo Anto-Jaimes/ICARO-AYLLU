@@ -29,7 +29,7 @@ const ZoneNews: React.FC<{ count: number }> = ({ count }) => {
   const { reports } = useReports(filter, count);
 
   return (
-    <section aria-labelledby="news-title" className="pt-4">
+    <section aria-labelledby="news-title" data-tour="news" className="pt-4">
       <div className="flex items-center justify-between gap-2 px-4 pb-2">
         <h2 id="news-title" className="text-section font-bold">{t('Noticias de tu zona')}</h2>
         <button
@@ -150,7 +150,7 @@ export const HomeScreen: React.FC = () => {
       <SafetyBlock />
 
       {/* Botón táctico de 1-toque: Plus Code y Silbato */}
-      <div className="mx-4 mt-2 p-3 bg-surface border border-line rounded-2xl flex items-center justify-between shadow-xs">
+      <div data-tour="auxilio" className="mx-4 mt-2 p-3 bg-surface border border-line rounded-2xl flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-2.5 min-w-0 pr-2">
           <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center shrink-0 border border-red-500/20">
             <ShieldAlert className="w-5 h-5" />

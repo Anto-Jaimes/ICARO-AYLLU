@@ -48,6 +48,7 @@ export const BottomNav: React.FC = () => {
 
       <button
         type="button"
+        data-tour="publish"
         onClick={() => openPublish()}
         className={`hidden lg:flex items-center justify-center gap-2 min-h-14 mb-3 rounded-lg font-bold text-row ${
           isEmergency ? 'bg-white text-rojo' : 'bg-anil active:bg-anil-press text-white'
@@ -68,6 +69,7 @@ export const BottomNav: React.FC = () => {
           <button
             key={target}
             type="button"
+            data-tour={`tab-${target}`}
             aria-current={isActive ? 'page' : undefined}
             onClick={() => setTab(target)}
             className={`${CELL} ${isActive ? activeStyle : idleStyle}`}
@@ -88,6 +90,7 @@ export const BottomNav: React.FC = () => {
 
       <button
         type="button"
+        data-tour="sos"
         onClick={() => {
           tapFeedback();
           setIsSosOpen(true);
