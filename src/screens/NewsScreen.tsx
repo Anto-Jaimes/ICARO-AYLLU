@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Flag, Newspaper } from 'lucide-react';
+import { Flag, MessageCircle, Newspaper } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { departmentName } from '../data/ubigeo';
@@ -7,33 +7,17 @@ import { EmptyState, LoadingRow } from '../components/EmptyState';
 import { EMPTY_PLACE, PlacePicker, PlaceValue } from '../components/PlacePicker';
 import { TopBar } from '../components/TopBar';
 import { useBackHandler } from '../hooks/useBackHandler';
+import { useFlagReport } from '../hooks/useFlagReport';
 import { useReports } from '../hooks/useReports';
-import { flagReport, mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
+import { mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
 import { formatRelativeTime } from '../utils/time';
 
 export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = ({ report, onChanged }) => {
-  const { showNotice, isOnline, canWrite, openAccess } = useApp();
+  const { openNewsDetail } = useApp();
   const kind = REPORT_KINDS.find((option) => option.id === report.kind) ?? REPORT_KINDS[5];
   const Icon = kind.icon;
-
-  const flag = async () => {
-    if (!canWrite) {
-      openAccess('Para denunciar una noticia necesitas entrar con tu código de usuario.');
-      return;
-    }
-    if (!isOnline) {
-      showNotice('Necesitas internet para denunciar.');
-      return;
-    }
-    try {
-      await flagReport(report.id);
-      showNotice('Gracias. Lo revisaremos.');
-      onChanged();
-    } catch (err) {
-      console.error('No se pudo denunciar:', err);
-      showNotice('No se pudo enviar. Vuelve a intentar.');
-    }
-  };
+  const flag = useFlagReport(report.id, onChanged);
+  const comments = report.comment_count ?? 0;
 
   return (
     <article className="py-3">
@@ -60,8 +44,16 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
         {report.author_name}, {formatRelativeTime(report.created_at).toLowerCase()}
       </p>
 
-      {!report.is_mine && (
-        <div className="px-4">
+      <div className="px-4 flex flex-wrap items-center gap-x-6">
+        <button
+          type="button"
+          onClick={() => openNewsDetail(report)}
+          className="mt-1 min-h-12 inline-flex items-center gap-2 text-secondary font-bold text-anil"
+        >
+          <MessageCircle className="w-5 h-5" aria-hidden="true" />
+          {comments === 0 ? 'Comentarios' : comments === 1 ? '1 comentario' : `${comments} comentarios`}
+        </button>
+        {!report.is_mine && (
           <button
             type="button"
             disabled={report.has_flagged}
@@ -71,8 +63,8 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
             <Flag className="w-4 h-4" aria-hidden="true" />
             {report.has_flagged ? 'Ya la denunciaste' : 'Denunciar'}
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </article>
   );
 };

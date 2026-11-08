@@ -27,7 +27,7 @@ import {
 } from '../services/postsService';
 import { tapFeedback } from '../lib/native';
 import { supabase } from '../lib/supabase';
-import type { ReportKind } from '../services/reportsService';
+import type { Report, ReportKind } from '../services/reportsService';
 import type { Session } from '@supabase/supabase-js';
 
 const IS_NATIVE = Capacitor.isNativePlatform();
@@ -78,6 +78,10 @@ interface AppContextType {
   isNewsOpen: boolean;
   setIsNewsOpen: (open: boolean) => void;
   reportKind: ReportKind | null;
+  /** The news open in detail (photo, place, comments), or null. */
+  newsDetail: Report | null;
+  openNewsDetail: (report: Report) => void;
+  closeNewsDetail: () => void;
   openReport: (kind: ReportKind) => void;
   closeReport: () => void;
   /** Changes after publishing, so every news list reloads. */
@@ -142,6 +146,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAlertsOpen, setIsAlertsOpen] = useState<boolean>(false);
   const [isNewsOpen, setIsNewsOpen] = useState<boolean>(false);
   const [reportKind, setReportKind] = useState<ReportKind | null>(null);
+  const [newsDetail, setNewsDetail] = useState<Report | null>(null);
+  const openNewsDetail = useCallback((report: Report) => setNewsDetail(report), []);
+  const closeNewsDetail = useCallback(() => setNewsDetail(null), []);
   const [reportsVersion, setReportsVersion] = useState<number>(0);
   const [servicesFilter, setServicesFilter] = useState<ServicesFilter>({});
 
@@ -558,6 +565,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         isNewsOpen,
         setIsNewsOpen,
         reportKind,
+        newsDetail,
+        openNewsDetail,
+        closeNewsDetail,
         openReport,
         closeReport,
         reportsVersion,
