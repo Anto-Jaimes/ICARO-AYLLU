@@ -41,6 +41,7 @@ interface PostRow {
   is_mine: boolean;
   has_user_voted: boolean;
   reviews: ReviewRow[];
+  photos: string[] | null;
 }
 
 function toReview(row: ReviewRow): Review {
@@ -70,6 +71,7 @@ function toCommunityItem(row: PostRow): CommunityItem {
     isMine: row.is_mine,
     reviews: row.reviews.map(toReview),
     priceInfo: row.price_info ?? undefined,
+    photos: row.photos ?? [],
     urgencyLevel: row.urgency_level ?? undefined,
     status: row.status,
     createdAt: formatRelativeTime(row.created_at)
@@ -142,7 +144,8 @@ export async function createPost(item: CommunityItem): Promise<void> {
       lat: item.coordinates[0],
       lng: item.coordinates[1],
       price_info: item.priceInfo ?? null,
-      urgency_level: item.urgencyLevel ?? null
+      urgency_level: item.urgencyLevel ?? null,
+      photos: item.photos ?? []
     },
     { onConflict: 'id', ignoreDuplicates: true }
   );

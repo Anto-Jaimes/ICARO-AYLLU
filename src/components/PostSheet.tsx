@@ -7,6 +7,7 @@ import { CommunityItem } from '../types';
 import { buildWhatsAppLink, describeDistance } from '../utils/geo';
 import { BottomSheet } from './BottomSheet';
 import { recommendationText } from './PostRow';
+import { postPhotoUrl } from '../services/postPhotos';
 
 const EMERGENCY_TYPES = ['emergency_need', 'emergency_resource', 'support_group'];
 
@@ -89,6 +90,21 @@ export const PostSheet: React.FC = () => {
 
   return (
     <BottomSheet open={selectedItem !== null} onClose={closeItem} title={item.title} footer={footer}>
+      {item.photos && item.photos.length > 0 && (
+        <ul className="list-plain flex gap-2 overflow-x-auto px-4 pb-3 snap-x" aria-label="Fotos">
+          {item.photos.map((path, index) => (
+            <li key={path} className="shrink-0 snap-start">
+              <a href={postPhotoUrl(path)} target="_blank" rel="noreferrer" aria-label={`Ver la foto ${index + 1} en tamaño completo`}>
+                <img
+                  src={postPhotoUrl(path)}
+                  alt={`Foto ${index + 1} de ${item.title}`}
+                  className={`${item.photos!.length === 1 ? 'w-[calc(100vw-2rem)] max-w-xl' : 'w-64'} h-48 rounded-xl object-cover bg-sunken`}
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="px-4 pb-4 space-y-4">
         <p className="text-secondary text-ink-2">
           {[category.label, distance, item.neighborhood].filter(Boolean).join(', ')}
@@ -105,6 +121,12 @@ export const PostSheet: React.FC = () => {
             <div className="flex gap-2">
               <dt className="text-ink-2">Precio</dt>
               <dd className="font-medium">{item.priceInfo}</dd>
+            </div>
+          )}
+          {item.address && (
+            <div className="flex gap-2">
+              <dt className="text-ink-2">Dónde</dt>
+              <dd className="font-medium">{item.address}</dd>
             </div>
           )}
           <div className="flex gap-2">

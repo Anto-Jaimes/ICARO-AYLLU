@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin } from 'lucide-react';
+import { ImagePlus, MapPin, X } from 'lucide-react';
 import { PublishPreset, useApp } from '../context/AppContext';
 import { EMERGENCY_PUBLISH_GROUPS, NORMAL_PUBLISH_GROUPS, PublishTile } from '../data/categories';
 import { REPORT_KINDS, ReportKind } from '../services/reportsService';
 import { normalizePhone } from '../utils/geo';
 import { loadContact, saveContact } from '../utils/storage';
+import { MAX_POST_PHOTOS, uploadPostPhoto } from '../services/postPhotos';
 import { BottomSheet } from './BottomSheet';
 
 const PRICE_BY_TYPE: Record<string, string> = { service: 'Conversar con el vecino' };
+
+/** What to write in "¿Qué ofreces?", by kind of business. */
+const OFFER_HINTS: Record<string, string> = {
+  comida: 'Platos del día, horario, si haces delivery...',
+  polleria: 'Pollo entero, 1/4 con papas, horario, delivery...',
+  reposteria: 'Tortas, postres, por pedido, sabores...',
+  restaurante: 'Menú, carta, horario, si atiendes en el local...',
+  bodega: 'Qué vendes, horario, si recargas celulares...',
+  streaming: 'Qué plataformas, por cuánto tiempo, cómo se paga...'
+};
 
 export const PublishSheet: React.FC = () => {
   const { isPublishOpen, closePublish, publishPreset, mode, addItem, userLocation, hasLocation, openReport } = useApp();
@@ -20,10 +31,24 @@ export const PublishSheet: React.FC = () => {
   const [place, setPlace] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [price, setPrice] = useState('');
+  const [address, setAddress] = useState('');
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const isService = choice?.type === 'service';
+  const allowsPhotos = choice?.type === 'service' || choice?.type === 'favor_offer' || choice?.type === 'favor_request';
 
+  // A business writes its own name: the tile's words are only a suggestion.
   const choose = (selection: PublishPreset) => {
     setChoice(selection);
-    setTitle(selection.title);
+    setTitle(selection.type === 'service' ? '' : selection.title);
+  };
+
+  const addPhotos = (files: FileList | null) => {
+    if (!files) return;
+    const images = [...files].filter((file) => file.type.startsWith('image/'));
+    setPhotos((current) => [...current, ...images].slice(0, MAX_POST_PHOTOS));
   };
 
   useEffect(() => {
@@ -33,6 +58,10 @@ export const PublishSheet: React.FC = () => {
     setPhone(contact.phone);
     setDetails('');
     setPlace('');
+    setPrice('');
+    setAddress('');
+    setPhotos([]);
+    setProblem(null);
     if (publishPreset) choose(publishPreset);
     else setChoice(null);
   }, [isPublishOpen, publishPreset]);
@@ -44,13 +73,32 @@ export const PublishSheet: React.FC = () => {
     openReport(kind);
   };
 
-  const publish = (event?: React.FormEvent) => {
+  const publish = async (event?: React.FormEvent) => {
     event?.preventDefault();
-    if (!choice || !title.trim() || (needsPlace && !place.trim())) return;
+    const finalTitle = title.trim() || choice?.title.trim() || '';
+    if (!choice || !finalTitle || (needsPlace && !place.trim())) return;
+    if (photos.length > 0 && !navigator.onLine) {
+      setProblem('Las fotos necesitan internet. Quítalas para publicar ahora, o espera a tener señal.');
+      return;
+    }
+
+    let photoPaths: string[] = [];
+    if (photos.length > 0) {
+      setIsUploading(true);
+      setProblem(null);
+      try {
+        photoPaths = await Promise.all(photos.map(uploadPostPhoto));
+      } catch {
+        setProblem('No se pudieron subir las fotos. Revisa tu internet y vuelve a intentar.');
+        return;
+      } finally {
+        setIsUploading(false);
+      }
+    }
 
     saveContact({ name: name.trim(), phone: phone.trim() });
     addItem({
-      title: title.trim(),
+      title: finalTitle,
       description: details.trim(),
       type: choice.type,
       category: choice.category,
@@ -58,7 +106,9 @@ export const PublishSheet: React.FC = () => {
       authorPhone: normalizePhone(phone),
       neighborhood: needsPlace ? place.trim() : userLocation.name,
       coordinates: [userLocation.lat, userLocation.lng],
-      priceInfo: PRICE_BY_TYPE[choice.type],
+      address: isService && address.trim() ? address.trim() : undefined,
+      priceInfo: isService && price.trim() ? price.trim() : PRICE_BY_TYPE[choice.type],
+      photos: photoPaths,
       urgencyLevel: choice.type === 'emergency_need' ? 'alta' : undefined,
       status: 'active'
     });
@@ -66,8 +116,8 @@ export const PublishSheet: React.FC = () => {
   };
 
   const footer = choice ? (
-    <button type="submit" form="publish-form" className={`btn ${isEmergency ? 'btn-danger' : 'btn-primary'}`}>
-      {isEmergency ? 'Reportar' : 'Publicar'}
+    <button type="submit" form="publish-form" disabled={isUploading} className={`btn ${isEmergency ? 'btn-danger' : 'btn-primary'}`}>
+      {isUploading ? 'Subiendo fotos...' : isEmergency ? 'Reportar' : 'Publicar'}
     </button>
   ) : undefined;
 
@@ -125,28 +175,101 @@ export const PublishSheet: React.FC = () => {
       ) : (
         <form id="publish-form" onSubmit={publish} className="px-4 pb-4 space-y-3">
           <div>
-            <label htmlFor="publish-title" className="block pb-1 text-secondary font-bold">Título</label>
+            <label htmlFor="publish-title" className="block pb-1 text-secondary font-bold">
+              {isService ? 'Nombre de tu negocio o servicio' : 'Título'}
+            </label>
             <input
               id="publish-title"
-              required
+              required={!isService || !choice.title}
               maxLength={160}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
+              placeholder={isService ? choice.title || 'Ej.: Pollería Don Lucho' : undefined}
               className="field"
             />
           </div>
 
           <div>
-            <label htmlFor="publish-details" className="block pb-1 text-secondary font-bold">Detalles (opcional)</label>
+            <label htmlFor="publish-details" className="block pb-1 text-secondary font-bold">
+              {isService ? '¿Qué ofreces?' : 'Detalles (opcional)'}
+            </label>
             <textarea
               id="publish-details"
-              rows={2}
+              rows={isService ? 3 : 2}
               maxLength={2000}
               value={details}
               onChange={(event) => setDetails(event.target.value)}
+              placeholder={isService ? OFFER_HINTS[choice.category] ?? 'Qué haces, horario, cómo te contactan...' : undefined}
               className="field"
             />
           </div>
+
+          {isService && (
+            <div className="grid grid-cols-2 gap-2">
+              <div className="min-w-0">
+                <label htmlFor="publish-price" className="block pb-1 text-secondary font-bold">Precio</label>
+                <input
+                  id="publish-price"
+                  maxLength={120}
+                  value={price}
+                  onChange={(event) => setPrice(event.target.value)}
+                  placeholder="Desde S/ 10"
+                  className="field"
+                />
+              </div>
+              <div className="min-w-0">
+                <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">¿Dónde queda?</label>
+                <input
+                  id="publish-address"
+                  maxLength={200}
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  placeholder="Calle y referencia"
+                  className="field"
+                />
+              </div>
+            </div>
+          )}
+
+          {allowsPhotos && (
+            <div>
+              <p className="pb-1 text-secondary font-bold">Fotos ({photos.length} de {MAX_POST_PHOTOS})</p>
+              <div className="flex flex-wrap gap-2">
+                {photos.map((photo, index) => (
+                  <div key={`${photo.name}-${index}`} className="relative">
+                    <img src={URL.createObjectURL(photo)} alt={`Foto ${index + 1}`} className="w-20 h-20 rounded-lg object-cover bg-sunken" />
+                    <button
+                      type="button"
+                      onClick={() => setPhotos((current) => current.filter((_, at) => at !== index))}
+                      className="absolute -top-2 -right-2 grid place-items-center w-8 h-8 rounded-full bg-ink text-white"
+                      aria-label={`Quitar la foto ${index + 1}`}
+                    >
+                      <X className="w-4 h-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                ))}
+                {photos.length < MAX_POST_PHOTOS && (
+                  <label className="grid place-items-center w-20 h-20 rounded-lg border-2 border-dashed border-line text-anil cursor-pointer">
+                    <ImagePlus className="w-7 h-7" aria-hidden="true" />
+                    <span className="sr-only">Agregar fotos</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="sr-only"
+                      onChange={(event) => {
+                        addPhotos(event.target.files);
+                        event.target.value = '';
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+              <p className="pt-1 text-meta text-ink-2">Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.</p>
+            </div>
+          )}
+
+          {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
 
           <div className="grid grid-cols-2 gap-2">
             <div className="min-w-0">

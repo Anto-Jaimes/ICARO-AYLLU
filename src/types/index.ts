@@ -60,6 +60,8 @@ export interface CommunityItem {
   isMine?: boolean;
   reviews: Review[];
   priceInfo?: string; // ej: "Tarifa vecinal accesible" o "Gratis / Solidario"
+  /** Paths in the post-photos bucket, up to 4. */
+  photos?: string[];
   urgencyLevel?: 'baja' | 'media' | 'alta' | 'critica'; // para emergencias
   status: 'active' | 'in_progress' | 'resolved';
   createdAt: string;
