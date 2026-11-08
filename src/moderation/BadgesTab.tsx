@@ -27,7 +27,7 @@ const RESULTS: Record<string, string> = {
 };
 
 /**
- * "Celular verificado": only moderators give it, to a neighbour whose phone they checked. It shows on
+ * "Usuario verificado": only moderators give it, to a neighbour whose phone they checked. It shows on
  * that neighbour's services, donations and news, and stops showing if the number is blocked.
  */
 export const BadgesTab: React.FC = () => {
@@ -76,7 +76,7 @@ export const BadgesTab: React.FC = () => {
   return (
     <section aria-labelledby="badges-title" className="space-y-4">
       <div>
-        <h2 id="badges-title" className="text-section font-bold">Celular verificado</h2>
+        <h2 id="badges-title" className="text-section font-bold">Usuario verificado</h2>
         <p className="text-secondary text-ink-secondary">
           El distintivo aparece junto al nombre en los servicios, donaciones y noticias del vecino. Solo se puede dar a una cuenta
           que ya verificó su celular con la central. Si su número se bloquea, deja de verse. No significa que se revisó su DNI.

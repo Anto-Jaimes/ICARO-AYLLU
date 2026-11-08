@@ -66,7 +66,7 @@ export interface CommunityItem {
   photos?: string[];
   /** Donations: given to any neighbour, or meant for an organisation (comedor, olla común, albergue). */
   audience?: 'vecinos' | 'organizacion';
-  /** A moderator gave the author the "Celular verificado" badge (and the phone is still verified). */
+  /** A moderator gave the author the "Usuario verificado" badge (and the phone is still verified). */
   authorVerified?: boolean;
   urgencyLevel?: 'baja' | 'media' | 'alta' | 'critica'; // para emergencias
   status: 'active' | 'in_progress' | 'resolved';

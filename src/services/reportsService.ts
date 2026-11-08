@@ -48,7 +48,7 @@ export interface Report {
   lat?: number | null;
   lng?: number | null;
   comment_count?: number;
-  /** A moderator gave the author the "Celular verificado" badge. */
+  /** A moderator gave the author the "Usuario verificado" badge. */
   author_verified?: boolean;
 }
 
