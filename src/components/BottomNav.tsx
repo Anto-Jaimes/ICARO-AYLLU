@@ -1,6 +1,7 @@
 import React from 'react';
 import { Boxes, HandHeart, Home, Map, Plus, Siren, Store, UsersRound, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
+import { useT } from '../i18n/LanguageContext';
 import { tapFeedback } from '../lib/native';
 
 interface NavItem {
@@ -27,6 +28,7 @@ const CELL = 'flex-1 min-w-0 flex flex-col items-center justify-center gap-1 h-[
 
 export const BottomNav: React.FC = () => {
   const { mode, tab, setTab, setIsSosOpen, isAlertsOpen, isNewsOpen, openPublish } = useApp();
+  const t = useT();
   const isEmergency = mode === 'emergency';
   const items = isEmergency ? EMERGENCY_ITEMS : NORMAL_ITEMS;
 
@@ -51,7 +53,7 @@ export const BottomNav: React.FC = () => {
         }`}
       >
         <Plus className="w-6 h-6" aria-hidden="true" />
-        {isEmergency ? 'Reportar' : 'Publicar'}
+        {t(isEmergency ? 'Reportar' : 'Publicar')}
       </button>
 
       {items.map(({ tab: target, label, icon: Icon }) => {
@@ -70,7 +72,7 @@ export const BottomNav: React.FC = () => {
             className={`${CELL} ${isActive ? activeStyle : idleStyle}`}
           >
             <Icon className="w-6 h-6 shrink-0" aria-hidden="true" />
-            <span className="max-w-full truncate">{label}</span>
+            <span className="max-w-full truncate">{t(label)}</span>
           </button>
         );
       })}

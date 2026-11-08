@@ -18,6 +18,7 @@ import {
   type LucideIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useT } from '../i18n/LanguageContext';
 import { HELP_REQUEST_PRESET } from '../data/categories';
 import { communitySiren } from '../utils/audioAlarm';
 import { AcousticBeaconSheet } from './AcousticBeaconSheet';
@@ -38,21 +39,25 @@ const EMERGENCY_NUMBERS = [
 
 type Panel = 'alarm' | 'family' | 'medical' | 'firstAid' | 'freeCall' | 'acoustic' | 'rubble' | null;
 
-const ActionRow: React.FC<{ icon: LucideIcon; title: string; line?: string; onClick: () => void }> = ({ icon: Icon, title, line, onClick }) => (
+const ActionRow: React.FC<{ icon: LucideIcon; title: string; line?: string; onClick: () => void }> = ({ icon: Icon, title, line, onClick }) => {
+  const t = useT();
+  return (
   <li>
     <button type="button" className="row" onClick={onClick}>
       <Icon className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
       <span className="flex-1">
-        <span className="block text-row font-semibold">{title}</span>
-        {line && <span className="block text-secondary text-ink-2">{line}</span>}
+        <span className="block text-row font-semibold">{t(title)}</span>
+        {line && <span className="block text-secondary text-ink-2">{t(line)}</span>}
       </span>
       <ChevronRight className="w-5 h-5 text-ink-2" aria-hidden="true" />
     </button>
   </li>
-);
+  );
+};
 
 export const SosSheet: React.FC = () => {
   const { isSosOpen, setIsSosOpen, mode, setMode, openPublish, openReport } = useApp();
+  const t = useT();
   const isEmergency = mode === 'emergency';
   const [panel, setPanel] = useState<Panel>(null);
   const [isSounding, setIsSounding] = useState(false);
@@ -84,7 +89,7 @@ export const SosSheet: React.FC = () => {
     <>
       <BottomSheet open={isSosOpen} onClose={close} title="SOS">
         <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <p className="px-4 pb-2 text-secondary text-ink-2">Estos números no necesitan saldo ni internet.</p>
+          <p className="px-4 pb-2 text-secondary text-ink-2">{t('Estos números no necesitan saldo ni internet.')}</p>
 
           <ul className="grid grid-cols-2 gap-2 px-4">
             {EMERGENCY_NUMBERS.map(({ label, number }) => (
@@ -96,7 +101,7 @@ export const SosSheet: React.FC = () => {
                   <Phone className="w-6 h-6 shrink-0" aria-hidden="true" />
                   <span className="min-w-0">
                     <span className="block text-section font-bold">{number}</span>
-                    <span className="block text-secondary truncate">{label}</span>
+                    <span className="block text-secondary truncate">{t(label)}</span>
                   </span>
                 </a>
               </li>
@@ -110,8 +115,8 @@ export const SosSheet: React.FC = () => {
               <a href="tel:119" className="row no-underline">
                 <Radio className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
                 <span className="flex-1">
-                  <span className="block text-row font-semibold">Línea 119: mensajes de voz</span>
-                  <span className="block text-secondary text-ink-2">Deja o escucha un mensaje de tu familia cuando las líneas colapsan</span>
+                  <span className="block text-row font-semibold">{t('Línea 119: mensajes de voz')}</span>
+                  <span className="block text-secondary text-ink-2">{t('Deja o escucha un mensaje de tu familia cuando las líneas colapsan')}</span>
                 </span>
                 <ChevronRight className="w-5 h-5 text-ink-2" aria-hidden="true" />
               </a>

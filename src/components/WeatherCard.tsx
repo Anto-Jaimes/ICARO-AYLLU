@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Droplets } from 'lucide-react';
 import { fetchWeather, savedWeather, Weather, weatherIcon, weatherSky, weatherWords } from '../services/weatherService';
 import { formatRelativeTime } from '../utils/time';
+import { useT } from '../i18n/LanguageContext';
 
 const dayName = (date: string, index: number) => {
   if (index === 0) return 'Hoy';
@@ -13,6 +14,7 @@ const dayName = (date: string, index: number) => {
 export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }> = ({ lat, lng, place }) => {
   const [weather, setWeather] = useState<Weather | null>(savedWeather);
   const [isSaved, setIsSaved] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     if (lat === undefined || lng === undefined) return;
@@ -47,7 +49,7 @@ export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }
       className="mx-4 p-4 rounded-2xl text-white shadow-sm"
       style={{ background: weatherSky(now.code, now.isDay) }}
     >
-      <h2 id="weather-title" className="text-secondary font-semibold truncate">Pronóstico en {place}</h2>
+      <h2 id="weather-title" className="text-secondary font-semibold truncate">{t('Pronóstico en')} {place}</h2>
       <div className="flex items-center justify-between gap-3 pt-1">
         <div>
           <p className="text-[56px] leading-none font-light" aria-label={`${now.temp} grados`}>{now.temp}°</p>

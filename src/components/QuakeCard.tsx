@@ -3,6 +3,7 @@ import { Activity, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { formatRelativeTime } from '../utils/time';
+import { useT } from '../i18n/LanguageContext';
 
 /** Colour by strength; white text stays readable on every one. */
 function quakeSky(magnitude: number): { background: string; words: string } {
@@ -14,6 +15,7 @@ function quakeSky(magnitude: number): { background: string; words: string } {
 /** The latest earthquake from the IGP, in large: how strong, where and how long ago. */
 export const QuakeCard: React.FC = () => {
   const { setIsAlertsOpen } = useApp();
+  const t = useT();
   const { feed } = useHazards();
   const quake = feed?.quakes[0] ?? feed?.latest_quake_peru;
   if (!quake) return null;
@@ -29,14 +31,14 @@ export const QuakeCard: React.FC = () => {
     >
       <span className="flex items-center gap-2 text-secondary font-semibold">
         <Activity className="w-5 h-5" aria-hidden="true" />
-        Último sismo
+        {t('Último sismo')}
         <ChevronRight className="w-5 h-5 ml-auto" aria-hidden="true" />
       </span>
       <span className="flex items-end gap-3 pt-1">
         <span className="text-[56px] leading-none font-light">{quake.magnitude.toFixed(1)}</span>
         <span className="pb-1">
-          <span className="block text-row font-semibold">{words}</span>
-          <span className="block text-secondary opacity-90">Magnitud</span>
+          <span className="block text-row font-semibold">{t(words)}</span>
+          <span className="block text-secondary opacity-90">{t('Magnitud')}</span>
         </span>
       </span>
       <span className="block pt-2 text-secondary">{quake.detail}</span>

@@ -7,6 +7,8 @@ import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
 import { UserCodeSection } from './UserCodeSection';
 import { WebKeySection } from './WebKeySection';
 import { signOutOfWeb } from '../services/webLoginService';
+import { useT } from '../i18n/LanguageContext';
+import { LanguagePicker } from './LanguagePicker';
 
 interface Slide {
   icon: LucideIcon;
@@ -75,6 +77,7 @@ export const MenuSheet: React.FC = () => {
   const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, canWrite, isWebMember, openAccess, showNotice } = useApp();
   const [isBackpackOpen, setIsBackpackOpen] = useState(false);
   const isNative = Capacitor.isNativePlatform();
+  const t = useT();
 
   const leaveWeb = async () => {
     setIsMenuOpen(false);
@@ -90,6 +93,7 @@ export const MenuSheet: React.FC = () => {
           {/* A code comes only from the app: on the web it shows once entered with it, never creates one. */}
           {canWrite && <UserCodeSection isVisible={isMenuOpen} />}
           {isNative && <WebKeySection isVisible={isMenuOpen} />}
+          <LanguagePicker />
           <ul className="list-plain">
             {!isNative && (
               <li>
@@ -109,9 +113,9 @@ export const MenuSheet: React.FC = () => {
                     ? <LogOut className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
                     : <LogIn className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
                   <span className="flex-1">
-                    <span className="block text-row font-semibold">{isWebMember ? 'Salir de la web en esta computadora' : 'Entrar con mi código'}</span>
+                    <span className="block text-row font-semibold">{t(isWebMember ? 'Salir de la web en esta computadora' : 'Entrar con mi código')}</span>
                     <span className="block text-secondary text-ink-2">
-                      {isWebMember ? 'Tu celular sigue con tu cuenta' : 'Para publicar, comentar y llamar'}
+                      {t(isWebMember ? 'Tu celular sigue con tu cuenta' : 'Para publicar, comentar y llamar')}
                     </span>
                   </span>
                 </button>
@@ -127,7 +131,7 @@ export const MenuSheet: React.FC = () => {
                 }}
               >
                 <CircleHelp className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-                <span className="flex-1 text-row font-semibold">Cómo se usa</span>
+                <span className="flex-1 text-row font-semibold">{t('Cómo se usa')}</span>
               </button>
             </li>
             <li>
@@ -140,7 +144,7 @@ export const MenuSheet: React.FC = () => {
                 }}
               >
                 <Printer className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-                <span className="flex-1 text-row font-semibold">Imprimir mural comunal</span>
+                <span className="flex-1 text-row font-semibold">{t('Imprimir mural comunal')}</span>
               </button>
             </li>
             <li>
@@ -154,8 +158,8 @@ export const MenuSheet: React.FC = () => {
               >
                 <BatteryLow className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
                 <span className="flex-1">
-                  <span className="block text-row font-semibold">Modo apagón</span>
-                  <span className="block text-secondary text-ink-2">Pantalla negra para cuidar la batería</span>
+                  <span className="block text-row font-semibold">{t('Modo apagón')}</span>
+                  <span className="block text-secondary text-ink-2">{t('Pantalla negra para cuidar la batería')}</span>
                 </span>
               </button>
             </li>
@@ -170,8 +174,8 @@ export const MenuSheet: React.FC = () => {
               >
                 <Backpack className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
                 <span className="flex-1">
-                  <span className="block text-row font-semibold">Mochila de emergencia</span>
-                  <span className="block text-secondary text-ink-2">Revisa qué te falta antes de un sismo</span>
+                  <span className="block text-row font-semibold">{t('Mochila de emergencia')}</span>
+                  <span className="block text-secondary text-ink-2">{t('Revisa qué te falta antes de un sismo')}</span>
                 </span>
               </button>
             </li>

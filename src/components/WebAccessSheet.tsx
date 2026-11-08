@@ -4,6 +4,8 @@ import { useApp } from '../context/AppContext';
 import { BUSY_NETWORK_MESSAGE, isBusyNetwork } from '../services/postsService';
 import { signInToWeb, WEB_KEY_MINUTES, WEB_LOGIN_PROBLEMS } from '../services/webLoginService';
 import { BottomSheet } from './BottomSheet';
+import { useT } from '../i18n/LanguageContext';
+import { LanguagePicker } from './LanguagePicker';
 
 /**
  * The web's door. The code comes from the app (one per phone); with it and the app's key the web can
@@ -16,6 +18,7 @@ export const WebAccessSheet: React.FC = () => {
   const [problem, setProblem] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
   const keyDigits = key.replace(/\D/g, '');
+  const t = useT();
 
   const enter = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,13 +42,14 @@ export const WebAccessSheet: React.FC = () => {
   };
 
   return (
-    <BottomSheet open={isAccessOpen} onClose={() => closeAccess('viewer')} title="Bienvenido a AYLLU">
+    <BottomSheet open={isAccessOpen} onClose={() => closeAccess('viewer')} title={t('Bienvenido a AYLLU')}>
+      <div className="-mt-3"><LanguagePicker /></div>
       <div className="px-4 space-y-6" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
         {accessReason && <p role="status" className="p-3 rounded-lg bg-surface-raised text-row font-semibold">{accessReason}</p>}
 
         <section aria-labelledby="door-app-title">
-          <h3 id="door-app-title" className="text-section font-bold">1. Descarga la app</h3>
-          <p className="text-secondary text-ink-2">En la app recibes tu código de usuario: uno por celular.</p>
+          <h3 id="door-app-title" className="text-section font-bold">{t('1. Descarga la app')}</h3>
+          <p className="text-secondary text-ink-2">{t('En la app recibes tu código de usuario: uno por celular.')}</p>
           <div className="flex items-center gap-4 pt-3">
             <img
               src="/descargar-qr.svg"
@@ -55,23 +59,23 @@ export const WebAccessSheet: React.FC = () => {
               className="shrink-0 rounded-lg border border-line bg-white"
             />
             <div className="min-w-0 space-y-2">
-              <p className="text-secondary">Escanéalo con la cámara de un celular Android.</p>
+              <p className="text-secondary">{t('Escanéalo con la cámara de un celular Android.')}</p>
               <a href="/descargar/AYLLU.apk" download className="btn btn-secondary no-underline">
                 <Download className="w-6 h-6" aria-hidden="true" />
-                Descargar
+                {t('Descargar')}
               </a>
             </div>
           </div>
         </section>
 
         <section aria-labelledby="door-code-title">
-          <h3 id="door-code-title" className="text-section font-bold">2. Entra con tu código</h3>
+          <h3 id="door-code-title" className="text-section font-bold">{t('2. Entra con tu código')}</h3>
           <p className="text-secondary text-ink-2">
             En la app abre Ayuda y toca "Entrar en la web": te da una clave de 6 números que dura {WEB_KEY_MINUTES} minutos.
           </p>
           <form onSubmit={enter} className="pt-3 space-y-3">
             <div>
-              <label htmlFor="door-user-code" className="block text-secondary font-bold">Tu código de usuario</label>
+              <label htmlFor="door-user-code" className="block text-secondary font-bold">{t('Tu código de usuario')}</label>
               <input
                 id="door-user-code"
                 className="field uppercase"
@@ -84,7 +88,7 @@ export const WebAccessSheet: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="door-key" className="block text-secondary font-bold">Clave de la app</label>
+              <label htmlFor="door-key" className="block text-secondary font-bold">{t('Clave de la app')}</label>
               <input
                 id="door-key"
                 className="field tracking-widest"
@@ -98,15 +102,15 @@ export const WebAccessSheet: React.FC = () => {
             {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
             <button type="submit" className="btn btn-primary" disabled={isBusy || code.trim().length < 4 || keyDigits.length !== 6}>
               <LogIn className="w-6 h-6" aria-hidden="true" />
-              {isBusy ? 'Entrando...' : 'Entrar'}
+              {isBusy ? 'Entrando...' : t('Entrar')}
             </button>
           </form>
         </section>
 
         <section>
-          <button type="button" className="btn btn-secondary" onClick={() => closeAccess('viewer')}>Solo mirar</button>
+          <button type="button" className="btn btn-secondary" onClick={() => closeAccess('viewer')}>{t('Solo mirar')}</button>
           <p className="pt-2 text-secondary text-ink-2">
-            Sin código puedes ver las publicaciones y leer los comentarios, pero no publicar, comentar, recomendar ni llamar.
+            {t('Sin código puedes ver las publicaciones y leer los comentarios, pero no publicar, comentar, recomendar ni llamar.')}
           </p>
         </section>
       </div>

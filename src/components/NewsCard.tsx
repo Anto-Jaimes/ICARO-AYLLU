@@ -3,10 +3,12 @@ import { MapPin, MessageCircle, Play } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
 import { formatRelativeTime } from '../utils/time';
+import { useT } from '../i18n/LanguageContext';
 
 /** A news item in large: the photo first, then what happened, where and how long ago. Opens the detail. */
 export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
   const { openNewsDetail } = useApp();
+  const t = useT();
   const kind = REPORT_KINDS.find((option) => option.id === report.kind) ?? REPORT_KINDS[5];
   const Icon = kind.icon;
   const comments = report.comment_count ?? 0;
@@ -47,7 +49,7 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
           </p>
           <p className="pt-2 flex items-center gap-1.5 text-meta font-bold text-anil">
             <MessageCircle className="w-4 h-4" aria-hidden="true" />
-            {comments === 0 ? 'Comentar' : comments === 1 ? '1 comentario' : `${comments} comentarios`}
+            {comments === 0 ? t('Comentar') : `${comments} ${t(comments === 1 ? 'comentario' : 'comentarios')}`}
           </p>
         </div>
       </button>

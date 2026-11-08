@@ -38,6 +38,9 @@ export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: bool
             {recommendationText(item.vistosBuenos)}
           </span>
         )}
+        {item.type === 'favor_request' && item.status === 'resolved' && (
+          <span className="block text-secondary font-bold text-verde">Ya lo ayudaron</span>
+        )}
         <span className="block text-secondary text-ink-2 truncate">
           {[category.label, distance].filter(Boolean).join(', ')}
         </span>

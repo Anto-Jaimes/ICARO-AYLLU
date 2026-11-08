@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, AlertTriangle, Mic, MicOff, ShieldAlert } from 'lucide-react';
+import { Activity, AlertTriangle, Ear, Mic, MicOff, ShieldAlert } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { geophoneDetector, handsFreeSentinel, SurvivalPatternMatch } from '../utils/rubbleRescue';
 import { communitySiren } from '../utils/audioAlarm';
@@ -120,20 +120,22 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
           <button
             type="button"
             onClick={() => { tapFeedback(); setActiveTab('geophone'); }}
-            className={`flex-1 py-2 text-center text-secondary font-bold rounded-lg transition-all ${
+            className={`flex-1 py-2 inline-flex items-center justify-center gap-1.5 text-center text-secondary font-bold rounded-lg transition-all ${
               activeTab === 'geophone' ? 'bg-surface text-ink shadow-sm' : 'text-ink-2 hover:text-ink'
             }`}
           >
-            🎧 Geófono de Muro (Buscar)
+            <Ear className="w-5 h-5 shrink-0" aria-hidden="true" />
+            Buscar tras un muro
           </button>
           <button
             type="button"
             onClick={() => { tapFeedback(); setActiveTab('sentinel'); }}
-            className={`flex-1 py-2 text-center text-secondary font-bold rounded-lg transition-all ${
+            className={`flex-1 py-2 inline-flex items-center justify-center gap-1.5 text-center text-secondary font-bold rounded-lg transition-all ${
               activeTab === 'sentinel' ? 'bg-surface text-ink shadow-sm' : 'text-ink-2 hover:text-ink'
             }`}
           >
-            🗣️ Manos Libres (Atrapado)
+            <Mic className="w-5 h-5 shrink-0" aria-hidden="true" />
+            Estoy atrapado
           </button>
         </div>
 

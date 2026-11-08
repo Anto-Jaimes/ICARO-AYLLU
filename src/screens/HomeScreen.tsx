@@ -11,6 +11,7 @@ import { SafetyBlock } from '../components/SafetyBlock';
 import { WeatherCard } from '../components/WeatherCard';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import { useReports } from '../hooks/useReports';
+import { useT } from '../i18n/LanguageContext';
 
 const NEARBY_ROWS = 4;
 const NEARBY_ROWS_DESKTOP = 6;
@@ -20,6 +21,7 @@ const NEWS_CARDS_DESKTOP = 6;
 /** The news of the zone come first: they are what a neighbour most needs to know today. */
 const ZoneNews: React.FC<{ count: number }> = ({ count }) => {
   const { setIsNewsOpen, openReport } = useApp();
+  const t = useT();
   const { feed } = useHazards();
   const filter = useMemo(() => ({ department: feed?.department?.name ?? null }), [feed?.department?.name]);
   const { reports } = useReports(filter, count);
@@ -27,22 +29,22 @@ const ZoneNews: React.FC<{ count: number }> = ({ count }) => {
   return (
     <section aria-labelledby="news-title" className="pt-4">
       <div className="flex items-center justify-between gap-2 px-4 pb-2">
-        <h2 id="news-title" className="text-section font-bold">Noticias de tu zona</h2>
+        <h2 id="news-title" className="text-section font-bold">{t('Noticias de tu zona')}</h2>
         <button
           type="button"
           className="shrink-0 min-h-12 text-secondary font-bold text-anil underline underline-offset-4"
           onClick={() => setIsNewsOpen(true)}
         >
-          Ver todas
+          {t('Ver todas')}
         </button>
       </div>
 
       {reports.length === 0 ? (
         <div className="px-4">
-          <p className="text-secondary text-ink-2">Todavía no hay noticias aquí.</p>
+          <p className="text-secondary text-ink-2">{t('Todavía no hay noticias aquí.')}</p>
           <button type="button" className="btn btn-secondary mt-3 lg:max-w-xs" onClick={() => openReport('otro')}>
             <Megaphone className="w-5 h-5" aria-hidden="true" />
-            Avisar a tus vecinos
+            {t('Avisar a tus vecinos')}
           </button>
         </div>
       ) : (
@@ -76,6 +78,7 @@ const TodayCards: React.FC = () => {
 /** Services nearby: the directory, with its search. */
 const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
   const { items, hasLocation, openServices, isLoadingItems } = useApp();
+  const t = useT();
   const [query, setQuery] = useState('');
 
   const nearby = useMemo(() => {
@@ -89,7 +92,7 @@ const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
 
   return (
     <section aria-labelledby="nearby-title" className="pt-6">
-      <h2 id="nearby-title" className="px-4 pb-1 text-section font-bold">{hasLocation ? 'Cerca de ti' : 'Los más recomendados'}</h2>
+      <h2 id="nearby-title" className="px-4 pb-1 text-section font-bold">{t(hasLocation ? 'Cerca de ti' : 'Los más recomendados')}</h2>
       <form
         role="search"
         className="px-4 pt-1"
@@ -107,7 +110,7 @@ const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
             enterKeyHint="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="¿Qué necesitas?"
+            placeholder={t('¿Qué necesitas?')}
             className="field pl-12"
           />
         </div>
@@ -136,7 +139,7 @@ const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
           </ul>
           <div className="px-4 pt-2">
             <button type="button" className="btn btn-secondary" onClick={() => openServices()}>
-              Ver todos los servicios
+              {t('Ver todos los servicios')}
             </button>
           </div>
         </>

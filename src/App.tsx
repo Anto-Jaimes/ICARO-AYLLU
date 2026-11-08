@@ -2,6 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { AppProvider, useApp } from './context/AppContext';
+import { LanguageProvider, useT } from './i18n/LanguageContext';
 import { HazardProvider, SafetyTone, useHazards } from './context/HazardContext';
 import { BottomNav } from './components/BottomNav';
 import { BottomSheet } from './components/BottomSheet';
@@ -51,6 +52,7 @@ const OfflineStrip: React.FC = () => {
 
 const PublishButton: React.FC = () => {
   const { mode, openPublish, isOnline } = useApp();
+  const t = useT();
   const isEmergency = mode === 'emergency';
 
   return (
@@ -63,7 +65,7 @@ const PublishButton: React.FC = () => {
       style={{ bottom: `calc(var(--nav-height) + var(--safe-bottom) + ${isOnline ? 16 : 64}px)` }}
     >
       <Plus className="w-6 h-6" aria-hidden="true" />
-      {isEmergency ? 'Reportar' : 'Publicar'}
+      {t(isEmergency ? 'Reportar' : 'Publicar')}
     </button>
   );
 };
@@ -161,11 +163,13 @@ const Shell: React.FC = () => {
 
 export function App() {
   return (
+    <LanguageProvider>
     <AppProvider>
       <HazardProvider>
         <Shell />
       </HazardProvider>
     </AppProvider>
+    </LanguageProvider>
   );
 }
 

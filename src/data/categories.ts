@@ -1,5 +1,7 @@
 import {
+  Baby,
   BookOpen,
+  ShoppingBasket,
   CakeSlice,
   Car,
   CookingPot,
@@ -65,7 +67,9 @@ export const FAVOR_CATEGORIES: Category[] = [
   { id: 'donacion', label: 'Donaciones', icon: Package },
   { id: 'habilidades', label: 'Enseñar', icon: GraduationCap },
   { id: 'movilidad', label: 'Transporte', icon: Car },
-  { id: 'ayuda_temporal', label: 'Una mano', icon: HandHeart }
+  { id: 'ayuda_temporal', label: 'Una mano', icon: HandHeart },
+  { id: 'mandados', label: 'Mandados', icon: ShoppingBasket },
+  { id: 'cuidado', label: 'Cuidar a alguien', icon: Baby }
 ];
 
 export const EMERGENCY_CATEGORIES: Category[] = [
@@ -153,7 +157,9 @@ export const NORMAL_PUBLISH_GROUPS: PublishGroup[] = [
       tile('favor_offer', favor('salud'), 'Muletas y salud', 'Presto muletas'),
       tile('favor_offer', favor('donacion'), 'Regalo cosas', 'Regalo cosas que ya no uso'),
       tile('favor_offer', favor('habilidades'), 'Enseño algo', 'Enseño lo que sé'),
-      tile('favor_offer', favor('movilidad'), 'Llevo vecinos', 'Tengo sitio en mi carro')
+      tile('favor_offer', favor('movilidad'), 'Llevo vecinos', 'Tengo sitio en mi carro'),
+      tile('favor_offer', favor('mandados'), 'Hago mandados', 'Puedo hacer compras o mandados'),
+      tile('favor_offer', favor('ayuda_temporal'), 'Doy una mano', 'Puedo dar una mano')
     ]
   },
   {
@@ -161,7 +167,9 @@ export const NORMAL_PUBLISH_GROUPS: PublishGroup[] = [
     tiles: [
       tile('favor_request', favor('herramientas'), 'Una herramienta', 'Necesito una herramienta'),
       tile('favor_request', favor('ayuda_temporal'), 'Una mano', 'Necesito una mano'),
-      tile('favor_request', favor('movilidad'), 'Transporte', 'Necesito que me lleven')
+      tile('favor_request', favor('movilidad'), 'Transporte', 'Necesito que me lleven'),
+      tile('favor_request', favor('mandados'), 'Un mandado', 'Necesito que me compren algo'),
+      tile('favor_request', favor('cuidado'), 'Cuidar a alguien', 'Necesito que cuiden a mi hijo o a un mayor')
     ]
   }
 ];

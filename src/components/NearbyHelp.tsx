@@ -3,6 +3,7 @@ import { Flame, Hospital, MapPin, Phone, ShieldHalf, type LucideIcon } from 'luc
 import { useApp } from '../context/AppContext';
 import { dialablePhone, EmergencyPlace, formatDistance, nearbyEmergencyPlaces, PlaceKind, savedEmergencyPlaces } from '../services/placesService';
 import { formatRelativeTime } from '../utils/time';
+import { useT } from '../i18n/LanguageContext';
 
 const KIND: Record<PlaceKind, { label: string; icon: LucideIcon }> = {
   police: { label: 'Comisaría', icon: ShieldHalf },
@@ -13,6 +14,7 @@ const KIND: Record<PlaceKind, { label: string; icon: LucideIcon }> = {
 /** The nearest police, firefighters and hospital, with their phone when the map knows it. */
 export const NearbyHelp: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   const { userLocation, hasLocation, isOnline } = useApp();
+  const t = useT();
   const [places, setPlaces] = useState<EmergencyPlace[] | null>(() => savedEmergencyPlaces()?.places ?? null);
   const [savedAt, setSavedAt] = useState<string | null>(() => savedEmergencyPlaces()?.savedAt ?? null);
 
@@ -37,7 +39,7 @@ export const NearbyHelp: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
 
   return (
     <section aria-labelledby="nearby-help-title" className="pt-3">
-      <h3 id="nearby-help-title" className="px-4 text-secondary font-bold">Más cerca de ti</h3>
+      <h3 id="nearby-help-title" className="px-4 text-secondary font-bold">{t('Más cerca de ti')}</h3>
       {savedAt && <p className="px-4 text-meta text-ink-2">Guardado {formatRelativeTime(savedAt).toLowerCase()}, sin internet.</p>}
       <ul className="list-plain">
         {places.map((place) => {
