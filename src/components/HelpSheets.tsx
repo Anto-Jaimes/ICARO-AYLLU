@@ -6,6 +6,7 @@ import { BottomSheet } from './BottomSheet';
 import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
 import { UserCodeSection } from './UserCodeSection';
 import { WebKeySection } from './WebKeySection';
+import { SignOutSheet } from './SignOutSheet';
 import { signOutOfWeb } from '../services/webLoginService';
 import { useT } from '../i18n/LanguageContext';
 import { LanguagePicker } from './LanguagePicker';
@@ -75,53 +76,62 @@ export const TutorialSheet: React.FC = () => {
 };
 
 export const MenuSheet: React.FC = () => {
-  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, canWrite, isWebMember, openAccess, showNotice } = useApp();
+  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, canWrite, openAccess, showNotice } = useApp();
   const [isBackpackOpen, setIsBackpackOpen] = useState(false);
+  const [isSignOutOpen, setIsSignOutOpen] = useState(false);
   const isNative = Capacitor.isNativePlatform();
   const t = useT();
 
   const leaveWeb = async () => {
     setIsMenuOpen(false);
     await signOutOfWeb();
-    showNotice(t('Saliste de la web en esta computadora. Tu celular sigue igual.'));
+    showNotice(t('Cerraste sesión en esta computadora. Tu celular sigue con tu cuenta.'));
   };
 
   return (
     <>
       <EmergencyBackpackSheet open={isBackpackOpen} onClose={() => setIsBackpackOpen(false)} />
+      {isNative && <SignOutSheet open={isSignOutOpen} onClose={() => setIsSignOutOpen(false)} />}
       <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title={t('Ayuda')}>
         <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
           {/* A code comes only from the app: on the web it shows once entered with it, never creates one. */}
           {canWrite && <UserCodeSection isVisible={isMenuOpen} />}
-          {isNative && <WebKeySection isVisible={isMenuOpen} />}
+          {isNative && canWrite && <WebKeySection isVisible={isMenuOpen} />}
           <LanguagePicker />
           <ul className="list-plain">
-            {!isNative && (
-              <li>
-                <button
-                  type="button"
-                  className="row"
-                  onClick={() => {
-                    if (isWebMember) {
-                      leaveWeb();
-                    } else {
+            <li>
+              <button
+                type="button"
+                className="row"
+                onClick={() => {
+                  if (canWrite) {
+                    if (isNative) {
                       setIsMenuOpen(false);
-                      openAccess();
+                      setIsSignOutOpen(true);
+                    } else {
+                      leaveWeb();
                     }
-                  }}
-                >
-                  {isWebMember
-                    ? <LogOut className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-                    : <LogIn className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
-                  <span className="flex-1">
-                    <span className="block text-row font-semibold">{t(isWebMember ? 'Salir de la web en esta computadora' : 'Entrar con mi código')}</span>
-                    <span className="block text-secondary text-ink-2">
-                      {t(isWebMember ? 'Tu celular sigue con tu cuenta' : 'Para publicar, comentar y llamar')}
-                    </span>
+                  } else {
+                    setIsMenuOpen(false);
+                    openAccess();
+                  }
+                }}
+              >
+                {canWrite
+                  ? <LogOut className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                  : <LogIn className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
+                <span className="flex-1">
+                  <span className="block text-row font-semibold">
+                    {t(canWrite ? 'Cerrar sesión' : isNative ? 'Entrar con mi número' : 'Entrar con mi código')}
                   </span>
-                </button>
-              </li>
-            )}
+                  <span className="block text-secondary text-ink-2">
+                    {t(canWrite
+                      ? (isNative ? 'Para volver, entras con tu número' : 'Solo en esta computadora. Tu celular sigue con tu cuenta')
+                      : 'Para publicar, comentar y llamar')}
+                  </span>
+                </span>
+              </button>
+            </li>
             <li>
               <button
                 type="button"

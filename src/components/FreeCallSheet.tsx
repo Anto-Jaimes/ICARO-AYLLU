@@ -55,7 +55,7 @@ const PROBLEMS: Record<string, string> = {
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'];
 
 export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const { isOnline, hasLocation, userLocation, showNotice, canWrite, openAccess } = useApp();
+  const { isOnline, hasLocation, userLocation, showNotice, canWrite, isSignedOut, openAccess } = useApp();
   const t = useT();
   const [step, setStep] = useState<Step>('loading');
   const [overview, setOverview] = useState<CallOverview | null>(null);
@@ -102,7 +102,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
       return;
     }
     setQueued(queuedCall());
-    // The app always; the web once entered with the user code (the call goes to that user's phone).
+    // The app while signed in; the web once entered with the user code (the call goes to that user's phone).
     if (!canWrite) {
       setStep('web');
       return;
@@ -195,7 +195,9 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
         {step === 'web' && (
           <>
             <p className="text-secondary">
-              {t('Para llamar gratis entra con tu código de usuario de la app AYLLU. En una emergencia marca 105, 106 o 116 desde cualquier celular: son gratis.')}
+              {isSignedOut
+                ? t('Para llamar gratis vuelve a entrar con tu número. En una emergencia marca 105, 106 o 116 desde cualquier celular: son gratis.')
+                : t('Para llamar gratis entra con tu código de usuario de la app AYLLU. En una emergencia marca 105, 106 o 116 desde cualquier celular: son gratis.')}
             </p>
             <button
               type="button"
@@ -205,7 +207,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
                 openAccess(t('Para llamar gratis necesitas entrar con tu código de usuario.'));
               }}
             >
-              {t('Entrar con mi código')}
+              {t(isSignedOut ? 'Entrar con mi número' : 'Entrar con mi código')}
             </button>
           </>
         )}

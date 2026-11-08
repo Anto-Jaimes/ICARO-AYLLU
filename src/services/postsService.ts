@@ -5,6 +5,7 @@
  */
 
 import { supabase } from '../lib/supabase';
+import { isSignedOut } from './accountService';
 import { CommunityItem, PostType, Review } from '../types';
 import { formatRelativeTime } from '../utils/time';
 
@@ -89,6 +90,8 @@ export function ensureSession(): Promise<void> {
   pendingSession ??= (async () => {
     const { data } = await supabase.auth.getSession();
     if (data.session) return;
+    // After "Cerrar sesión" the neighbour comes back with their number, never as a new account by accident.
+    if (isSignedOut()) throw new Error('signed_out');
 
     const { error } = await supabase.auth.signInAnonymously();
     if (error) throw error;

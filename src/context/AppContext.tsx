@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { CommunityItem, Mode, PostType, UserLocation, Review } from '../types';
 import { fetchUserCode } from '../services/userCodeService';
 import { clearQueuedCall, queueCall, queuedCall, requestCall } from '../services/callService';
+import { isSignedOut as wasSignedOut, signOutOfApp } from '../services/accountService';
 import { DEFAULT_USER_LOCATION } from '../data/defaultLocation';
 import {
   loadItemsFromStorage,
@@ -124,9 +125,14 @@ interface AppContextType {
   addReview: (itemId: string, comment: string, reviewerName: string) => void;
   addItem: (item: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => void;
   updateItemStatus: (id: string, status: CommunityItem['status']) => void;
-  /** The app always; the web only after entering with the user code and the app's key. */
+  /** The app while signed in; the web only after entering with the user code and the app's key. */
   canWrite: boolean;
   isWebMember: boolean;
+  /** The app after "Cerrar sesión": it only looks until the neighbour enters with their number. */
+  isSignedOut: boolean;
+  signOut: () => Promise<void>;
+  /** After entering with the number, or choosing a new account: the app may write again. */
+  finishSignIn: () => void;
   isAccessOpen: boolean;
   /** Why the door opened (for example, "to publish"), or null at the first visit. */
   accessReason: string | null;
@@ -179,9 +185,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return !localStorage.getItem('icaro_ayllu_tutorial_seen') && (IS_NATIVE || Boolean(localStorage.getItem(WEB_DOOR_KEY)));
   });
   const [isWebMember, setIsWebMember] = useState<boolean>(false);
-  const [isAccessOpen, setIsAccessOpen] = useState<boolean>(false);
+  const [isSignedOut, setIsSignedOut] = useState<boolean>(() => IS_NATIVE && wasSignedOut());
+  // A signed-out app opens on the way back in; it can be closed to only look.
+  const [isAccessOpen, setIsAccessOpen] = useState<boolean>(() => IS_NATIVE && wasSignedOut());
   const [accessReason, setAccessReason] = useState<string | null>(null);
-  const canWrite = IS_NATIVE || isWebMember;
+  const canWrite = IS_NATIVE ? !isSignedOut : isWebMember;
 
   useEffect(() => {
     if (IS_NATIVE) return;
@@ -264,6 +272,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (fetchId === latestFetch.current) setIsLoadingItems(false);
     }
   }, [userLocation.lat, userLocation.lng]);
+
+  const signOut = useCallback(async () => {
+    await signOutOfApp();
+    setIsSignedOut(true);
+    refreshItems(); // "mine" marks belong to the account that just left
+  }, [refreshItems]);
+
+  const finishSignIn = useCallback(() => {
+    setIsSignedOut(false);
+    setIsAccessOpen(false);
+    setAccessReason(null);
+    fetchUserCode().catch(() => {});
+    refreshItems();
+  }, [refreshItems]);
 
   // A post leaves the queue only once the server has confirmed it.
   const flushOfflineQueue = useCallback(async () => {
@@ -394,10 +416,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     requestCurrentGPS();
   }, [requestCurrentGPS]);
 
-  // In the installed app every neighbour gets a code from the first launch. On the web it is
-  // created only when someone asks for it, so passing visitors do not become accounts.
+  // In the installed app every neighbour gets a code from the first launch (unless they signed out:
+  // then they come back with their number). On the web it is created only when someone asks for it,
+  // so passing visitors do not become accounts.
   useEffect(() => {
-    if (Capacitor.isNativePlatform()) fetchUserCode().catch(() => {});
+    if (IS_NATIVE && !wasSignedOut()) fetchUserCode().catch(() => {});
   }, []);
 
   // A free call asked for without signal leaves as soon as the phone is back online.
@@ -609,6 +632,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateItemStatus,
         canWrite,
         isWebMember,
+        isSignedOut,
+        signOut,
+        finishSignIn,
         isAccessOpen,
         accessReason,
         openAccess,

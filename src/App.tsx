@@ -14,6 +14,7 @@ import { PublishSheet } from './components/PublishSheet';
 import { ReportSheet } from './components/ReportSheet';
 import { SosSheet } from './components/SosSheet';
 import { WebAccessSheet } from './components/WebAccessSheet';
+import { AppSignInSheet } from './components/AppSignInSheet';
 import { NewsDetailSheet } from './components/NewsDetailSheet';
 import { EmergencyBar } from './components/TopBar';
 import { PrintableMuralModal } from './components/PrintableMuralModal';
@@ -138,7 +139,7 @@ const Shell: React.FC = () => {
       <SosSheet />
       <EmergencySuggestion />
       <NewsDetailSheet />
-      {!Capacitor.isNativePlatform() && <WebAccessSheet />}
+      {Capacitor.isNativePlatform() ? <AppSignInSheet /> : <WebAccessSheet />}
       <MenuSheet />
       <TutorialSheet />
 
