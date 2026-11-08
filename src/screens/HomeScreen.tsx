@@ -167,7 +167,7 @@ export const HomeScreen: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsPanicOpen(true)}
-          className="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
+          className="min-h-12 px-4 bg-red-600 hover:bg-red-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
         >
           {t('Auxilio')}
         </button>
