@@ -77,7 +77,7 @@ export const BadgesTab: React.FC = () => {
     <section aria-labelledby="badges-title" className="space-y-4">
       <div>
         <h2 id="badges-title" className="text-section font-bold">Celular verificado</h2>
-        <p className="text-secondary text-ink-2">
+        <p className="text-secondary text-ink-secondary">
           El distintivo aparece junto al nombre en los servicios, donaciones y noticias del vecino. Solo se puede dar a una cuenta
           que ya verificó su celular con la central. Si su número se bloquea, deja de verse. No significa que se revisó su DNI.
         </p>
@@ -98,15 +98,15 @@ export const BadgesTab: React.FC = () => {
       </form>
 
       <ErrorLine message={problem} />
-      {found?.status === 'not_found' && <p className="text-secondary font-bold text-rojo">{RESULTS.not_found}</p>}
+      {found?.status === 'not_found' && <p className="text-secondary font-bold text-status-danger">{RESULTS.not_found}</p>}
 
       {found?.status === 'ok' && found.code && (
-        <article className="p-4 rounded-lg border border-line space-y-2" aria-label={`Cuenta ${found.code}`}>
+        <article className="p-4 rounded-lg border border-border space-y-2" aria-label={`Cuenta ${found.code}`}>
           <p className="text-row font-bold">Cuenta {found.code}</p>
           <p className="text-secondary">
-            {found.phone ? <>Celular verificado: <strong>{formatPhone(found.phone)}</strong></> : <strong className="text-rojo">Sin celular verificado</strong>}
+            {found.phone ? <>Celular verificado: <strong>{formatPhone(found.phone)}</strong></> : <strong className="text-status-danger">Sin celular verificado</strong>}
           </p>
-          <p className="text-secondary text-ink-2">
+          <p className="text-secondary text-ink-secondary">
             {found.posts} servicios o donaciones, {found.reports} noticias publicadas, {found.removed} quitadas por moderación.
           </p>
           {found.badge ? (
@@ -154,10 +154,10 @@ export const BadgesTab: React.FC = () => {
                 {badge.code ?? 'Cuenta borrada'}
                 {badge.phone ? `, ${formatPhone(badge.phone)}` : ''}
               </p>
-              <p className="text-secondary text-ink-2">
+              <p className="text-secondary text-ink-secondary">
                 {badge.note}. Desde el {formatDate(badge.granted_at)}{badge.granted_by ? `, por ${badge.granted_by}` : ''}.
               </p>
-              {!badge.active && <p className="text-secondary font-bold text-rojo">No se ve: su número ya no está verificado.</p>}
+              {!badge.active && <p className="text-secondary font-bold text-status-danger">No se ve: su número ya no está verificado.</p>}
             </div>
             {badge.code && (
               <button type="button" className="btn btn-secondary w-auto min-h-12" disabled={isBusy} onClick={() => decide(badge.code!, false, '')}>

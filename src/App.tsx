@@ -50,7 +50,7 @@ const OfflineStrip: React.FC = () => {
   return (
     <p
       role="status"
-      className="fixed z-20 inset-x-0 flex items-center min-h-12 px-4 bg-offline text-white text-secondary lg:left-60"
+      className="fixed z-20 inset-x-0 flex items-center min-h-12 px-4 bg-status-offline text-white text-secondary lg:left-60"
       style={{ bottom: 'var(--content-bottom)' }}
     >
       {[t('Sin internet'), pending].filter(Boolean).join('. ')}
@@ -69,7 +69,7 @@ const PublishButton: React.FC = () => {
       data-tour="publish"
       onClick={() => openPublish()}
       className={`fixed z-20 right-4 lg:hidden inline-flex items-center gap-2 min-h-14 pl-4 pr-5 rounded-lg font-bold text-row shadow-[0_4px_16px_#12182647] ${
-        isEmergency ? 'bg-rojo active:bg-rojo-press text-white' : 'bg-anil active:bg-anil-press text-white'
+        isEmergency ? 'bg-status-danger active:bg-status-danger-press text-white' : 'bg-primary active:bg-primary-press text-white'
       }`}
       style={{ bottom: `calc(var(--nav-height) + var(--safe-bottom) + ${isOnline ? 16 : 64}px)` }}
     >
@@ -111,7 +111,7 @@ const Shell: React.FC = () => {
     if (isNewsOpen) return <NewsScreen />;
     if (tab === 'map') {
       return (
-        <Suspense fallback={<p className="p-4 text-secondary text-ink-2">{t('Abriendo el mapa...')}</p>}>
+        <Suspense fallback={<p className="p-4 text-secondary text-ink-secondary">{t('Abriendo el mapa...')}</p>}>
           <MapScreen />
         </Suspense>
       );

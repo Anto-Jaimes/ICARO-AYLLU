@@ -93,7 +93,7 @@ export const MedicalIdSheet: React.FC<MedicalIdSheetProps> = ({ open, onClose })
   return (
     <BottomSheet open={open} onClose={onClose} title={t('Ficha médica')} footer={footer}>
       <div className="px-4 pb-4 space-y-4">
-        <p className="text-secondary text-ink-2">
+        <p className="text-secondary text-ink-secondary">
           {t('Para que un rescatista sepa tu tipo de sangre, tus alergias y a quién llamar. Se guarda solo en este teléfono y se abre sin internet.')}
         </p>
 
@@ -130,27 +130,27 @@ export const MedicalIdSheet: React.FC<MedicalIdSheetProps> = ({ open, onClose })
         ) : isFilled ? (
           <dl className="list">
             <div className="py-3">
-              <dt className="text-meta text-ink-2">{t('Nombre')}</dt>
+              <dt className="text-meta text-ink-secondary">{t('Nombre')}</dt>
               <dd className="text-row font-bold">{profile.fullName}</dd>
             </div>
             <div className="py-3">
-              <dt className="text-meta text-ink-2">{t('Tipo de sangre')}</dt>
+              <dt className="text-meta text-ink-secondary">{t('Tipo de sangre')}</dt>
               <dd className="text-row font-bold">{profile.bloodType || t('No lo sabe')}</dd>
             </div>
             <div className="py-3">
-              <dt className="text-meta text-ink-2">{t('Alergias')}</dt>
+              <dt className="text-meta text-ink-secondary">{t('Alergias')}</dt>
               <dd className="text-row font-bold">{profile.allergies || t('No anotó ninguna')}</dd>
             </div>
             <div className="py-3">
-              <dt className="text-meta text-ink-2">{t('Enfermedades o medicinas')}</dt>
+              <dt className="text-meta text-ink-secondary">{t('Enfermedades o medicinas')}</dt>
               <dd className="text-row font-bold">{profile.conditions || t('No anotó ninguna')}</dd>
             </div>
             {profile.emergencyContactPhone && (
               <div className="py-3 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <dt className="text-meta text-ink-2">{t('A quién llamar')}</dt>
+                  <dt className="text-meta text-ink-secondary">{t('A quién llamar')}</dt>
                   <dd className="text-row font-bold truncate">{profile.emergencyContactName || t('Familiar')}</dd>
-                  <dd className="text-secondary text-ink-2">{profile.emergencyContactPhone}</dd>
+                  <dd className="text-secondary text-ink-secondary">{profile.emergencyContactPhone}</dd>
                 </div>
                 <a href={`tel:${dialable(profile.emergencyContactPhone)}`} className="btn btn-primary w-auto shrink-0">
                   <Phone className="w-5 h-5" aria-hidden="true" />
@@ -161,7 +161,7 @@ export const MedicalIdSheet: React.FC<MedicalIdSheetProps> = ({ open, onClose })
           </dl>
         ) : (
           <div className="flex items-start gap-3 p-4 rounded-lg bg-sunken">
-            <HeartPulse className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
+            <HeartPulse className="w-6 h-6 shrink-0 text-status-danger" aria-hidden="true" />
             <p className="text-secondary">{t('Todavía no llenaste tu ficha. Toma un minuto y puede ayudar a salvarte.')}</p>
           </div>
         )}

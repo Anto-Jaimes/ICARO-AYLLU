@@ -105,23 +105,23 @@ export const NewsDetailSheet: React.FC = () => {
       <div className="pt-4 pb-6">
         <div className="px-4 space-y-2">
           <p className="flex items-center gap-2 text-row font-bold">
-            <Icon className="w-5 h-5 text-anil shrink-0" aria-hidden="true" />
+            <Icon className="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
             {t(reportTitle(report.kind))}
           </p>
           <p className="text-body leading-relaxed">{report.description}</p>
           <p className="flex items-start gap-2 text-secondary">
-            <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-ink-2" aria-hidden="true" />
+            <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-ink-secondary" aria-hidden="true" />
             <span>
               {street && <span className="block font-semibold">{street}</span>}
-              <span className="block text-ink-2">{report.district}, {report.province}, {report.department}</span>
+              <span className="block text-ink-secondary">{report.district}, {report.province}, {report.department}</span>
               {hasPlace && (
-                <a href={`https://maps.google.com/?q=${report.lat},${report.lng}`} target="_blank" rel="noreferrer" className="font-bold text-anil">
+                <a href={`https://maps.google.com/?q=${report.lat},${report.lng}`} target="_blank" rel="noreferrer" className="font-bold text-primary">
                   {t('Ver en el mapa')}
                 </a>
               )}
             </span>
           </p>
-          <p className="flex items-center gap-2 text-secondary text-ink-2">
+          <p className="flex items-center gap-2 text-secondary text-ink-secondary">
             <Clock className="w-5 h-5 shrink-0" aria-hidden="true" />
             {t('{time}, por {name}', { time: formatRelativeTime(report.created_at), name: authorLabel(report.author_name) })}
           </p>
@@ -131,7 +131,7 @@ export const NewsDetailSheet: React.FC = () => {
               type="button"
               disabled={hasFlagged}
               onClick={flag}
-              className="min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-2 disabled:opacity-60"
+              className="min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-secondary disabled:opacity-60"
             >
               <Flag className="w-4 h-4" aria-hidden="true" />
               {hasFlagged ? t('Ya la denunciaste') : t('Denunciar')}
@@ -139,28 +139,28 @@ export const NewsDetailSheet: React.FC = () => {
           )}
         </div>
 
-        <section aria-labelledby="comments-title" className="mt-2 pt-4 border-t border-line">
+        <section aria-labelledby="comments-title" className="mt-2 pt-4 border-t border-border">
           <h3 id="comments-title" className="px-4 flex items-center gap-2 text-section font-bold">
-            <MessageCircle className="w-6 h-6 text-anil" aria-hidden="true" />
+            <MessageCircle className="w-6 h-6 text-primary" aria-hidden="true" />
             {t('Comentarios')}
           </h3>
-          <p className="px-4 text-secondary text-ink-2">{t('Pregunta qué pasó, dónde, o si alguien necesita ayuda.')}</p>
+          <p className="px-4 text-secondary text-ink-secondary">{t('Pregunta qué pasó, dónde, o si alguien necesita ayuda.')}</p>
 
           {comments === null ? (
-            <p className="px-4 pt-3 text-secondary text-ink-2">{t('Cargando comentarios...')}</p>
+            <p className="px-4 pt-3 text-secondary text-ink-secondary">{t('Cargando comentarios...')}</p>
           ) : comments.length === 0 ? (
-            <p className="px-4 pt-3 text-secondary text-ink-2">{t('Todavía no hay comentarios. Sé el primero.')}</p>
+            <p className="px-4 pt-3 text-secondary text-ink-secondary">{t('Todavía no hay comentarios. Sé el primero.')}</p>
           ) : (
             <ul className="list-plain pt-2">
               {comments.map((comment) => (
-                <li key={comment.id} className="px-4 py-3 border-b border-line">
+                <li key={comment.id} className="px-4 py-3 border-b border-border">
                   <p className="flex items-center gap-2 text-secondary">
-                    <User className="w-4 h-4 shrink-0 text-ink-2" aria-hidden="true" />
+                    <User className="w-4 h-4 shrink-0 text-ink-secondary" aria-hidden="true" />
                     <span className="font-bold">{comment.author_id && comment.author_id === myId ? t('Tú') : comment.author_name}</span>
-                    <span className="text-meta text-ink-2">{formatRelativeTime(comment.created_at)}</span>
+                    <span className="text-meta text-ink-secondary">{formatRelativeTime(comment.created_at)}</span>
                     {comment.author_id && comment.author_id === myId && (
                       <button type="button" onClick={() => remove(comment)} className="ml-auto icon-btn" aria-label={t('Borrar mi comentario')}>
-                        <Trash2 className="w-5 h-5 text-ink-2" aria-hidden="true" />
+                        <Trash2 className="w-5 h-5 text-ink-secondary" aria-hidden="true" />
                       </button>
                     )}
                   </p>
@@ -183,7 +183,7 @@ export const NewsDetailSheet: React.FC = () => {
                 maxLength={500}
                 placeholder={t('¿Qué pasó? ¿Hay heridos? ¿Se puede pasar?')}
               />
-              {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
+              {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{problem}</p>}
               <button type="submit" className="btn btn-primary" disabled={isSending || body.trim().length === 0}>
                 <Send className="w-5 h-5" aria-hidden="true" />
                 {isSending ? t('Enviando...') : t('Comentar')}

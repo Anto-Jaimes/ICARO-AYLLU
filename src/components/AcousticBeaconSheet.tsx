@@ -127,7 +127,7 @@ export const AcousticBeaconSheet: React.FC<AcousticBeaconSheetProps> = ({ open, 
   return (
     <BottomSheet open={open} onClose={onClose} title={t('Radar por sonido')}>
       <div className="px-4 space-y-4" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
-        <p className="text-secondary text-ink-2">
+        <p className="text-secondary text-ink-secondary">
           {t('Un celular emite tonos con tu pedido de ayuda y otro cercano lo escucha con su micrófono. Funciona sin internet, sin señal y sin Bluetooth. Mientras más cerca y en silencio, mejor se escucha.')}
         </p>
 
@@ -144,7 +144,7 @@ export const AcousticBeaconSheet: React.FC<AcousticBeaconSheetProps> = ({ open, 
             <button type="button" className="chip" aria-pressed={mode === 'audible'} disabled={isSending || isListening} onClick={() => setMode('audible')}>{t('Se escucha')}</button>
             <button type="button" className="chip" aria-pressed={mode === 'ultrasonic'} disabled={isSending || isListening} onClick={() => setMode('ultrasonic')}>{t('Muy agudo')}</button>
           </div>
-          <p className="pt-1 text-meta text-ink-2">
+          <p className="pt-1 text-meta text-ink-secondary">
             {mode === 'audible'
               ? t('Tonos que las personas escuchan. Funciona en casi todos los celulares.')
               : t('Casi no se oye, pero muchos celulares no pueden emitirlo ni captarlo. Los dos celulares deben elegir el mismo.')}
@@ -159,10 +159,10 @@ export const AcousticBeaconSheet: React.FC<AcousticBeaconSheetProps> = ({ open, 
                 {TYPES.map((option) => (
                   <li key={option}>
                     <button type="button" className="row" aria-pressed={type === option} disabled={isSending} onClick={() => setType(option)}>
-                      <span aria-hidden="true" className={`w-5 h-5 shrink-0 rounded-full border-2 ${type === option ? 'bg-anil border-anil' : 'border-line'}`} />
+                      <span aria-hidden="true" className={`w-5 h-5 shrink-0 rounded-full border-2 ${type === option ? 'bg-primary border-primary' : 'border-border'}`} />
                       <span className="flex-1">
                         <span className="block text-row font-semibold">{t(BEACON_LABELS[option].title)}</span>
-                        <span className="block text-secondary text-ink-2">{t(BEACON_LABELS[option].desc)}</span>
+                        <span className="block text-secondary text-ink-secondary">{t(BEACON_LABELS[option].desc)}</span>
                       </span>
                     </button>
                   </li>
@@ -178,8 +178,8 @@ export const AcousticBeaconSheet: React.FC<AcousticBeaconSheetProps> = ({ open, 
               <label htmlFor="beacon-details" className="block pb-1 text-secondary font-bold">{t('Dónde estás exactamente')}</label>
               <input id="beacon-details" className="field" maxLength={30} disabled={isSending} value={details} onChange={(event) => setDetails(event.target.value)} placeholder={t('Por ejemplo: Mz C Lote 4, segundo piso')} />
             </div>
-            <p className="flex items-start gap-2 text-secondary text-ink-2">
-              <MapPin className="w-5 h-5 shrink-0 text-anil" aria-hidden="true" />
+            <p className="flex items-start gap-2 text-secondary text-ink-secondary">
+              <MapPin className="w-5 h-5 shrink-0 text-primary" aria-hidden="true" />
               {hasLocation
                 ? t('Se enviará tu ubicación: {place}.', { place: placeLabel(userLocation.name) })
                 : t('No sabemos dónde estás: no se enviará ubicación. Escribe tu dirección arriba.')}
@@ -220,7 +220,7 @@ export const AcousticBeaconSheet: React.FC<AcousticBeaconSheetProps> = ({ open, 
               </p>
               <div className="h-12 flex items-end gap-1" aria-hidden="true">
                 {(levels.length ? levels : new Array(16).fill(0)).map((level, index) => (
-                  <span key={index} className={`flex-1 rounded-t ${isHearingTone ? 'bg-anil' : 'bg-line'}`} style={{ height: `${isListening ? Math.max(8, (level / 255) * 100) : 8}%` }} />
+                  <span key={index} className={`flex-1 rounded-t ${isHearingTone ? 'bg-primary' : 'bg-border'}`} style={{ height: `${isListening ? Math.max(8, (level / 255) * 100) : 8}%` }} />
                 ))}
               </div>
             </div>
@@ -228,10 +228,10 @@ export const AcousticBeaconSheet: React.FC<AcousticBeaconSheetProps> = ({ open, 
               {isListening ? <MicOff className="w-6 h-6" aria-hidden="true" /> : <Mic className="w-6 h-6" aria-hidden="true" />}
               {isListening ? t('Apagar micrófono') : t('Escuchar con el micrófono')}
             </button>
-            {micProblem && <p role="alert" className="text-secondary font-bold text-rojo">{micProblem}</p>}
+            {micProblem && <p role="alert" className="text-secondary font-bold text-status-danger">{micProblem}</p>}
 
             {latest && (
-              <div role="alert" className={`p-3 rounded-lg border-2 ${BEACON_LABELS[latest.type].isUrgent ? 'border-rojo' : 'border-anil'}`}>
+              <div role="alert" className={`p-3 rounded-lg border-2 ${BEACON_LABELS[latest.type].isUrgent ? 'border-status-danger' : 'border-primary'}`}>
                 <p className="text-row font-bold">{t(BEACON_LABELS[latest.type].title)}: {senderName(latest.sender)}</p>
                 {latest.details && <p className="text-secondary">{latest.details}</p>}
               </div>
@@ -243,20 +243,20 @@ export const AcousticBeaconSheet: React.FC<AcousticBeaconSheetProps> = ({ open, 
                 {heard.length > 0 && <button type="button" className="btn btn-secondary w-auto min-h-12" onClick={clearList}>{t('Borrar lista')}</button>}
               </div>
               {heard.length === 0 ? (
-                <p className="text-secondary text-ink-2">{t('Todavía no se escuchó ningún pedido. Deja el micrófono encendido cerca de donde pueda haber alguien.')}</p>
+                <p className="text-secondary text-ink-secondary">{t('Todavía no se escuchó ningún pedido. Deja el micrófono encendido cerca de donde pueda haber alguien.')}</p>
               ) : (
                 <ul className="list-plain">
                   {heard.map((item) => (
                     <li key={item.id} className="py-3 space-y-1">
-                      <p className={`text-row font-bold ${BEACON_LABELS[item.type].isUrgent ? 'text-rojo' : ''}`}>{t(BEACON_LABELS[item.type].title)}</p>
+                      <p className={`text-row font-bold ${BEACON_LABELS[item.type].isUrgent ? 'text-status-danger' : ''}`}>{t(BEACON_LABELS[item.type].title)}</p>
                       <p className="text-secondary">{senderName(item.sender)}{item.details ? `: ${item.details}` : ''}</p>
-                      <p className="text-meta text-ink-2">
+                      <p className="text-meta text-ink-secondary">
                         {item.rssi
                           ? t('Escuchado {time}, sonido al {level}%', { time: timeAgo(item.timestamp, t), level: item.rssi })
                           : t('Escuchado {time}', { time: timeAgo(item.timestamp, t) })}
                       </p>
                       {item.lat !== undefined && item.lng !== undefined && (
-                        <a href={`https://maps.google.com/?q=${item.lat},${item.lng}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 min-h-12 text-secondary font-bold text-anil underline">
+                        <a href={`https://maps.google.com/?q=${item.lat},${item.lng}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 min-h-12 text-secondary font-bold text-primary underline">
                           <MapPin className="w-5 h-5" aria-hidden="true" />
                           {t('Ver dónde está')}
                         </a>

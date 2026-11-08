@@ -343,10 +343,10 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
     <div className="min-h-screen bg-black text-white p-4 font-mono select-none flex flex-col justify-between">
       {/* 1. TOP HEADER & BATTERY ESTIMATE BANNER */}
       <div>
-        <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+        <div className="flex items-center justify-between pb-3 border-b border-night-border">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
-            <h1 className="text-meta font-black tracking-wider text-emerald-400 uppercase">
+            <span className="w-2.5 h-2.5 rounded-full bg-night-safe" aria-hidden="true"></span>
+            <h1 className="text-meta font-black tracking-wider text-night-safe uppercase">
               {t('Modo apagón')}
             </h1>
           </div>
@@ -354,30 +354,30 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
           <button
             type="button"
             onClick={onExit}
-            className="px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-meta font-bold text-neutral-300 hover:text-white cursor-pointer active:scale-95"
+            className="px-3 py-1.5 rounded-lg bg-night-raised border border-night-border text-meta font-bold text-night-ink hover:text-white cursor-pointer active:scale-95"
           >
             {t('Salir del modo')}
           </button>
         </div>
 
         {/* Dynamic Battery & Autonomy Survival Calculator */}
-        <div className="my-3 p-3.5 rounded-2xl bg-neutral-950 border border-neutral-800">
+        <div className="my-3 p-3.5 rounded-2xl bg-night-raised border border-night-border">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-neutral-900 text-amber-400">
+              <div className="p-2 rounded-xl bg-night-raised text-night-warning">
                 {isCharging ? (
-                  <BatteryCharging className="w-6 h-6 text-emerald-400" />
+                  <BatteryCharging className="w-6 h-6 text-night-safe" />
                 ) : isLow ? (
-                  <BatteryLow className="w-6 h-6 text-rojo" />
+                  <BatteryLow className="w-6 h-6 text-night-danger" />
                 ) : (
-                  <Battery className="w-6 h-6 text-amber-400" />
+                  <Battery className="w-6 h-6 text-night-warning" />
                 )}
               </div>
               <div>
                 <span className="text-2xl font-black block leading-none">
                   {batteryLevel !== null ? `${batteryLevel}%` : t('Sin dato')}
                 </span>
-                <span className="text-meta text-neutral-400 font-sans">
+                <span className="text-meta text-night-ink-secondary font-sans">
                   {isCharging ? t('Cargando') : batteryLevel !== null ? t('de batería') : t('Este celular no informa su batería')}
                 </span>
               </div>
@@ -385,33 +385,33 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
 
             {batteryLevel !== null && !isCharging && (
               <div className="text-right">
-                <span className="text-meta text-emerald-400 font-bold block">{t('Te queda')}</span>
-                <span className="text-xl font-black text-emerald-400 block font-mono">
+                <span className="text-meta text-night-safe font-bold block">{t('Te queda')}</span>
+                <span className="text-xl font-black text-night-safe block font-mono">
                   {hoursLeft !== null ? `~${hoursLeft} h` : t('Midiendo...')}
                 </span>
-                <span className="text-meta text-neutral-500 block">
+                <span className="text-meta text-night-ink-secondary block">
                   {hoursLeft !== null ? t('a tu ritmo de ahora') : t('con tu consumo real')}
                 </span>
               </div>
             )}
           </div>
 
-          <div className="pt-2 border-t border-neutral-900 flex items-center gap-1 text-meta font-sans text-neutral-400">
-            <Zap className="w-3.5 h-3.5 shrink-0 text-emerald-400" aria-hidden="true" />
+          <div className="pt-2 border-t border-night-border flex items-center gap-1 text-meta font-sans text-night-ink-secondary">
+            <Zap className="w-3.5 h-3.5 shrink-0 text-night-safe" aria-hidden="true" />
             {t('Baja el brillo y apaga datos, wifi y Bluetooth si no los usas.')}
           </div>
         </div>
 
         {/* 2. ALWAYS-ON MEDICAL & LOCATION IDENTITY CARD */}
-        <div className="mb-3 p-3 rounded-2xl bg-neutral-950 border border-neutral-800">
+        <div className="mb-3 p-3 rounded-2xl bg-night-raised border border-night-border">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-meta font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1">
-              <HeartPulse className="w-3.5 h-3.5 text-rojo" /> {t('Ficha de Identidad & Ubicación (Siempre Visible)')}
+            <span className="text-meta font-bold text-night-ink-secondary uppercase tracking-wider flex items-center gap-1">
+              <HeartPulse className="w-3.5 h-3.5 text-night-danger" /> {t('Ficha de Identidad & Ubicación (Siempre Visible)')}
             </span>
             <button
               type="button"
               onClick={() => setIsMedicalOpen(true)}
-              className="text-meta text-cyan-400 font-bold hover:underline"
+              className="text-meta text-night-info font-bold hover:underline"
             >
               {t('Editar ICE')}
             </button>
@@ -422,13 +422,13 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
               <div className="text-secondary font-bold text-white">
                 {medicalProfile?.fullName || t('Sin nombre en tu ficha')}
               </div>
-              <div className="text-meta text-neutral-400 mt-0.5">
+              <div className="text-meta text-night-ink-secondary mt-0.5">
                 {/* "None registered" could be read by a rescuer as "no allergies": it says it was not filled in. */}
-                {t('Alergias:')} <strong className="text-neutral-200">{medicalProfile?.allergies || t('sin registrar')}</strong>
+                {t('Alergias:')} <strong className="text-night-ink">{medicalProfile?.allergies || t('sin registrar')}</strong>
               </div>
               {medicalProfile?.conditions && (
-                <div className="text-meta text-neutral-400">
-                  {t('Condición:')} <strong className="text-amber-300">{medicalProfile.conditions}</strong>
+                <div className="text-meta text-night-ink-secondary">
+                  {t('Condición:')} <strong className="text-night-warning">{medicalProfile.conditions}</strong>
                 </div>
               )}
             </div>
@@ -436,25 +436,25 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             <div className="text-right shrink-0">
               {/* Never a made-up blood type: a rescuer could act on it. */}
               {medicalProfile?.bloodType ? (
-                <span className="px-2 py-0.5 bg-red-950 text-red-400 border border-red-800 rounded font-black text-meta inline-block mb-1">
+                <span className="px-2 py-0.5 bg-night-raised text-night-danger border border-night-danger rounded font-black text-meta inline-block mb-1">
                   {medicalProfile.bloodType}
                 </span>
               ) : (
-                <span className="text-meta text-neutral-400 inline-block mb-1">{t('Sin tipo de sangre')}</span>
+                <span className="text-meta text-night-ink-secondary inline-block mb-1">{t('Sin tipo de sangre')}</span>
               )}
-              <div className="text-meta text-neutral-400 font-mono">
+              <div className="text-meta text-night-ink-secondary font-mono">
                 {medicalProfile?.emergencyContactPhone || t('Sin contacto')}
               </div>
             </div>
           </div>
 
           {/* Location and GPS */}
-          <div className="mt-2 pt-2 border-t border-neutral-900 flex items-center justify-between text-meta font-sans text-neutral-400">
-            <span className="flex items-center gap-1 truncate max-w-[200px]">
-              <MapPin className="w-3.5 h-3.5 text-rojo shrink-0" />
-              {placeLabel(userLocation.name)}
+          <div className="mt-2 pt-2 border-t border-night-border flex items-center justify-between gap-3 text-meta font-sans text-night-ink-secondary">
+            <span className="flex items-center gap-1 min-w-0 flex-1">
+              <MapPin className="w-3.5 h-3.5 text-night-danger shrink-0" aria-hidden="true" />
+              <span className="truncate">{placeLabel(userLocation.name)}</span>
             </span>
-            <span className="font-mono text-neutral-300 text-meta shrink-0">
+            <span className="font-mono text-night-ink text-meta shrink-0">
               GPS: {userLocation.lat.toFixed(3)}, {userLocation.lng.toFixed(3)}
             </span>
           </div>
@@ -468,20 +468,20 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             type="button"
             onClick={() => handleToggleTorch('hardware')}
             className={`min-h-[76px] p-3 rounded-2xl border flex flex-col justify-between text-left transition cursor-pointer ${
-              torchMode === 'hardware'
-                ? 'bg-amber-500 text-black border-amber-400 font-bold'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-200'
-            }`}
+ torchMode === 'hardware'
+ ? 'bg-night-warning text-night border-night-warning font-bold'
+ : 'bg-night-raised border-night-border text-night-ink'
+ }`}
           >
             <div className="flex items-center justify-between w-full">
-              <Flashlight className={`w-5 h-5 ${torchMode === 'hardware' ? 'text-black' : 'text-amber-400'}`} />
+              <Flashlight className={`w-5 h-5 ${torchMode === 'hardware' ? 'text-black' : 'text-night-warning'}`} />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
                 {torchMode === 'hardware' ? t('ENCENDIDA') : t('LED TRASERO')}
               </span>
             </div>
             <div>
               <span className="font-bold text-meta block leading-tight">{t('Linterna Flash LED')}</span>
-              <span className={`text-meta ${torchMode === 'hardware' ? 'text-black/80' : 'text-neutral-400'}`}>
+              <span className={`text-meta ${torchMode === 'hardware' ? 'text-black/80' : 'text-night-ink-secondary'}`}>
                 {t('Mantiene pantalla negra')}
               </span>
             </div>
@@ -492,20 +492,20 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             type="button"
             onClick={() => handleToggleTorch('morse')}
             className={`min-h-[76px] p-3 rounded-2xl border flex flex-col justify-between text-left transition cursor-pointer ${
-              torchMode === 'morse'
-                ? 'bg-red-600 text-white border-red-400 font-bold'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-200'
-            }`}
+ torchMode === 'morse'
+ ? 'bg-status-danger text-white border-night-danger font-bold'
+ : 'bg-night-raised border-night-border text-night-ink'
+ }`}
           >
             <div className="flex items-center justify-between w-full">
-              <Sun className={`w-5 h-5 ${torchMode === 'morse' ? 'text-white' : 'text-rojo'}`} />
+              <Sun className={`w-5 h-5 ${torchMode === 'morse' ? 'text-white' : 'text-night-danger'}`} />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
                 {torchMode === 'morse' ? t('PARPADEANDO') : 'MORSE'}
               </span>
             </div>
             <div>
               <span className="font-bold text-meta block leading-tight">{t('Luz S.O.S. Morse')}</span>
-              <span className={`text-meta ${torchMode === 'morse' ? 'text-white/80' : 'text-neutral-400'}`}>
+              <span className={`text-meta ${torchMode === 'morse' ? 'text-white/80' : 'text-night-ink-secondary'}`}>
                 {t('Rescate nocturno / aéreo')}
               </span>
             </div>
@@ -516,20 +516,20 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             type="button"
             onClick={toggleWhistle}
             className={`min-h-[76px] p-3 rounded-2xl border flex flex-col justify-between text-left transition cursor-pointer ${
-              isWhistleActive
-                ? 'bg-emerald-600 text-white border-emerald-400'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-200'
-            }`}
+ isWhistleActive
+ ? 'bg-status-safe text-white border-night-safe'
+ : 'bg-night-raised border-night-border text-night-ink'
+ }`}
           >
             <div className="flex items-center justify-between w-full">
-              <Volume2 className={`w-5 h-5 ${isWhistleActive ? 'text-white' : 'text-emerald-400'}`} />
+              <Volume2 className={`w-5 h-5 ${isWhistleActive ? 'text-white' : 'text-night-safe'}`} />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
                 {isWhistleActive ? t('ACTIVO') : t('BAJO GASTO')}
               </span>
             </div>
             <div>
               <span className="font-bold text-meta block leading-tight">{t('Silbato Cada 12s')}</span>
-              <span className={`text-meta ${isWhistleActive ? 'text-white/80' : 'text-neutral-400'}`}>
+              <span className={`text-meta ${isWhistleActive ? 'text-white/80' : 'text-night-ink-secondary'}`}>
                 {t('Suena 1 segundo de cada 12')}
               </span>
             </div>
@@ -542,17 +542,17 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
               tapFeedback();
               setIsAcousticOpen(true);
             }}
-            className="min-h-[76px] p-3 rounded-2xl bg-neutral-900 border border-neutral-800 flex flex-col justify-between text-left cursor-pointer hover:bg-neutral-800"
+            className="min-h-[76px] p-3 rounded-2xl bg-night-raised border border-night-border flex flex-col justify-between text-left cursor-pointer hover:bg-night-border"
           >
             <div className="flex items-center justify-between w-full">
-              <Waves className="w-5 h-5 text-cyan-400" />
-              <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">
+              <Waves className="w-5 h-5 text-night-info" />
+              <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-night-raised text-night-info border border-night-border font-bold">
                 {t('P2P SONIDO')}
               </span>
             </div>
             <div>
               <span className="font-bold text-meta block leading-tight">{t('Baliza Acústica')}</span>
-              <span className="text-meta text-neutral-400">{t('Emite socorro por ondas')}</span>
+              <span className="text-meta text-night-ink-secondary">{t('Emite socorro por ondas')}</span>
             </div>
           </button>
 
@@ -561,20 +561,20 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             type="button"
             onClick={toggleSiren}
             className={`min-h-[70px] p-3 rounded-2xl border flex flex-col justify-between text-left transition cursor-pointer ${
-              isSounding
-                ? 'bg-rojo border-red-500 text-white'
-                : 'bg-neutral-900 border-neutral-800 text-neutral-200'
-            }`}
+ isSounding
+ ? 'bg-status-danger border-night-danger text-white'
+ : 'bg-night-raised border-night-border text-night-ink'
+ }`}
           >
             <div className="flex items-center justify-between w-full">
-              {isSounding ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-rojo" />}
+              {isSounding ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-night-danger" />}
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
                 {isSounding ? t('SONANDO') : t('ESTRUENDO')}
               </span>
             </div>
             <div>
               <span className="font-bold text-meta block leading-tight">{t('Sirena Continua')}</span>
-              <span className="text-meta text-neutral-400">
+              <span className="text-meta text-night-ink-secondary">
                 {isSounding ? t('Toca para detener') : t('Máximo volumen')}
               </span>
             </div>
@@ -583,45 +583,45 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
           {/* SMS with GPS */}
           <a
             href={smsUrl}
-            className="min-h-[70px] p-3 rounded-2xl bg-neutral-900 border border-neutral-800 flex flex-col justify-between text-left no-underline text-white active:bg-neutral-800"
+            className="min-h-[70px] p-3 rounded-2xl bg-night-raised border border-night-border flex flex-col justify-between text-left no-underline text-white active:bg-night-border"
           >
             <div className="flex items-center justify-between w-full">
-              <MessageSquare className="w-5 h-5 text-cyan-400" />
+              <MessageSquare className="w-5 h-5 text-night-info" />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
                 2G SMS
               </span>
             </div>
             <div>
               <span className="font-bold text-meta block leading-tight">{t('SMS con GPS')}</span>
-              <span className="text-meta text-neutral-400">{t('Sin internet')}</span>
+              <span className="text-meta text-night-ink-secondary">{t('Sin internet')}</span>
             </div>
           </a>
 
         </div>
 
           {/* Radio Nacional: without internet, a battery radio still brings the official statements. */}
-          <div className="p-3 rounded-2xl border bg-neutral-900 border-neutral-800 text-neutral-200 flex gap-3 items-start">
-            <Radio className="w-6 h-6 shrink-0 text-neutral-400" aria-hidden="true" />
+          <div className="p-3 rounded-2xl border bg-night-raised border-night-border text-night-ink flex gap-3 items-start">
+            <Radio className="w-6 h-6 shrink-0 text-night-ink-secondary" aria-hidden="true" />
             <div>
               <span className="font-bold text-secondary block">{t('Radio Nacional')}</span>
-              <span className="text-meta text-neutral-400">{t('En una radio a pilas: 103.9 FM en Lima. Transmite los comunicados oficiales.')}</span>
+              <span className="text-meta text-night-ink-secondary">{t('En una radio a pilas: 103.9 FM en Lima. Transmite los comunicados oficiales.')}</span>
             </div>
           </div>
 
         {/* 4. COMPASS & OFFLINE RESCUE CALLS */}
-        <div className="pt-2 border-t border-neutral-900">
+        <div className="pt-2 border-t border-night-border">
           
           {/* Survival Compass */}
           <button
             type="button"
             onClick={toggleCompass}
-            className="mb-2 w-full p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-between text-left"
+            className="mb-2 w-full p-2.5 rounded-xl bg-night-raised border border-night-border flex items-center justify-between text-left"
           >
             <span className="flex items-center gap-2">
-              <Compass className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-              <span className="text-meta font-bold text-neutral-300">{t('Brújula')}</span>
+              <Compass className="w-4 h-4 text-night-safe" aria-hidden="true" />
+              <span className="text-meta font-bold text-night-ink">{t('Brújula')}</span>
             </span>
-            <span className="text-meta font-mono font-bold text-emerald-400">
+            <span className="text-meta font-mono font-bold text-night-safe">
               {!hasCompass
                 ? t('Este celular no tiene brújula')
                 : !isCompassOn
@@ -636,42 +636,42 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
           <div className="grid grid-cols-4 gap-1.5">
             <a
               href="tel:116"
-              className="p-2 rounded-xl bg-neutral-900 border border-red-900/60 text-center no-underline text-white"
+              className="p-2 rounded-xl bg-night-raised border border-night-border text-center no-underline text-white"
             >
-              <span className="text-base font-black text-rojo block">116</span>
-              <span className="text-meta text-neutral-400 font-sans block">{t('Bomberos')}</span>
+              <span className="text-base font-black text-night-danger block">116</span>
+              <span className="text-meta text-night-ink-secondary font-sans block">{t('Bomberos')}</span>
             </a>
 
             <a
               href="tel:105"
-              className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-center no-underline text-white"
+              className="p-2 rounded-xl bg-night-raised border border-night-border text-center no-underline text-white"
             >
               <span className="text-base font-black text-white block">105</span>
-              <span className="text-meta text-neutral-400 font-sans block">{t('Policía')}</span>
+              <span className="text-meta text-night-ink-secondary font-sans block">{t('Policía')}</span>
             </a>
 
             <a
               href="tel:106"
-              className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-center no-underline text-white"
+              className="p-2 rounded-xl bg-night-raised border border-night-border text-center no-underline text-white"
             >
-              <span className="text-base font-black text-cyan-400 block">106</span>
-              <span className="text-meta text-neutral-400 font-sans block">SAMU</span>
+              <span className="text-base font-black text-night-info block">106</span>
+              <span className="text-meta text-night-ink-secondary font-sans block">SAMU</span>
             </a>
 
             <a
               href="tel:119"
-              className="p-2 rounded-xl bg-neutral-900 border border-emerald-900/60 text-center no-underline text-white"
+              className="p-2 rounded-xl bg-night-raised border border-night-border text-center no-underline text-white"
             >
-              <span className="text-base font-black text-emerald-400 block">119</span>
-              <span className="text-meta text-neutral-400 font-sans block">{t('MTC Voz')}</span>
+              <span className="text-base font-black text-night-safe block">119</span>
+              <span className="text-meta text-night-ink-secondary font-sans block">{t('MTC Voz')}</span>
             </a>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="pt-3 pb-1 border-t border-neutral-900 text-center">
-        <p className="text-meta text-neutral-500 font-sans">
+      <div className="pt-3 pb-1 border-t border-night-border text-center">
+        <p className="text-meta text-night-ink-secondary font-sans">
           {t('AYLLU • Sistema de Telecomunicación y Resiliencia en Apagones')}
         </p>
       </div>

@@ -57,7 +57,7 @@ export const FirstAidSheet: React.FC<FirstAidSheetProps> = ({ open, onClose }) =
   return (
     <BottomSheet open={open} onClose={onClose} title={t('Primeros auxilios')}>
       <div className="pb-6 space-y-3">
-        <p className="px-4 text-secondary text-ink-2">{t('Pasos básicos mientras llega la ayuda. Funciona sin internet.')}</p>
+        <p className="px-4 text-secondary text-ink-secondary">{t('Pasos básicos mientras llega la ayuda. Funciona sin internet.')}</p>
 
         <div className="chip-row" role="group" aria-label={t('Elige qué pasó')}>
           {GUIDES.map((item) => (

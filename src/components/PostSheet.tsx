@@ -156,7 +156,7 @@ export const PostSheet: React.FC = () => {
       )}
       <div className="px-4 pb-4 space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-secondary text-ink-2">
+          <p className="text-secondary text-ink-secondary">
             {[t(category.label), distance, item.neighborhood].filter(Boolean).join(', ')}
           </p>
           <button
@@ -164,9 +164,9 @@ export const PostSheet: React.FC = () => {
             onClick={toggleSpeakPost}
             aria-label={isSpeaking ? t('Detener la lectura') : t('Escuchar en voz alta')}
             title={isSpeaking ? t('Detener la lectura') : t('Escuchar en voz alta')}
-            className={`p-2 rounded-lg text-ink-2 hover:text-ink shrink-0 transition-colors ${
-              isSpeaking ? 'bg-anil text-white shadow-xs' : 'bg-sunken hover:bg-neutral-200'
-            }`}
+            className={`p-2 rounded-lg text-ink-secondary hover:text-ink shrink-0 transition-colors ${
+ isSpeaking ? 'bg-primary text-white shadow-xs' : 'bg-sunken hover:bg-border'
+ }`}
           >
             {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -176,7 +176,7 @@ export const PostSheet: React.FC = () => {
 
         <dl className="space-y-1 text-secondary">
           <div className="flex gap-2">
-            <dt className="text-ink-2">{t('Publicó')}</dt>
+            <dt className="text-ink-secondary">{t('Publicó')}</dt>
             <dd className="font-medium">
               {item.authorName}
               {item.authorVerified && <VerifiedBadge explain className="pt-0.5" />}
@@ -184,23 +184,23 @@ export const PostSheet: React.FC = () => {
           </div>
           {item.priceInfo && (
             <div className="flex gap-2">
-              <dt className="text-ink-2">{t('Precio')}</dt>
+              <dt className="text-ink-secondary">{t('Precio')}</dt>
               <dd className="font-medium">{item.priceInfo}</dd>
             </div>
           )}
           {item.address && (
             <div className="flex gap-2">
-              <dt className="text-ink-2">{t('Dónde')}</dt>
+              <dt className="text-ink-secondary">{t('Dónde')}</dt>
               <dd className="font-medium">{item.address}</dd>
             </div>
           )}
           <div className="flex gap-2">
-            <dt className="text-ink-2">{t('Fecha')}</dt>
+            <dt className="text-ink-secondary">{t('Fecha')}</dt>
             <dd className="font-medium">{item.createdAtIso ? formatRelativeTime(item.createdAtIso) : t(item.createdAt)}</dd>
           </div>
         </dl>
 
-        {!whatsappUrl && <p className="text-secondary text-ink-2">{t('No dejó teléfono de contacto.')}</p>}
+        {!whatsappUrl && <p className="text-secondary text-ink-secondary">{t('No dejó teléfono de contacto.')}</p>}
 
         {isNeed && item.status === 'active' && (
           <button type="button" className="btn btn-danger" onClick={() => updateItemStatus(item.id, 'in_progress')}>
@@ -226,7 +226,7 @@ export const PostSheet: React.FC = () => {
         {audienceText && <p className="text-secondary font-semibold">{audienceText}</p>}
 
         {isDonation && item.status === 'resolved' && (
-          <p className="text-secondary font-bold text-verde">{isGiving ? t('Ya se entregó') : t('Ya los ayudaron')}</p>
+          <p className="text-secondary font-bold text-status-safe">{isGiving ? t('Ya se entregó') : t('Ya los ayudaron')}</p>
         )}
 
         {isDonation && item.isMine && (
@@ -246,7 +246,7 @@ export const PostSheet: React.FC = () => {
             type="button"
             disabled={hasFlagged}
             onClick={reportPost}
-            className="min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-2 disabled:opacity-60"
+            className="min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-secondary disabled:opacity-60"
           >
             <Flag className="w-4 h-4" aria-hidden="true" />
             {hasFlagged ? t('Ya la denunciaste') : t('Denunciar')}
@@ -261,9 +261,9 @@ export const PostSheet: React.FC = () => {
         )}
 
         {!isEmergency && (
-          <section aria-labelledby="visto-bueno-title" className="pt-2 border-t border-line">
+          <section aria-labelledby="visto-bueno-title" className="pt-2 border-t border-border">
             <h3 id="visto-bueno-title" className="pt-3 text-section font-bold">{t('Visto Bueno Vecinal')}</h3>
-            <p className="pb-3 text-secondary text-ink-2">{recText}</p>
+            <p className="pb-3 text-secondary text-ink-secondary">{recText}</p>
 
             {!item.isMine && (
               <button
@@ -282,8 +282,8 @@ export const PostSheet: React.FC = () => {
                 {item.reviews.map((review) => (
                   <li key={review.id} className="py-3">
                     <p>{review.comment}</p>
-                    <p className="flex items-center gap-1.5 mt-1 text-meta text-ink-2">
-                      {review.isNeighborVerified && <BadgeCheck className="w-4 h-4 text-verde" aria-hidden="true" />}
+                    <p className="flex items-center gap-1.5 mt-1 text-meta text-ink-secondary">
+                      {review.isNeighborVerified && <BadgeCheck className="w-4 h-4 text-status-safe" aria-hidden="true" />}
                       {review.authorName === ANONYMOUS_REVIEWER ? t(review.authorName) : review.authorName}
                       {review.isNeighborVerified ? `, ${t('vive cerca')}` : ''}, {(review.dateIso ? formatRelativeTime(review.dateIso) : t(review.date)).toLowerCase()}
                     </p>

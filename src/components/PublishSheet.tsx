@@ -149,9 +149,9 @@ export const PublishSheet: React.FC = () => {
                     key={kind.id}
                     type="button"
                     onClick={() => startReport(kind.id)}
-                    className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-line"
+                    className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-border"
                   >
-                    <Icon className="w-6 h-6 text-rojo" aria-hidden="true" />
+                    <Icon className="w-6 h-6 text-status-danger" aria-hidden="true" />
                     <span className="text-secondary font-bold">{t(kind.label)}</span>
                   </button>
                 );
@@ -170,9 +170,9 @@ export const PublishSheet: React.FC = () => {
                       key={`${tile.type}-${tile.label}`}
                       type="button"
                       onClick={() => choose(tile)}
-                      className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-line"
+                      className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-border"
                     >
-                      <Icon className="w-6 h-6 text-anil" aria-hidden="true" />
+                      <Icon className="w-6 h-6 text-primary" aria-hidden="true" />
                       <span className="text-secondary font-bold">{t(tile.label)}</span>
                     </button>
                   );
@@ -260,13 +260,13 @@ export const PublishSheet: React.FC = () => {
                       type="button"
                       aria-pressed={audience === option}
                       onClick={() => setAudience(option)}
-                      className={`min-h-12 px-3 rounded-lg text-secondary font-bold ${audience === option ? 'bg-anil text-white' : 'bg-sunken text-ink'}`}
+                      className={`min-h-12 px-3 rounded-lg text-secondary font-bold ${audience === option ? 'bg-primary text-white' : 'bg-sunken text-ink'}`}
                     >
                       {option === 'vecinos' ? (isGiving ? t('Cualquier vecino') : t('Un vecino')) : t('Una organización')}
                     </button>
                   ))}
                 </div>
-                <p className="pt-1 text-meta text-ink-2">{t('Organización: comedor, olla común, albergue, parroquia...')}</p>
+                <p className="pt-1 text-meta text-ink-secondary">{t('Organización: comedor, olla común, albergue, parroquia...')}</p>
               </fieldset>
             </>
           )}
@@ -316,7 +316,7 @@ export const PublishSheet: React.FC = () => {
                   </div>
                 ))}
                 {photos.length < MAX_POST_PHOTOS && (
-                  <label className="grid place-items-center w-20 h-20 rounded-lg border-2 border-dashed border-line text-anil cursor-pointer">
+                  <label className="grid place-items-center w-20 h-20 rounded-lg border-2 border-dashed border-border text-primary cursor-pointer">
                     <ImagePlus className="w-7 h-7" aria-hidden="true" />
                     <span className="sr-only">{t('Agregar fotos')}</span>
                     <input
@@ -332,7 +332,7 @@ export const PublishSheet: React.FC = () => {
                   </label>
                 )}
               </div>
-              <p className="pt-1 text-meta text-ink-2">
+              <p className="pt-1 text-meta text-ink-secondary">
                 {isDonation
                   ? t('Muestra cómo está lo que regalas o lo que se necesita. Se achican para gastar pocos datos.')
                   : t('Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.')}
@@ -340,7 +340,7 @@ export const PublishSheet: React.FC = () => {
             </div>
           )}
 
-          {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
+          {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{problem}</p>}
 
           <div className="grid grid-cols-2 gap-2">
             <div className="min-w-0">
@@ -380,10 +380,10 @@ export const PublishSheet: React.FC = () => {
                 placeholder={t('Calle o referencia')}
                 className="field"
               />
-              <p className="pt-1 text-meta text-ink-2">{t('No tenemos tu ubicación. Escribe una referencia.')}</p>
+              <p className="pt-1 text-meta text-ink-secondary">{t('No tenemos tu ubicación. Escribe una referencia.')}</p>
             </div>
           ) : (
-            <p className="flex items-center gap-2 text-secondary text-ink-2">
+            <p className="flex items-center gap-2 text-secondary text-ink-secondary">
               <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
               <span className="min-w-0 truncate">{placeLabel(userLocation.name)}</span>
             </p>

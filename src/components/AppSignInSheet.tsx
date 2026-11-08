@@ -93,13 +93,13 @@ export const AppSignInSheet: React.FC = () => {
 
         <section aria-labelledby="signin-phone-title" className="space-y-3">
           <h3 id="signin-phone-title" className="flex items-center gap-2 text-section font-bold">
-            <Phone className="w-6 h-6 text-anil" aria-hidden="true" />
+            <Phone className="w-6 h-6 text-primary" aria-hidden="true" />
             {t('Entrar con mi número')}
           </h3>
 
           {step === 'phone' && (
             <>
-              <p className="text-secondary text-ink-2">
+              <p className="text-secondary text-ink-secondary">
                 {t('Escribe el número que verificaste en AYLLU. Te llamamos gratis y te dictamos un código de 4 cifras.')}
               </p>
               <div>
@@ -118,12 +118,12 @@ export const AppSignInSheet: React.FC = () => {
                   }}
                 />
               </div>
-              {problem && <p role="alert" className="text-secondary font-bold text-rojo">{t(problem)}</p>}
+              {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{t(problem)}</p>}
               <button type="button" className="btn btn-primary" disabled={isBusy || !isOnline || digits.length < 9} onClick={askForCall}>
                 <Phone className="w-6 h-6" aria-hidden="true" />
                 {isBusy ? t('Pidiendo...') : t('Llamarme con mi código')}
               </button>
-              {!isOnline && <p className="text-secondary text-ink-2">{t('Necesitas internet para volver a entrar.')}</p>}
+              {!isOnline && <p className="text-secondary text-ink-secondary">{t('Necesitas internet para volver a entrar.')}</p>}
             </>
           )}
 
@@ -147,7 +147,7 @@ export const AppSignInSheet: React.FC = () => {
                   }}
                 />
               </div>
-              {problem && <p role="alert" className="text-secondary font-bold text-rojo">{t(problem)}</p>}
+              {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{t(problem)}</p>}
               <button type="button" className="btn btn-primary" disabled={isBusy || code.length !== 4} onClick={enter}>
                 <LogIn className="w-6 h-6" aria-hidden="true" />
                 {isBusy ? t('Entrando...') : t('Entrar')}
@@ -159,9 +159,9 @@ export const AppSignInSheet: React.FC = () => {
           )}
         </section>
 
-        <section aria-labelledby="signin-new-title" className="space-y-2 pt-4 border-t border-line">
+        <section aria-labelledby="signin-new-title" className="space-y-2 pt-4 border-t border-border">
           <h3 id="signin-new-title" className="text-row font-bold">{t('¿No verificaste tu número?')}</h3>
-          <p className="text-secondary text-ink-2">
+          <p className="text-secondary text-ink-secondary">
             {t('Puedes empezar con una cuenta nueva y un código nuevo. Tu cuenta anterior no se borra, pero sin número verificado no hay cómo volver a ella.')}
           </p>
           <button type="button" className="btn btn-secondary" onClick={beginNewAccount}>
@@ -172,7 +172,7 @@ export const AppSignInSheet: React.FC = () => {
 
         <section className="space-y-2">
           <button type="button" className="btn btn-secondary" onClick={() => closeAccess()}>{t('Solo mirar')}</button>
-          <p className="text-secondary text-ink-2">
+          <p className="text-secondary text-ink-secondary">
             {t('Sin entrar puedes ver las publicaciones y leer los comentarios, pero no publicar, comentar, recomendar ni llamar.')}
           </p>
         </section>

@@ -31,7 +31,7 @@ const LoginView: React.FC = () => {
   return (
     <form onSubmit={signIn} className="max-w-sm mx-auto mt-16 space-y-4 px-4">
       <h1 className="text-title font-bold">Moderación AYLLU</h1>
-      <p className="text-secondary text-ink-2">Solo para el equipo que revisa noticias y llamadas.</p>
+      <p className="text-secondary text-ink-secondary">Solo para el equipo que revisa noticias y llamadas.</p>
       <div>
         <label htmlFor="mod-email" className="block pb-1 text-secondary font-bold">Correo</label>
         <input id="mod-email" className="field" type="email" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} required />
@@ -64,7 +64,7 @@ const ChangePasswordView: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   return (
     <form onSubmit={save} className="max-w-sm mx-auto mt-16 space-y-4 px-4">
       <h1 className="text-title font-bold">Cambia tu contraseña</h1>
-      <p className="text-secondary text-ink-2">
+      <p className="text-secondary text-ink-secondary">
         Es tu primer ingreso. El panel tiene grabaciones y ubicaciones de vecinos: elige una contraseña que nadie más conozca.
       </p>
       <div>
@@ -118,7 +118,7 @@ export const ModerationApp: React.FC = () => {
 
   const signOut = () => db.auth.signOut();
 
-  if (stage === 'checking') return <p role="status" className="p-6 text-secondary text-ink-2">Cargando...</p>;
+  if (stage === 'checking') return <p role="status" className="p-6 text-secondary text-ink-secondary">Cargando...</p>;
   if (stage === 'signed_out') return <LoginView />;
   if (stage === 'must_change') return <ChangePasswordView onDone={() => evaluate(session)} />;
   if (stage === 'not_moderator') {
@@ -143,10 +143,10 @@ export const ModerationApp: React.FC = () => {
 
   return (
     <div className="min-h-dvh bg-surface">
-      <header className="border-b border-line">
+      <header className="border-b border-border">
         <div className="page px-4 flex flex-wrap items-center gap-3 min-h-16">
           <h1 className="flex-1 text-title font-bold">Moderación AYLLU</h1>
-          <p className="text-secondary text-ink-2">{name}</p>
+          <p className="text-secondary text-ink-secondary">{name}</p>
           <button type="button" className="btn btn-secondary w-auto min-h-12" onClick={signOut}>Salir</button>
         </div>
         <nav className="page px-4 flex flex-wrap gap-2 pb-3" aria-label="Secciones del panel">

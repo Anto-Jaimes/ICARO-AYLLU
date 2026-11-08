@@ -51,7 +51,7 @@ export const ComplaintPage: React.FC = () => {
         </div>
       ) : (
         <form onSubmit={send} className="space-y-4">
-          <p className="text-body text-ink-2">
+          <p className="text-body text-ink-secondary">
             AYLLU da llamadas gratis a sus vecinos. Si alguien te llamó desde AYLLU para amenazarte, pedirte dinero o molestarte, cuéntanos.
             Las llamadas se graban: así podemos revisar qué pasó.
           </p>
@@ -66,15 +66,15 @@ export const ComplaintPage: React.FC = () => {
           <div>
             <label htmlFor="complaint-code" className="block pb-1 text-secondary font-bold">Código que escuchaste (si lo recuerdas)</label>
             <input id="complaint-code" className="field uppercase" value={code} onChange={(event) => setCode(event.target.value)} maxLength={10} aria-describedby="complaint-code-help" />
-            <p id="complaint-code-help" className="pt-1 text-meta text-ink-2">Al contestar se escucha: "de parte del usuario…", seguido de letras y números.</p>
+            <p id="complaint-code-help" className="pt-1 text-meta text-ink-secondary">Al contestar se escucha: "de parte del usuario…", seguido de letras y números.</p>
           </div>
           <div>
             <label htmlFor="complaint-description" className="block pb-1 text-secondary font-bold">Qué pasó</label>
             <textarea id="complaint-description" className="field" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} required minLength={5} maxLength={1000} />
           </div>
-          {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
+          {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{problem}</p>}
           <button type="submit" className="btn btn-primary" disabled={isBusy}>{isBusy ? 'Enviando...' : 'Enviar denuncia'}</button>
-          <p className="text-meta text-ink-2">En una emergencia llama a la Policía al 105.</p>
+          <p className="text-meta text-ink-secondary">En una emergencia llama a la Policía al 105.</p>
         </form>
       )}
     </main>

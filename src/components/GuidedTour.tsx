@@ -299,7 +299,7 @@ export const GuidedTour: React.FC = () => {
             className="tour-card"
             style={{ top: card.top, left: card.left, width: card.width, visibility: cardHeight ? 'visible' : 'hidden' }}
           >
-            <p className="text-meta text-ink-2">{t('Paso {step} de {total}', { step: index + 1, total: steps.length })}</p>
+            <p className="text-meta text-ink-secondary">{t('Paso {step} de {total}', { step: index + 1, total: steps.length })}</p>
             <div aria-live="polite">
               <h2 className="mt-1 text-section font-bold">{t(step.title)}</h2>
               <p className="mt-1 text-secondary">{t(step.text)}</p>
@@ -315,7 +315,7 @@ export const GuidedTour: React.FC = () => {
               </button>
             </div>
             {!isLast && (
-              <button type="button" className="mt-2 w-full min-h-12 text-secondary font-bold text-anil underline underline-offset-4" onClick={finish}>
+              <button type="button" className="mt-2 w-full min-h-12 text-secondary font-bold text-primary underline underline-offset-4" onClick={finish}>
                 {t('Saltar la guía')}
               </button>
             )}

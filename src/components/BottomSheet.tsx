@@ -102,7 +102,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose, title, 
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       >
-        <span aria-hidden="true" className="block lg:hidden mx-auto w-10 h-1 rounded-full bg-line" />
+        <span aria-hidden="true" className="block lg:hidden mx-auto w-10 h-1 rounded-full bg-border" />
         <div className="flex items-center gap-2 pl-4 pr-1 min-h-14">
           {/* autoFocus keeps the focus ring off the close button and reads the title aloud. */}
           <h2 tabIndex={-1} autoFocus className="flex-1 min-w-0 text-title font-bold outline-none">{t(title)}</h2>
@@ -122,7 +122,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose, title, 
 
       {footer && (
         <div
-          className="shrink-0 px-4 pt-3 border-t border-line bg-surface"
+          className="shrink-0 px-4 pt-3 border-t border-border bg-surface"
           style={{ paddingBottom: 'calc(12px + var(--safe-bottom))' }}
         >
           {footer}

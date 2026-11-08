@@ -37,7 +37,7 @@ export const BottomNav: React.FC = () => {
     <nav
       aria-label={t('Principal')}
       className={`fixed z-30 bottom-0 inset-x-0 flex lg:top-0 lg:right-auto lg:w-60 lg:flex-col lg:gap-1 lg:p-3 ${
-        isEmergency ? 'bg-rojo text-white' : 'bg-surface border-t border-line lg:border-t-0 lg:border-r'
+        isEmergency ? 'bg-status-danger text-white' : 'bg-surface border-t border-border lg:border-t-0 lg:border-r'
       }`}
       style={{ paddingBottom: 'var(--safe-bottom)' }}
     >
@@ -51,7 +51,7 @@ export const BottomNav: React.FC = () => {
         data-tour="publish"
         onClick={() => openPublish()}
         className={`hidden lg:flex items-center justify-center gap-2 min-h-14 mb-3 rounded-lg font-bold text-row ${
-          isEmergency ? 'bg-white text-rojo' : 'bg-anil active:bg-anil-press text-white'
+          isEmergency ? 'bg-white text-status-danger' : 'bg-primary active:bg-primary-press text-white'
         }`}
       >
         <Plus className="w-6 h-6" aria-hidden="true" />
@@ -61,9 +61,9 @@ export const BottomNav: React.FC = () => {
       {items.map(({ tab: target, label, icon: Icon }) => {
         const isActive = tab === target && !isAlertsOpen && !isNewsOpen;
         const activeStyle = isEmergency
-          ? 'bg-white text-rojo font-bold'
-          : 'text-anil font-bold shadow-[inset_0_3px_0_var(--color-anil)] lg:shadow-none lg:bg-sunken lg:rounded-lg';
-        const idleStyle = isEmergency ? 'font-medium' : 'text-ink-2 font-medium';
+          ? 'bg-white text-status-danger font-bold'
+          : 'text-primary font-bold shadow-[inset_0_3px_0_var(--color-primary)] lg:shadow-none lg:bg-sunken lg:rounded-lg';
+        const idleStyle = isEmergency ? 'font-medium' : 'text-ink-secondary font-medium';
 
         return (
           <button
@@ -95,7 +95,7 @@ export const BottomNav: React.FC = () => {
           tapFeedback();
           setIsSosOpen(true);
         }}
-        className={`${CELL} lg:mt-auto lg:rounded-lg font-bold text-white ${isEmergency ? 'bg-black' : 'bg-rojo active:bg-rojo-press'}`}
+        className={`${CELL} lg:mt-auto lg:rounded-lg font-bold text-white ${isEmergency ? 'bg-black' : 'bg-status-danger active:bg-status-danger-press'}`}
       >
         <Siren className="w-6 h-6 shrink-0" aria-hidden="true" />
         <span>SOS</span>

@@ -32,7 +32,7 @@ export const BlockedTab: React.FC = () => {
   return (
     <section aria-labelledby="blocked-title" className="space-y-3">
       <h2 id="blocked-title" className="text-section font-bold">Números bloqueados</h2>
-      <p className="text-secondary text-ink-2">Un número bloqueado ya no puede verificarse ni pedir llamadas gratis.</p>
+      <p className="text-secondary text-ink-secondary">Un número bloqueado ya no puede verificarse ni pedir llamadas gratis.</p>
       <div className="flex flex-wrap items-end gap-2">
         <div className="min-w-56">
           <label htmlFor="block-new" className="block pb-1 text-secondary font-bold">Bloquear otro número</label>
@@ -47,7 +47,7 @@ export const BlockedTab: React.FC = () => {
           <li key={item.phone} className="py-3 flex flex-wrap items-center gap-3">
             <div className="flex-1 min-w-64">
               <p className="text-row font-bold">{formatPhone(item.phone)}</p>
-              <p className="text-secondary text-ink-2">{item.reason}. Desde el {formatDate(item.created_at)}</p>
+              <p className="text-secondary text-ink-secondary">{item.reason}. Desde el {formatDate(item.created_at)}</p>
             </div>
             <button type="button" className="btn btn-secondary w-auto min-h-12" onClick={() => unblock(item.phone)}>Desbloquear</button>
           </li>
@@ -101,7 +101,7 @@ export const LogTab: React.FC = () => {
   return (
     <section aria-labelledby="log-title" className="space-y-3">
       <h2 id="log-title" className="text-section font-bold">Registro de decisiones</h2>
-      {entries === null && <p role="status" className="text-secondary text-ink-2">Cargando...</p>}
+      {entries === null && <p role="status" className="text-secondary text-ink-secondary">Cargando...</p>}
       {entries?.length === 0 && <EmptyLine text="Todavía no hay decisiones." />}
       <ul className="list-plain">
         {entries?.map((entry) => (
@@ -111,7 +111,7 @@ export const LogTab: React.FC = () => {
               {entry.action.startsWith('phone') && entry.target_id ? ` (${formatPhone(entry.target_id)})` : ''}
               {entry.note ? `: ${entry.note}` : ''}.
             </p>
-            <p className="text-meta text-ink-2">{formatDate(entry.created_at)}</p>
+            <p className="text-meta text-ink-secondary">{formatDate(entry.created_at)}</p>
           </li>
         ))}
       </ul>

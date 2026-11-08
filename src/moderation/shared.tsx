@@ -28,9 +28,9 @@ export const CALL_STATUS: Record<string, string> = {
 };
 
 export const ErrorLine: React.FC<{ message: string | null }> = ({ message }) =>
-  message ? <p role="alert" className="text-secondary font-bold text-rojo">{message}</p> : null;
+  message ? <p role="alert" className="text-secondary font-bold text-status-danger">{message}</p> : null;
 
-export const EmptyLine: React.FC<{ text: string }> = ({ text }) => <p className="py-6 text-secondary text-ink-2">{text}</p>;
+export const EmptyLine: React.FC<{ text: string }> = ({ text }) => <p className="py-6 text-secondary text-ink-secondary">{text}</p>;
 
 /** Listens to a private recording through a link that expires in ten minutes. */
 export const RecordingPlayer: React.FC<{ path: string }> = ({ path }) => {
@@ -47,7 +47,7 @@ export const RecordingPlayer: React.FC<{ path: string }> = ({ path }) => {
     return (
       <div className="space-y-1">
         <audio controls src={src} className="w-full max-w-md" />
-        <p className="text-meta text-ink-2">Lado izquierdo: quien llamó. Lado derecho: quien contestó.</p>
+        <p className="text-meta text-ink-secondary">Lado izquierdo: quien llamó. Lado derecho: quien contestó.</p>
       </div>
     );
   }

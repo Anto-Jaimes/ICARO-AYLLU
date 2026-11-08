@@ -68,8 +68,8 @@ export const WebKeySection: React.FC<{ isVisible: boolean }> = ({ isVisible }) =
   };
 
   return (
-    <section className="px-4 py-4 border-b border-line" aria-labelledby="web-key-title">
-      <h3 id="web-key-title" className="text-secondary text-ink-2">{t('Entrar en la web')}</h3>
+    <section className="px-4 py-4 border-b border-border" aria-labelledby="web-key-title">
+      <h3 id="web-key-title" className="text-secondary text-ink-secondary">{t('Entrar en la web')}</h3>
       {key ? (
         <div className="pt-1 space-y-1">
           <p className="text-sign font-bold tracking-widest" aria-live="polite">{`${key.slice(0, 3)} ${key.slice(3)}`}</p>
@@ -89,7 +89,7 @@ export const WebKeySection: React.FC<{ isVisible: boolean }> = ({ isVisible }) =
       {message && <p role="status" className="pt-2 text-secondary font-bold">{message}</p>}
       {lastLogin && (
         <div className="pt-3">
-          <p className="text-secondary text-ink-2">{t('Última entrada a la web: {time}.', { time: formatRelativeTime(lastLogin).toLowerCase() })}</p>
+          <p className="text-secondary text-ink-secondary">{t('Última entrada a la web: {time}.', { time: formatRelativeTime(lastLogin).toLowerCase() })}</p>
           <button type="button" className="btn btn-secondary mt-2" onClick={closeEverywhere} disabled={isBusy}>
             {t('Cerrar la web en otros equipos')}
           </button>

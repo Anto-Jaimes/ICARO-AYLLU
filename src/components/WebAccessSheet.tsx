@@ -49,14 +49,14 @@ export const WebAccessSheet: React.FC = () => {
 
         <section aria-labelledby="door-app-title">
           <h3 id="door-app-title" className="text-section font-bold">{t('1. Descarga la app')}</h3>
-          <p className="text-secondary text-ink-2">{t('En la app recibes tu código de usuario: uno por celular.')}</p>
+          <p className="text-secondary text-ink-secondary">{t('En la app recibes tu código de usuario: uno por celular.')}</p>
           <div className="flex items-center gap-4 pt-3">
             <img
               src="/descargar-qr.svg"
               alt={t('Código QR para descargar AYLLU para Android')}
               width={136}
               height={136}
-              className="shrink-0 rounded-lg border border-line bg-white"
+              className="shrink-0 rounded-lg border border-border bg-white"
             />
             <div className="min-w-0 space-y-2">
               <p className="text-secondary">{t('Escanéalo con la cámara de un celular Android.')}</p>
@@ -70,7 +70,7 @@ export const WebAccessSheet: React.FC = () => {
 
         <section aria-labelledby="door-code-title">
           <h3 id="door-code-title" className="text-section font-bold">{t('2. Entra con tu código')}</h3>
-          <p className="text-secondary text-ink-2">
+          <p className="text-secondary text-ink-secondary">
             {t('En la app abre Ayuda y toca "Entrar en la web": te da una clave de 6 números que dura {minutes} minutos.', { minutes: WEB_KEY_MINUTES })}
           </p>
           <form onSubmit={enter} className="pt-3 space-y-3">
@@ -99,7 +99,7 @@ export const WebAccessSheet: React.FC = () => {
                 autoComplete="one-time-code"
               />
             </div>
-            {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
+            {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{problem}</p>}
             <button type="submit" className="btn btn-primary" disabled={isBusy || code.trim().length < 4 || keyDigits.length !== 6}>
               <LogIn className="w-6 h-6" aria-hidden="true" />
               {isBusy ? t('Entrando...') : t('Entrar')}
@@ -109,7 +109,7 @@ export const WebAccessSheet: React.FC = () => {
 
         <section>
           <button type="button" className="btn btn-secondary" onClick={() => closeAccess('viewer')}>{t('Solo mirar')}</button>
-          <p className="pt-2 text-secondary text-ink-2">
+          <p className="pt-2 text-secondary text-ink-secondary">
             {t('Sin código puedes ver las publicaciones y leer los comentarios, pero no publicar, comentar, recomendar ni llamar.')}
           </p>
         </section>

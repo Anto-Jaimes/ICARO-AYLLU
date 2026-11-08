@@ -46,12 +46,12 @@ const ActionRow: React.FC<{ icon: LucideIcon; title: string; line?: string; onCl
   return (
   <li>
     <button type="button" className="row" onClick={onClick}>
-      <Icon className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
+      <Icon className="w-6 h-6 shrink-0 text-status-danger" aria-hidden="true" />
       <span className="flex-1">
         <span className="block text-row font-semibold">{t(title)}</span>
-        {line && <span className="block text-secondary text-ink-2">{t(line)}</span>}
+        {line && <span className="block text-secondary text-ink-secondary">{t(line)}</span>}
       </span>
-      <ChevronRight className="w-5 h-5 text-ink-2" aria-hidden="true" />
+      <ChevronRight className="w-5 h-5 text-ink-secondary" aria-hidden="true" />
     </button>
   </li>
   );
@@ -91,14 +91,14 @@ export const SosSheet: React.FC = () => {
     <>
       <BottomSheet open={isSosOpen} onClose={close} title="SOS">
         <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <p className="px-4 pb-2 text-secondary text-ink-2">{t('Estos números no necesitan saldo ni internet.')}</p>
+          <p className="px-4 pb-2 text-secondary text-ink-secondary">{t('Estos números no necesitan saldo ni internet.')}</p>
 
           <ul className="grid grid-cols-2 gap-2 px-4">
             {EMERGENCY_NUMBERS.map(({ label, number }) => (
               <li key={number}>
                 <a
                   href={`tel:${number}`}
-                  className="flex items-center gap-3 min-h-[72px] px-3 rounded-lg bg-rojo active:bg-rojo-press text-white no-underline"
+                  className="flex items-center gap-3 min-h-[72px] px-3 rounded-lg bg-status-danger active:bg-status-danger-press text-white no-underline"
                 >
                   <Phone className="w-6 h-6 shrink-0" aria-hidden="true" />
                   <span className="min-w-0">
@@ -115,12 +115,12 @@ export const SosSheet: React.FC = () => {
           <ul className="list-plain mt-3">
             <li>
               <a href="tel:119" className="row no-underline">
-                <Radio className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
+                <Radio className="w-6 h-6 shrink-0 text-status-danger" aria-hidden="true" />
                 <span className="flex-1">
                   <span className="block text-row font-semibold">{t('Línea 119: mensajes de voz')}</span>
-                  <span className="block text-secondary text-ink-2">{t('Deja o escucha un mensaje de tu familia cuando las líneas colapsan')}</span>
+                  <span className="block text-secondary text-ink-secondary">{t('Deja o escucha un mensaje de tu familia cuando las líneas colapsan')}</span>
                 </span>
-                <ChevronRight className="w-5 h-5 text-ink-2" aria-hidden="true" />
+                <ChevronRight className="w-5 h-5 text-ink-secondary" aria-hidden="true" />
               </a>
             </li>
             <ActionRow icon={PhoneCall} title="Llamada gratis" line="Un minuto al día, sin saldo: primero te llamamos a ti" onClick={() => openPanel('freeCall')} />
@@ -142,7 +142,7 @@ export const SosSheet: React.FC = () => {
 
       <BottomSheet open={panel === 'alarm'} onClose={closeAlarm} title={t("Alarma")}>
         <div className="px-4" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
-          <p className="pb-4 text-secondary text-ink-2">
+          <p className="pb-4 text-secondary text-ink-secondary">
             {t("Suena fuerte para que tus vecinos o los rescatistas te encuentren, incluso de noche o bajo escombros. Úsala solo en una emergencia real.")}
           </p>
           <button type="button" className={`btn ${isSounding ? 'btn-secondary' : 'btn-danger'} min-h-24`} onClick={toggleSiren}>

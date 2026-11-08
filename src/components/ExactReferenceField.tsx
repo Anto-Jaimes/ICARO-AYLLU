@@ -16,7 +16,7 @@ export const ExactReferenceField: React.FC = () => {
   const [draft, setDraft] = useState('');
 
   if (!hasLocation) {
-    return <p className="text-secondary text-ink-2">{t('Activa tu ubicación para poder enviar dónde estás exactamente.')}</p>;
+    return <p className="text-secondary text-ink-secondary">{t('Activa tu ubicación para poder enviar dónde estás exactamente.')}</p>;
   }
 
   const save = (event: React.FormEvent) => {
@@ -40,7 +40,7 @@ export const ExactReferenceField: React.FC = () => {
           onChange={(event) => setDraft(event.target.value)}
           autoComplete="street-address"
         />
-        <p className="text-meta text-ink-2">
+        <p className="text-meta text-ink-secondary">
           {t('Se guarda solo en tu celular. Irá en tus mensajes de auxilio cuando estés a menos de {meters} m de aquí.', { meters: REFERENCE_RADIUS_M })}
         </p>
         <div className="flex gap-2">
@@ -53,13 +53,13 @@ export const ExactReferenceField: React.FC = () => {
 
   return (
     <div className="flex gap-3 p-3 rounded-lg bg-sunken">
-      <House className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+      <House className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
       <div className="flex-1 min-w-0">
         <p className="text-secondary font-bold">{t('Tu dirección exacta')}</p>
         <p className="text-secondary">{near ?? t('Escribe tu manzana y lote para que la ayuda llegue a tu puerta.')}</p>
         <button
           type="button"
-          className="mt-2 min-h-12 text-secondary font-bold text-anil underline underline-offset-4"
+          className="mt-2 min-h-12 text-secondary font-bold text-primary underline underline-offset-4"
           onClick={() => {
             setDraft(near ?? '');
             setIsEditing(true);

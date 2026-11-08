@@ -43,7 +43,7 @@ export const FavorsScreen: React.FC = () => {
     <div className="app-nav-offset">
       <TopBar title={t('Donaciones')} />
       <div className="page">
-        <p className="px-4 pt-3 text-secondary text-ink-2">
+        <p className="px-4 pt-3 text-secondary text-ink-secondary">
           {t('Regala lo que ya no usas, o pide para tu familia, comedor, olla común o albergue. Sin dinero: coordinan por WhatsApp o llamada.')}
         </p>
 
@@ -74,7 +74,7 @@ export const FavorsScreen: React.FC = () => {
                 type="button"
                 aria-pressed={side === option.type}
                 onClick={() => setSide(option.type)}
-                className={`min-h-12 rounded-lg text-secondary font-bold ${side === option.type ? 'bg-anil text-white' : 'text-ink'}`}
+                className={`min-h-12 rounded-lg text-secondary font-bold ${side === option.type ? 'bg-primary text-white' : 'text-ink'}`}
               >
                 {t(option.label)} ({counts[option.type]})
               </button>

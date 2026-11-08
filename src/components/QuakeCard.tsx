@@ -6,10 +6,10 @@ import { formatRelativeTime } from '../utils/time';
 import { useT } from '../i18n/LanguageContext';
 
 /** Colour by strength; white text stays readable on every one. */
-function quakeSky(magnitude: number): { background: string; words: string } {
-  if (magnitude >= 6) return { background: 'linear-gradient(160deg, #7f1d1d 0%, #b91c1c 100%)', words: 'Fuerte' };
-  if (magnitude >= 4.5) return { background: 'linear-gradient(160deg, #7c2d12 0%, #c2410c 100%)', words: 'Moderado' };
-  return { background: 'linear-gradient(160deg, #1e293b 0%, #3730a3 100%)', words: 'Leve' };
+function quakeSky(magnitude: number): { background: string; words: string; color: string } {
+  if (magnitude >= 6) return { background: 'linear-gradient(160deg, var(--color-status-danger-press) 0%, var(--color-status-danger) 100%)', words: 'Fuerte', color: '#ffffff' };
+  if (magnitude >= 4.5) return { background: 'var(--color-status-severe)', words: 'Moderado', color: 'var(--color-ink)' };
+  return { background: 'linear-gradient(160deg, var(--color-primary-press) 0%, var(--color-primary) 100%)', words: 'Leve', color: '#ffffff' };
 }
 
 /** The latest earthquake from the IGP, in large: how strong, where and how long ago. */
@@ -19,14 +19,14 @@ export const QuakeCard: React.FC = () => {
   const { feed } = useHazards();
   const quake = feed?.quakes[0] ?? feed?.latest_quake_peru;
   if (!quake) return null;
-  const { background, words } = quakeSky(quake.magnitude);
+  const { background, words, color } = quakeSky(quake.magnitude);
 
   return (
     <button
       type="button"
       onClick={() => setIsAlertsOpen(true)}
-      className="mx-4 block w-[calc(100%-2rem)] p-4 rounded-2xl text-left text-white shadow-sm"
-      style={{ background }}
+      className="mx-4 block w-[calc(100%-2rem)] p-4 rounded-2xl text-left shadow-sm"
+      style={{ background, color }}
       aria-label={t('Último sismo: magnitud {magnitude}, {place}, {time}. Ver alertas', {
         magnitude: quake.magnitude,
         place: quake.detail,

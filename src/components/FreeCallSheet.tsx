@@ -212,7 +212,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
           </>
         )}
 
-        {step === 'loading' && <p role="status" className="text-secondary text-ink-2">{t('Cargando...')}</p>}
+        {step === 'loading' && <p role="status" className="text-secondary text-ink-secondary">{t('Cargando...')}</p>}
 
         {step === 'error' && (
           <>
@@ -229,7 +229,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
 
         {step === 'phone' && (
           <>
-            <p className="text-secondary text-ink-2">
+            <p className="text-secondary text-ink-secondary">
               {t('Primero confirma que el número es tuyo: te llamaremos para dictarte un código de 4 cifras.')}
             </p>
             <div>
@@ -281,7 +281,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
           <>
             {overview?.phone && (
               <div className="flex items-center gap-3">
-                <p className="flex-1 text-secondary text-ink-2">
+                <p className="flex-1 text-secondary text-ink-secondary">
                   {fillNodes(t('Te llamaremos al {phone}'), { phone: <strong className="text-ink">{formatPhone(overview.phone)}</strong> })}
                 </p>
                 <button type="button" className="btn btn-secondary w-auto min-h-12" onClick={() => { setPhoneDraft(overview.phone ?? ''); setStep('phone'); }}>
@@ -295,7 +295,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
             ) : (
               <>
                 <p className="min-h-12 text-center text-sign font-bold tracking-wider" aria-live="polite">
-                  {dialed ? formatPhone(dialed) : <span className="text-row font-normal text-ink-2">{t('Marca un celular')}</span>}
+                  {dialed ? formatPhone(dialed) : <span className="text-row font-normal text-ink-secondary">{t('Marca un celular')}</span>}
                 </p>
                 <div className="grid grid-cols-3 gap-2" role="group" aria-label={t('Teclado')}>
                   {KEYS.map((key, index) => key === '' ? (
@@ -306,7 +306,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
                       type="button"
                       onClick={() => press(key)}
                       aria-label={key === 'delete' ? t('Borrar') : key}
-                      className="grid place-items-center min-h-16 rounded-lg bg-sunken text-title font-bold active:bg-line"
+                      className="grid place-items-center min-h-16 rounded-lg bg-sunken text-title font-bold active:bg-border"
                     >
                       {key === 'delete' ? <Delete className="w-7 h-7" aria-hidden="true" /> : key}
                     </button>
@@ -330,7 +330,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
               </div>
             )}
 
-            <ul className="pl-5 list-disc space-y-1 text-meta text-ink-2">
+            <ul className="pl-5 list-disc space-y-1 text-meta text-ink-secondary">
               <li>{t('Primero sonará tu celular: contesta. Luego llamamos al número que marcaste.')}</li>
               <li>{t('Dura 1 minuto al día. Si contesta un buzón de voz, el minuto se gasta.')}</li>
               <li>{t('Quien contesta escucha tu código de usuario. La llamada se graba por seguridad y se borra a los 30 días.')}</li>
@@ -344,7 +344,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
             <p role="status" aria-live="polite" className="text-section font-bold">
               {t(status ? STATUS_TEXT[status] : STATUS_TEXT.pending)}
             </p>
-            {dialed && <p className="text-secondary text-ink-2">{t('Número: {phone}', { phone: formatPhone(dialed) })}</p>}
+            {dialed && <p className="text-secondary text-ink-secondary">{t('Número: {phone}', { phone: formatPhone(dialed) })}</p>}
             {isFinal && (
               <button type="button" className="btn btn-primary" onClick={() => { setStatus(null); setDialed(''); setStep('loading'); load(); }}>
                 {t('Listo')}
@@ -353,7 +353,7 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
           </>
         )}
 
-        {problem && <p role="alert" className="text-secondary font-bold text-rojo">{t(problem)}</p>}
+        {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{t(problem)}</p>}
       </div>
     </BottomSheet>
   );

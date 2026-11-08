@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/check-colors.mjs && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "relay": "node scripts/senamhi-relay.ts",
@@ -14,7 +14,8 @@
     "llamadas:prueba": "node scripts/call-spike.ts",
     "servicios": "node scripts/services.ts",
     "servicios:instalar": "node scripts/services-install.ts",
-    "servicios:quitar": "node scripts/services-install.ts --quitar"
+    "servicios:quitar": "node scripts/services-install.ts --quitar",
+    "check:colors": "node scripts/check-colors.mjs"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "8.0.2",

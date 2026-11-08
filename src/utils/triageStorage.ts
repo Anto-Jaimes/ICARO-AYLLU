@@ -1,3 +1,4 @@
+import { COLORS } from '../theme/colors';
 /**
  * Triage START (Simple Triage and Rapid Treatment) Storage & Tactical Dispatch
  * Standard international protocol for disaster victim classification.
@@ -31,43 +32,54 @@ export const TRIAGE_CONFIG: Record<
     bg: string;
     border: string;
     text: string;
+    /** The label: colour plus words, dark text on yellow. */
+    badge: string;
+    dot: string;
     nativeColor: { qu: string; 'qu-cen': string; ay: string; cni: string; es: string };
   }
 > = {
   ROJO: {
     label: 'Prioridad I - Inmediato',
     priority: 'Atención y evacuación urgente vital',
-    color: '#dc2626',
-    bg: 'bg-red-950/40',
-    border: 'border-red-600',
-    text: 'text-red-400',
+    color: COLORS.statusDanger,
+    bg: 'bg-surface',
+    border: 'border-2 border-status-danger',
+    text: 'text-status-danger',
+    badge: 'badge-danger',
+    dot: 'bg-status-danger',
     nativeColor: { es: 'Rojo', qu: 'Puka', 'qu-cen': 'Puka', ay: 'Wila', cni: 'Katsinkari Puka' }
   },
   AMARILLO: {
     label: 'Prioridad II - Retardado',
     priority: 'Lesiones graves, no corre peligro inminente',
-    color: '#d97706',
-    bg: 'bg-amber-950/40',
-    border: 'border-amber-500',
-    text: 'text-amber-400',
+    color: COLORS.statusWarning,
+    bg: 'bg-surface',
+    border: 'border-2 border-status-warning',
+    text: 'text-ink',
+    badge: 'badge-warning',
+    dot: 'bg-status-warning',
     nativeColor: { es: 'Amarillo', qu: "Q'ellu", 'qu-cen': "Q'ellu / Qarwa", ay: "Q'illu", cni: 'Kiteri' }
   },
   VERDE: {
     label: 'Prioridad III - Leve',
     priority: 'Camina por sus propios medios, lesiones leves',
-    color: '#16a34a',
-    bg: 'bg-emerald-950/40',
-    border: 'border-emerald-600',
-    text: 'text-emerald-400',
+    color: COLORS.statusSafe,
+    bg: 'bg-surface',
+    border: 'border-2 border-status-safe',
+    text: 'text-status-safe',
+    badge: 'badge-safe',
+    dot: 'bg-status-safe',
     nativeColor: { es: 'Verde', qu: "Q'omer", 'qu-cen': "Q'omer / Tsiqya", ay: "Ch'uxña", cni: 'Chekatsirori' }
   },
   NEGRO: {
     label: 'Prioridad 0 - Fallecido / Agónico',
     priority: 'Sin respiración tras abrir vía aérea',
-    color: '#525252',
-    bg: 'bg-neutral-900',
-    border: 'border-neutral-600',
-    text: 'text-neutral-400',
+    color: COLORS.triageBlack,
+    bg: 'bg-surface',
+    border: 'border-2 border-triage-black',
+    text: 'text-triage-black',
+    badge: 'badge-triage-black',
+    dot: 'bg-triage-black',
     nativeColor: { es: 'Negro', qu: 'Yana', 'qu-cen': 'Yana', ay: "Ch'iyara", cni: 'Kisaari' }
   }
 };

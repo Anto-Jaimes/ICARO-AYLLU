@@ -14,7 +14,7 @@ export const RadioSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ o
           {t('Radio Nacional (IRTP) es la radio del Estado: en una emergencia transmite los comunicados oficiales.')}
         </p>
         <p className="flex gap-3 p-3 rounded-lg bg-sunken text-secondary">
-          <Radio className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+          <Radio className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
           {t('Sin internet, sintonízala en una radio a pilas. En Lima es 103.9 FM.')}
         </p>
         <a href={RADIO_NACIONAL_APP_URL} target="_blank" rel="noreferrer" className="btn btn-primary no-underline">

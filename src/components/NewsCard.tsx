@@ -16,7 +16,7 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
   const title = t('{kind} en {place}', { kind: t(reportTitle(report.kind)), place: report.district });
 
   return (
-    <article className="rounded-2xl overflow-hidden border border-line bg-surface">
+    <article className="rounded-2xl overflow-hidden border border-border bg-surface">
       <button type="button" className="block w-full text-left" onClick={() => openNewsDetail(report)} aria-label={`${title}. ${report.description}. ${t('Ver la noticia y los comentarios')}`}>
         <div className="relative aspect-[16/9] bg-sunken">
           {report.media_path && report.media_type === 'image' ? (
@@ -31,12 +31,12 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
               </span>
             </>
           ) : (
-            <span className="grid place-items-center w-full h-full text-rojo">
+            <span className="grid place-items-center w-full h-full text-status-danger">
               <Icon className="w-14 h-14" aria-hidden="true" />
             </span>
           )}
           <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/95 text-meta font-bold">
-            <Icon className="w-4 h-4 text-rojo" aria-hidden="true" />
+            <Icon className="w-4 h-4 text-status-danger" aria-hidden="true" />
             {t(reportTitle(report.kind))}
           </span>
         </div>
@@ -44,12 +44,12 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
           <h3 className="text-row font-bold">{title}</h3>
           <p className="pt-1 text-secondary line-clamp-2">{report.description}</p>
           {report.author_verified && <VerifiedBadge className="pt-1" />}
-          <p className="pt-2 flex items-center gap-1.5 text-meta text-ink-2">
+          <p className="pt-2 flex items-center gap-1.5 text-meta text-ink-secondary">
             <MapPin className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span className="truncate">{report.district}, {report.province}</span>
             <span className="ml-auto shrink-0">{formatRelativeTime(report.created_at)}</span>
           </p>
-          <p className="pt-2 flex items-center gap-1.5 text-meta font-bold text-anil">
+          <p className="pt-2 flex items-center gap-1.5 text-meta font-bold text-primary">
             <MessageCircle className="w-4 h-4" aria-hidden="true" />
             {comments === 0 ? t('Comentar') : `${comments} ${t(comments === 1 ? 'comentario' : 'comentarios')}`}
           </p>

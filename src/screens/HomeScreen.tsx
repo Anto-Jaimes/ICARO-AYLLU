@@ -34,7 +34,7 @@ const ZoneNews: React.FC<{ count: number }> = ({ count }) => {
         <h2 id="news-title" className="text-section font-bold">{t('Noticias de tu zona')}</h2>
         <button
           type="button"
-          className="shrink-0 min-h-12 text-secondary font-bold text-anil underline underline-offset-4"
+          className="shrink-0 min-h-12 text-secondary font-bold text-primary underline underline-offset-4"
           onClick={() => setIsNewsOpen(true)}
         >
           {t('Ver todas')}
@@ -43,7 +43,7 @@ const ZoneNews: React.FC<{ count: number }> = ({ count }) => {
 
       {reports.length === 0 ? (
         <div className="px-4">
-          <p className="text-secondary text-ink-2">{t('Todavía no hay noticias aquí.')}</p>
+          <p className="text-secondary text-ink-secondary">{t('Todavía no hay noticias aquí.')}</p>
           <button type="button" className="btn btn-secondary mt-3 lg:max-w-xs" onClick={() => openReport('otro')}>
             <Megaphone className="w-5 h-5" aria-hidden="true" />
             {t('Avisar a tus vecinos')}
@@ -100,7 +100,7 @@ const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
         <button
           type="button"
           onClick={() => openServices()}
-          className="field flex items-center gap-2 text-ink-2 text-left"
+          className="field flex items-center gap-2 text-ink-secondary text-left"
           aria-label={t('¿Qué necesitas?')}
         >
           <Search className="w-5 h-5 shrink-0" aria-hidden="true" />
@@ -150,16 +150,16 @@ export const HomeScreen: React.FC = () => {
       <SafetyBlock />
 
       {/* Botón táctico de 1-toque: Plus Code y Silbato */}
-      <div data-tour="auxilio" className="mx-4 mt-2 p-3 bg-surface border border-line rounded-2xl flex items-center justify-between shadow-xs">
+      <div data-tour="auxilio" className="mx-4 mt-2 p-3 bg-surface border border-border rounded-2xl flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-2.5 min-w-0 pr-2">
-          <div className="w-10 h-10 rounded-xl bg-rojo/10 text-rojo flex items-center justify-center shrink-0 border border-rojo/20">
+          <div className="w-10 h-10 rounded-xl bg-status-danger/10 text-status-danger flex items-center justify-center shrink-0 border border-status-danger/20">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div className="min-w-0">
             <span className="block text-secondary font-bold text-ink">
               {t('Plus Code & Silbato Vecinal')}
             </span>
-            <span className="block text-caption text-ink-secondary truncate">
+            <span className="block text-meta text-ink-secondary truncate">
               {t('Tu ubicación exacta sin internet y alarma disuasiva')}
             </span>
           </div>
@@ -167,7 +167,7 @@ export const HomeScreen: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsPanicOpen(true)}
-          className="min-h-12 px-4 bg-rojo hover:bg-rojo-press text-white text-secondary font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
+          className="min-h-12 px-4 bg-status-danger hover:bg-status-danger-press text-white text-secondary font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
         >
           {t('Auxilio')}
         </button>

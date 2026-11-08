@@ -253,13 +253,13 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
     <BottomSheet open={open} onClose={() => { stopAlarm(); onClose(); }} title={t('Auxilio Rápido y Plus Code de Rescate')}>
       <div className="flex flex-col gap-3 pb-6 text-ink">
         {/* Navigation tabs */}
-        <div className="flex rounded-xl bg-surface border border-line p-1 gap-1">
+        <div className="flex rounded-xl bg-surface border border-border p-1 gap-1">
           <button
             type="button"
             onClick={() => { setActiveTab('pluscode'); tapFeedback(); }}
             className={`flex-1 min-h-12 py-2 text-meta font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'pluscode' ? 'bg-primary text-white shadow-xs' : 'text-ink-secondary hover:bg-neutral-100'
-            }`}
+ activeTab === 'pluscode' ? 'bg-primary text-white shadow-xs' : 'text-ink-secondary hover:bg-sunken'
+ }`}
           >
             <MapPin className="w-4 h-4" />
             {t('Plus Code & Rescate')}
@@ -268,8 +268,8 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
             type="button"
             onClick={() => { setActiveTab('silbato'); tapFeedback(); }}
             className={`flex-1 min-h-12 py-2 text-meta font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'silbato' ? 'bg-rojo text-white shadow-xs' : 'text-ink-secondary hover:bg-neutral-100'
-            }`}
+ activeTab === 'silbato' ? 'bg-status-danger text-white shadow-xs' : 'text-ink-secondary hover:bg-sunken'
+ }`}
           >
             <BellRing className="w-4 h-4" />
             {t('Silbato Antirrobo (200m)')}
@@ -280,26 +280,26 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
         {activeTab === 'pluscode' && (
           <div className="flex flex-col gap-3">
             {/* Main Big Code Card */}
-            <div className="p-4 bg-gradient-to-br from-indigo-950 via-slate-900 to-neutral-950 border border-indigo-700/60 rounded-2xl text-white shadow-md flex flex-col items-center text-center gap-2">
-              <span className="text-meta font-bold text-indigo-300 uppercase tracking-widest flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="p-4 bg-primary rounded-2xl text-white flex flex-col items-center text-center gap-2">
+              <span className="text-meta font-bold text-white uppercase tracking-widest flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-white" />
                 {t('Tu código de ubicación exacta (sin internet)')}
               </span>
 
               <div className="my-1">
-                <span className="block text-4xl font-black tracking-wider text-white font-mono selection:bg-indigo-500">
+                <span className="block text-4xl font-black tracking-wider text-white font-mono ">
                   {hasLocation ? plus.shortCode : '—'}
                 </span>
-                <span className="block text-meta font-bold text-slate-300 mt-1">
+                <span className="block text-meta font-bold text-white mt-1">
                   {hasLocation ? userLocation.name : t('Activa tu ubicación para ver tu código.')}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 w-full pt-2 border-t border-indigo-900/60">
+              <div className="flex items-center gap-2 w-full pt-2 border-t border-white/30">
                 <button
                   type="button"
                   onClick={handleCopyCode}
-                  className="flex-1 min-h-12 py-2 px-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-meta font-bold rounded-xl flex items-center justify-center gap-1.5 shadow transition-all"
+                  className="flex-1 min-h-12 py-2 px-3 bg-white hover:bg-primary-subtle active:scale-95 text-primary text-meta font-bold rounded-xl flex items-center justify-center gap-1.5 shadow transition-all"
                 >
                   {copiedCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {copiedCode ? t('¡Copiado!') : t('Copiar')}
@@ -310,7 +310,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
                   onClick={handleDictateCode}
                   className="flex-1 min-h-12 py-2 px-3 bg-white/10 hover:bg-white/20 active:scale-95 text-white text-meta font-bold rounded-xl flex items-center justify-center gap-1.5 border border-white/20 transition-all"
                 >
-                  {isReadingCode ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-indigo-300" />}
+                  {isReadingCode ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
                   {isReadingCode ? t('Detener') : t('Dictar en voz alta')}
                 </button>
 
@@ -321,7 +321,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
                   className="min-h-12 min-w-12 grid place-items-center bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/20"
                   aria-label={t('Ver en el mapa')}
                 >
-                  <ExternalLink className="w-4 h-4 text-indigo-300" />
+                  <ExternalLink className="w-4 h-4 text-white" />
                 </a>
               </div>
             </div>
@@ -329,7 +329,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
             <ExactReferenceField />
 
             {/* Phonetic spelled-out aid for dictating to 116/105 */}
-            <div className="p-3 bg-surface border border-line rounded-xl flex items-start gap-2.5">
+            <div className="p-3 bg-surface border border-border rounded-xl flex items-start gap-2.5">
               <Phone className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <div className="text-left min-w-0">
                 <span className="block text-meta font-bold text-ink">
@@ -346,7 +346,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
               <button
                 type="button"
                 onClick={handleSendRescueSMS}
-                className="w-full min-h-12 py-3 px-3 bg-rojo hover:bg-rojo-press active:scale-98 text-white rounded-xl font-bold text-meta flex items-center justify-center gap-2 shadow-sm transition-all"
+                className="w-full min-h-12 py-3 px-3 bg-status-danger hover:bg-status-danger-press active:scale-98 text-white rounded-xl font-bold text-meta flex items-center justify-center gap-2 shadow-sm transition-all"
               >
                 <MessageSquare className="w-4 h-4 shrink-0" />
                 <span>{t('SMS de Rescate (Sin saldo)')}</span>
@@ -355,7 +355,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
               <button
                 type="button"
                 onClick={handleSendRescueWhatsApp}
-                className="w-full min-h-12 py-3 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white rounded-xl font-bold text-meta flex items-center justify-center gap-2 shadow-sm transition-all"
+                className="w-full min-h-12 py-3 px-3 bg-status-safe hover:brightness-110 active:scale-98 text-white rounded-xl font-bold text-meta flex items-center justify-center gap-2 shadow-sm transition-all"
               >
                 <Share2 className="w-4 h-4 shrink-0" />
                 <span>{t('Auxilio por WhatsApp')}</span>
@@ -363,10 +363,10 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
             </div>
 
             {/* Medical ICE snapshot with quick inline phone configuration */}
-            <div className="p-3 bg-surface border border-line rounded-xl flex flex-col gap-2 text-meta">
+            <div className="p-3 bg-surface border border-border rounded-xl flex flex-col gap-2 text-meta">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-red-500 shrink-0" />
+                  <Heart className="w-4 h-4 text-status-danger shrink-0" />
                   <div>
                     <span className="block font-bold text-ink">{t('Ficha médica de rescate')}</span>
                     <span className="block text-ink-secondary text-meta">
@@ -378,7 +378,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
                 <button
                   type="button"
                   onClick={() => setIsEditingPhone(!isEditingPhone)}
-                  className="min-h-12 px-2 text-primary hover:bg-neutral-100 rounded-lg flex items-center gap-1 font-semibold text-meta"
+                  className="min-h-12 px-2 text-primary hover:bg-sunken rounded-lg flex items-center gap-1 font-semibold text-meta"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                   {profile.emergencyContactPhone ? t('Cambiar') : t('Configurar')}
@@ -386,7 +386,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
               </div>
 
               {isEditingPhone ? (
-                <form onSubmit={handleSaveContactPhone} className="flex gap-2 pt-1 border-t border-line">
+                <form onSubmit={handleSaveContactPhone} className="flex gap-2 pt-1 border-t border-border">
                   <input
                     type="tel"
                     value={phoneInput}
@@ -405,36 +405,36 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
                   </button>
                 </form>
               ) : profile.emergencyContactPhone ? (
-                <div className="flex items-center justify-between pt-1 border-t border-line text-meta">
+                <div className="flex items-center justify-between pt-1 border-t border-border text-meta">
                   <span className="text-ink-secondary">
                     {t('Contacto guardado:')} <strong>{profile.emergencyContactPhone}</strong> ({profile.emergencyContactName || t('Familiar')})
                   </span>
                   <a
                     href={`tel:${profile.emergencyContactPhone}`}
-                    className="min-h-12 px-3 bg-neutral-200 dark:bg-neutral-800 text-ink font-bold rounded-lg flex items-center gap-1 hover:bg-neutral-300"
+                    className="min-h-12 px-3 bg-sunken text-ink font-bold rounded-lg flex items-center gap-1 hover:bg-border"
                   >
-                    <Phone className="w-3 h-3 text-emerald-500" />
+                    <Phone className="w-3 h-3 text-status-safe" />
                     {t('Llamar')}
                   </a>
                 </div>
               ) : (
-                <p className="text-meta text-amber-600 dark:text-amber-400 pt-1 border-t border-line">
+                <p className="text-meta font-semibold text-ink pt-1 border-t border-border">
                   {t('No tienes un número de familiar guardado. Toca «Configurar» para agregarlo.')}
                 </p>
               )}
             </div>
 
             {/* Official 119 Voice Message Banner (Ley Telecomunicaciones MTC Perú) */}
-            <div className="p-2.5 bg-sky-50 dark:bg-sky-950/20 border border-sky-300/60 dark:border-sky-800/60 rounded-xl flex items-center justify-between text-meta">
+            <div className="p-2.5 bg-primary-subtle border border-primary/30 rounded-xl flex items-center justify-between text-meta">
               <div className="flex items-center gap-2">
-                <Radio className="w-4 h-4 text-sky-600 shrink-0" />
+                <Radio className="w-4 h-4 text-primary shrink-0" />
                 <span className="text-ink text-meta font-medium leading-tight">
                   <strong>{t('Línea 119:')}</strong> {t('deja o escucha mensajes de voz si las llamadas colapsan por un sismo.')}
                 </span>
               </div>
               <a
                 href="tel:119"
-                className="min-h-12 min-w-12 px-3 grid place-items-center bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg text-meta shrink-0 ml-2"
+                className="min-h-12 min-w-12 px-3 grid place-items-center bg-primary hover:bg-primary-press text-white font-bold rounded-lg text-meta shrink-0 ml-2"
               >
                 119
               </a>
@@ -445,8 +445,8 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
         {/* TAB 2: SILBATO VECINAL ANTIRROBO (200 METROS) */}
         {activeTab === 'silbato' && (
           <div className="flex flex-col gap-3 text-center">
-            <div className="p-3 bg-rojo/10 border border-rojo/30 rounded-xl text-left flex items-start gap-2">
-              <ShieldAlert className="w-5 h-5 text-rojo shrink-0 mt-0.5" />
+            <div className="p-3 bg-status-danger/10 border border-status-danger/30 rounded-xl text-left flex items-start gap-2">
+              <ShieldAlert className="w-5 h-5 text-status-danger shrink-0 mt-0.5" />
               <div>
                 <span className="block text-meta font-bold text-ink">
                   {t('Silbato fuerte y linterna intermitente')}
@@ -463,10 +463,10 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
                 type="button"
                 onClick={isAlarmActive ? stopAlarm : startAlarm}
                 className={`w-36 h-36 rounded-full flex flex-col items-center justify-center gap-1 text-white shadow-2xl transition-all transform active:scale-95 ${
-                  isAlarmActive
-                    ? 'bg-rojo ring-8 ring-rojo/40 animate-pulse'
-                    : 'bg-gradient-to-br from-rojo to-rojo-press hover:brightness-110 shadow-rojo/30'
-                }`}
+ isAlarmActive
+ ? 'bg-status-danger ring-8 ring-status-danger/40 animate-pulse'
+ : 'bg-gradient-to-br from-status-danger to-status-danger-press hover:brightness-110 shadow-status-danger/30'
+ }`}
               >
                 {isAlarmActive ? (
                   <>
@@ -487,33 +487,33 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
             </div>
 
             {/* Emergency fast dialers: 4 official lines of the Peruvian State */}
-            <div className="pt-2 border-t border-line grid grid-cols-2 gap-2">
+            <div className="pt-2 border-t border-border grid grid-cols-2 gap-2">
               <a
                 href="tel:105"
-                className="min-h-12 py-2.5 px-3 bg-surface border border-line rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-neutral-100"
+                className="min-h-12 py-2.5 px-3 bg-surface border border-border rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-sunken"
               >
                 <Phone className="w-4 h-4 text-primary" />
                 {t('Policía (105)')}
               </a>
               <a
                 href="tel:116"
-                className="min-h-12 py-2.5 px-3 bg-surface border border-line rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-neutral-100"
+                className="min-h-12 py-2.5 px-3 bg-surface border border-border rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-sunken"
               >
-                <Phone className="w-4 h-4 text-red-500" />
+                <Phone className="w-4 h-4 text-status-danger" />
                 {t('Bomberos (116)')}
               </a>
               <a
                 href="tel:106"
-                className="min-h-12 py-2.5 px-3 bg-surface border border-line rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-neutral-100"
+                className="min-h-12 py-2.5 px-3 bg-surface border border-border rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-sunken"
               >
-                <Phone className="w-4 h-4 text-emerald-600" />
+                <Phone className="w-4 h-4 text-primary" />
                 {t('Ambulancia SAMU (106)')}
               </a>
               <a
                 href="tel:115"
-                className="min-h-12 py-2.5 px-3 bg-surface border border-line rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-neutral-100"
+                className="min-h-12 py-2.5 px-3 bg-surface border border-border rounded-xl text-meta font-bold text-ink flex items-center justify-center gap-2 hover:bg-sunken"
               >
-                <Phone className="w-4 h-4 text-amber-600" />
+                <Phone className="w-4 h-4 text-primary" />
                 {t('Defensa Civil (115)')}
               </a>
             </div>

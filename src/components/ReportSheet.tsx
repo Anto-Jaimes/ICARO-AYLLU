@@ -12,7 +12,7 @@ import { CameraCapture, CameraMode, canRecordVideo, canUseCamera } from './Camer
 import { EMPTY_PLACE, PlacePicker, PlaceValue } from './PlacePicker';
 
 const MAX_DESCRIPTION = 500;
-const MEDIA_OPTION = 'flex-1 basis-0 flex flex-col items-center gap-1 min-h-20 px-2 py-3 rounded-lg bg-sunken text-secondary font-bold text-anil text-center cursor-pointer active:bg-line';
+const MEDIA_OPTION = 'flex-1 basis-0 flex flex-col items-center gap-1 min-h-20 px-2 py-3 rounded-lg bg-sunken text-secondary font-bold text-primary text-center cursor-pointer active:bg-border';
 
 export const ReportSheet: React.FC = () => {
   const { reportKind, closeReport, isOnline, hasLocation, userLocation, showNotice, refreshReports } = useApp();
@@ -157,7 +157,7 @@ export const ReportSheet: React.FC = () => {
       >
         <form id="report-form" onSubmit={send} className="pb-4 space-y-4">
           {!isOnline && (
-            <p role="status" className="mx-4 p-3 rounded-lg bg-offline text-white text-secondary">
+            <p role="status" className="mx-4 p-3 rounded-lg bg-status-offline text-white text-secondary">
               {t('Necesitas internet para enviar una noticia. Si es urgente, toca SOS.')}
             </p>
           )}
@@ -198,13 +198,13 @@ export const ReportSheet: React.FC = () => {
                 ) : (
                   <img src={previewUrl} alt={t('Vista previa')} className="w-full max-h-56 object-cover rounded-lg" />
                 )}
-                <button type="button" onClick={clearMedia} className="mt-1 min-h-12 flex items-center gap-2 text-secondary font-bold text-anil">
+                <button type="button" onClick={clearMedia} className="mt-1 min-h-12 flex items-center gap-2 text-secondary font-bold text-primary">
                   <Trash2 className="w-5 h-5" aria-hidden="true" />
                   {t('Quitar')}
                 </button>
               </div>
             ) : isChecking ? (
-              <p role="status" className="grid place-items-center min-h-20 rounded-lg bg-sunken text-row font-bold text-anil">
+              <p role="status" className="grid place-items-center min-h-20 rounded-lg bg-sunken text-row font-bold text-primary">
                 {t('Revisando el archivo...')}
               </p>
             ) : (
@@ -227,7 +227,7 @@ export const ReportSheet: React.FC = () => {
                 </label>
               </div>
             )}
-            <p className="pt-1 text-meta text-ink-2">{t('Opcional. Video de hasta 1 minuto.')}</p>
+            <p className="pt-1 text-meta text-ink-secondary">{t('Opcional. Video de hasta 1 minuto.')}</p>
           </div>
 
           <div className="px-4">

@@ -145,16 +145,16 @@ export const PushSheet: React.FC = () => {
         <ul className="space-y-3">
           {WHAT.map(({ icon: Icon, text }) => (
             <li key={text} className="flex gap-3 text-secondary">
-              <Icon className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+              <Icon className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
               <span>{t(text)}</span>
             </li>
           ))}
         </ul>
-        <p className="text-meta text-ink-2">{t('Solo guardamos tu zona aproximada (1 km), no tu casa.')}</p>
+        <p className="text-meta text-ink-secondary">{t('Solo guardamos tu zona aproximada (1 km), no tu casa.')}</p>
 
         {state === 'on' && (
           <p role="status" className="flex gap-3 p-3 rounded-lg bg-sunken text-secondary font-semibold">
-            <CircleCheck className="w-6 h-6 shrink-0 text-verde" aria-hidden="true" />
+            <CircleCheck className="w-6 h-6 shrink-0 text-status-safe" aria-hidden="true" />
             {t('Los avisos están activados.')}
           </p>
         )}
@@ -166,7 +166,7 @@ export const PushSheet: React.FC = () => {
         )}
 
         {message && (
-          <p role={message.isProblem ? 'alert' : 'status'} className={`text-secondary font-bold ${message.isProblem ? 'text-rojo' : 'text-verde'}`}>
+          <p role={message.isProblem ? 'alert' : 'status'} className={`text-secondary font-bold ${message.isProblem ? 'text-status-danger' : 'text-status-safe'}`}>
             {t(message.text)}
           </p>
         )}

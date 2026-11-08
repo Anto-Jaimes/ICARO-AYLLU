@@ -44,8 +44,8 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
   };
 
   return (
-    <section className="px-4 pb-4 border-b border-line" aria-labelledby="user-code-title">
-      <h3 id="user-code-title" className="text-secondary text-ink-2">{t('Tu código de usuario')}</h3>
+    <section className="px-4 pb-4 border-b border-border" aria-labelledby="user-code-title">
+      <h3 id="user-code-title" className="text-secondary text-ink-secondary">{t('Tu código de usuario')}</h3>
       {isEditing ? (
         <form onSubmit={save} className="pt-2 space-y-2">
           <label htmlFor="user-code-input" className="block text-secondary font-bold">{t('Nuevo código')}</label>
@@ -60,8 +60,8 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
             spellCheck={false}
             aria-describedby="user-code-help"
           />
-          <p id="user-code-help" className="text-meta text-ink-2">{t('De 4 a 10 letras o números. Solo puedes cambiarlo una vez al día.')}</p>
-          {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
+          <p id="user-code-help" className="text-meta text-ink-secondary">{t('De 4 a 10 letras o números. Solo puedes cambiarlo una vez al día.')}</p>
+          {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{problem}</p>}
           <div className="flex gap-2">
             <button type="button" className="btn btn-secondary" onClick={() => { setIsEditing(false); setProblem(null); }}>{t('Cancelar')}</button>
             <button type="submit" className="btn btn-primary" disabled={isSaving || draft.trim().length < 4}>
@@ -79,8 +79,8 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
           )}
         </div>
       )}
-      {!isEditing && problem && <p role="status" className="pt-1 text-secondary text-ink-2">{problem}</p>}
-      <p className="pt-1 text-meta text-ink-2">{t('Te distingue de los demás vecinos. Se anuncia cuando llamas desde AYLLU.')}</p>
+      {!isEditing && problem && <p role="status" className="pt-1 text-secondary text-ink-secondary">{problem}</p>}
+      <p className="pt-1 text-meta text-ink-secondary">{t('Te distingue de los demás vecinos. Se anuncia cuando llamas desde AYLLU.')}</p>
     </section>
   );
 };

@@ -21,6 +21,7 @@ import {
 } from '../services/myPlaces';
 import { calculateDistanceMeters } from '../utils/geo';
 import { PostType } from '../types';
+import { COLORS } from '../theme/colors';
 import { useT } from '../i18n/LanguageContext';
 import { tr } from '../i18n/translate';
 
@@ -32,14 +33,14 @@ interface Layer {
 }
 
 const NORMAL_LAYERS: Layer[] = [
-  { id: 'services', label: 'Servicios', color: '#1e3f8f', types: ['service'] },
-  { id: 'favors', label: 'Donaciones', color: '#0b5a3c', types: ['favor_offer', 'favor_request'] }
+  { id: 'services', label: 'Servicios', color: COLORS.primary, types: ['service'] },
+  { id: 'favors', label: 'Donaciones', color: COLORS.statusSafe, types: ['favor_offer', 'favor_request'] }
 ];
 
 const EMERGENCY_LAYERS: Layer[] = [
-  { id: 'needs', label: 'Piden ayuda', color: '#a90f1c', types: ['emergency_need'] },
-  { id: 'resources', label: 'Recursos', color: '#0b5a3c', types: ['emergency_resource'] },
-  { id: 'groups', label: 'Grupos', color: '#1e3f8f', types: ['support_group'] }
+  { id: 'needs', label: 'Piden ayuda', color: COLORS.statusDanger, types: ['emergency_need'] },
+  { id: 'resources', label: 'Recursos', color: COLORS.statusSafe, types: ['emergency_resource'] },
+  { id: 'groups', label: 'Grupos', color: COLORS.primary, types: ['support_group'] }
 ];
 
 // MapLibre looks for its worker next to its own file, a path the build does not keep.
@@ -75,7 +76,7 @@ const LONG_PRESS_MS = 600;
 const ROUTE_SOURCE = 'ayllu-route';
 const ROUTE_CASING = 'ayllu-route-casing';
 const ROUTE_LINE = 'ayllu-route-line';
-const ROUTE_COLOR = '#1e3f8f';
+const ROUTE_COLOR = COLORS.primary;
 // Room for the search box and the layer buttons above, the map buttons on the right and the credits below.
 const ROUTE_PADDING = { top: 150, bottom: 72, left: 40, right: 80 };
 
@@ -118,7 +119,7 @@ function createPin(color: string, label: string, onOpen: () => void): HTMLButton
   return pin;
 }
 
-const SAFE_COLOR = '#0b5a3c';
+const SAFE_COLOR = COLORS.statusSafe;
 const RADAR_SOURCE = 'radar';
 const RADAR_FILL = 'radar-fill';
 const RADAR_LINE = 'radar-line';
@@ -326,7 +327,7 @@ function describeWay(straightMeters: number | null, routes: RouteSummary | null,
     : tr('A {distance} en línea recta, {time} caminando.', { distance, time });
 }
 
-const MAP_BUTTON = 'grid place-items-center w-12 h-12 rounded-lg bg-surface text-ink border border-line shadow-sm active:bg-sunken';
+const MAP_BUTTON = 'grid place-items-center w-12 h-12 rounded-lg bg-surface text-ink border border-border shadow-sm active:bg-sunken';
 
 const MapScreen: React.FC = () => {
   const t = useT();
@@ -437,7 +438,7 @@ const MapScreen: React.FC = () => {
           id: item.id,
           title: item.title,
           layerLabel: layer?.label ?? '',
-          color: layer?.color ?? '#1e3f8f',
+          color: layer?.color ?? COLORS.primary,
           distance: calculateDistanceMeters(userLocation.lat, userLocation.lng, item.coordinates[0], item.coordinates[1])
         };
       })
@@ -452,7 +453,7 @@ const MapScreen: React.FC = () => {
 
     pinsRef.current.forEach((pin) => pin.remove());
     pinsRef.current = visibleItems.map((item) => {
-      const color = visibleLayers.find((layer) => layer.types.includes(item.type))?.color ?? '#1e3f8f';
+      const color = visibleLayers.find((layer) => layer.types.includes(item.type))?.color ?? COLORS.primary;
       return new Marker({ element: createPin(color, item.title, () => openItem(item.id)) })
         .setLngLat([item.coordinates[1], item.coordinates[0]])
         .addTo(map);
@@ -476,8 +477,8 @@ const MapScreen: React.FC = () => {
     if (radarRadius === null || !hasLocation) return;
     const ring = circleAround(userLocation.lat, userLocation.lng, radarRadius);
     map.addSource(RADAR_SOURCE, { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [ring] } } });
-    map.addLayer({ id: RADAR_FILL, type: 'fill', source: RADAR_SOURCE, paint: { 'fill-color': '#1e3f8f', 'fill-opacity': 0.1 } });
-    map.addLayer({ id: RADAR_LINE, type: 'line', source: RADAR_SOURCE, paint: { 'line-color': '#1e3f8f', 'line-width': 2.5, 'line-opacity': 0.75 } });
+    map.addLayer({ id: RADAR_FILL, type: 'fill', source: RADAR_SOURCE, paint: { 'fill-color': COLORS.primary, 'fill-opacity': 0.1 } });
+    map.addLayer({ id: RADAR_LINE, type: 'line', source: RADAR_SOURCE, paint: { 'line-color': COLORS.primary, 'line-width': 2.5, 'line-opacity': 0.75 } });
     const bounds = new LngLatBounds();
     ring.forEach((point) => bounds.extend(point));
     map.resize();
@@ -567,7 +568,7 @@ const MapScreen: React.FC = () => {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isReady || focusLat === null || focusLng === null) return;
-    const marker = new Marker({ color: '#a90f1c', className: 'map-focus' }).setLngLat([focusLng, focusLat]).addTo(map);
+    const marker = new Marker({ color: COLORS.statusDanger, className: 'map-focus' }).setLngLat([focusLng, focusLat]).addTo(map);
     return () => {
       marker.remove();
     };
@@ -593,7 +594,7 @@ const MapScreen: React.FC = () => {
       data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: routeLine } }
     });
     const layout = { 'line-cap': isStraightLine ? 'butt' : 'round', 'line-join': 'round' } as const;
-    map.addLayer({ id: ROUTE_CASING, type: 'line', source: ROUTE_SOURCE, layout, paint: { 'line-color': '#ffffff', 'line-width': 10 } });
+    map.addLayer({ id: ROUTE_CASING, type: 'line', source: ROUTE_SOURCE, layout, paint: { 'line-color': COLORS.white, 'line-width': 10 } });
     map.addLayer({
       id: ROUTE_LINE,
       type: 'line',
@@ -1011,7 +1012,7 @@ const MapScreen: React.FC = () => {
                       type="button"
                       aria-pressed={isVisible}
                       onClick={() => toggleLayer(layer.id)}
-                      className="pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg bg-surface border border-line text-secondary font-bold shadow-sm"
+                      className="pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg bg-surface border border-border text-secondary font-bold shadow-sm"
                     >
                       <span
                         aria-hidden="true"
@@ -1026,7 +1027,7 @@ const MapScreen: React.FC = () => {
                   type="button"
                   aria-pressed={radarRadius !== null}
                   onClick={toggleRadar}
-                  className={`pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg border text-secondary font-bold shadow-sm ${radarRadius !== null ? 'bg-anil border-anil text-white' : 'bg-surface border-line'}`}
+                  className={`pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg border text-secondary font-bold shadow-sm ${radarRadius !== null ? 'bg-primary border-primary text-white' : 'bg-surface border-border'}`}
                 >
                   <Radar className="w-5 h-5" aria-hidden="true" />
                   {t('Radar')}
@@ -1035,7 +1036,7 @@ const MapScreen: React.FC = () => {
                   type="button"
                   aria-pressed={showSafe}
                   onClick={toggleSafe}
-                  className={`pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg border text-secondary font-bold shadow-sm ${showSafe ? 'bg-verde border-verde text-white' : 'bg-surface border-line'}`}
+                  className={`pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg border text-secondary font-bold shadow-sm ${showSafe ? 'bg-status-safe border-status-safe text-white' : 'bg-surface border-border'}`}
                 >
                   <ShieldCheck className="w-5 h-5" aria-hidden="true" />
                   {t('Zonas seguras')}
@@ -1045,7 +1046,7 @@ const MapScreen: React.FC = () => {
 
             {picking && (
               <div className="map-crosshair absolute left-1/2 top-1/2 z-10 pointer-events-none" aria-hidden="true">
-                <MapPin className="w-10 h-10 text-rojo fill-white" />
+                <MapPin className="w-10 h-10 text-status-danger fill-white" />
               </div>
             )}
 
@@ -1058,7 +1059,7 @@ const MapScreen: React.FC = () => {
                 className={MAP_BUTTON}
               >
                 <Navigation2
-                  className={`w-6 h-6 ${isRotated ? 'text-rojo fill-current' : ''}`}
+                  className={`w-6 h-6 ${isRotated ? 'text-status-danger fill-current' : ''}`}
                   style={{ transform: `rotate(${-bearing}deg)` }}
                   aria-hidden="true"
                 />
@@ -1086,7 +1087,7 @@ const MapScreen: React.FC = () => {
       </div>
 
       <div
-        className="map-panel shrink-0 bg-surface border-t border-line pb-[var(--map-strip)] lg:absolute lg:z-20 lg:left-4 lg:bottom-[calc(16px+var(--map-strip))] lg:w-[400px] lg:pb-0 lg:border lg:rounded-lg lg:shadow-md lg:overflow-hidden"
+        className="map-panel shrink-0 bg-surface border-t border-border pb-[var(--map-strip)] lg:absolute lg:z-20 lg:left-4 lg:bottom-[calc(16px+var(--map-strip))] lg:w-[400px] lg:pb-0 lg:border lg:rounded-lg lg:shadow-md lg:overflow-hidden"
         data-testid="map-panel"
       >
         {panel}

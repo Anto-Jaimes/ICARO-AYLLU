@@ -24,7 +24,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
   return (
     <article className="py-3">
       <div className="flex items-center gap-2 px-4">
-        <Icon className="w-5 h-5 text-anil shrink-0" aria-hidden="true" />
+        <Icon className="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
         <h3 className="text-row font-bold">{t(reportTitle(report.kind))}</h3>
         {report.status === 'review' && (
           <span className="px-2 py-0.5 rounded bg-sunken text-meta font-bold">{t('En revisión')}</span>
@@ -39,10 +39,10 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
         ))}
 
       <p className="px-4 pt-2">{report.description}</p>
-      <p className="px-4 pt-1 text-secondary text-ink-2">
+      <p className="px-4 pt-1 text-secondary text-ink-secondary">
         {report.district}, {report.province}, {report.department}
       </p>
-      <p className="px-4 text-meta text-ink-2">
+      <p className="px-4 text-meta text-ink-secondary">
         {authorLabel(report.author_name)}, {formatRelativeTime(report.created_at).toLowerCase()}
       </p>
 
@@ -50,7 +50,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
         <button
           type="button"
           onClick={() => openNewsDetail(report)}
-          className="mt-1 min-h-12 inline-flex items-center gap-2 text-secondary font-bold text-anil"
+          className="mt-1 min-h-12 inline-flex items-center gap-2 text-secondary font-bold text-primary"
         >
           <MessageCircle className="w-5 h-5" aria-hidden="true" />
           {comments === 0 ? t('Comentarios') : comments === 1 ? `1 ${t('comentario')}` : `${comments} ${t('comentarios')}`}
@@ -60,7 +60,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
             type="button"
             disabled={report.has_flagged}
             onClick={flag}
-            className="mt-1 min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-2 disabled:opacity-60"
+            className="mt-1 min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-secondary disabled:opacity-60"
           >
             <Flag className="w-4 h-4" aria-hidden="true" />
             {report.has_flagged ? t('Ya la denunciaste') : t('Denunciar')}

@@ -64,7 +64,7 @@ const titleSize = (lang: string, text: string, { wraps = false, narrow = false }
 export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
   const { lang, t } = useLanguage();
   return (
-    <header className="sticky top-0 z-20 bg-surface border-b border-line" style={{ paddingTop: 'var(--safe-top)' }}>
+    <header className="sticky top-0 z-20 bg-surface border-b border-border" style={{ paddingTop: 'var(--safe-top)' }}>
       <div className="page flex items-center h-14 pl-4 pr-1 gap-1">
         {onBack && (
           <button type="button" onClick={onBack} aria-label={t('Volver')} className="icon-btn -ml-3">
@@ -86,16 +86,16 @@ export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
 export const EmergencyBar: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const { t } = useLanguage();
   return (
-    <header className="sticky top-0 z-20 bg-rojo text-white" style={{ paddingTop: 'var(--safe-top)' }}>
+    <header className="sticky top-0 z-20 bg-status-danger text-white" style={{ paddingTop: 'var(--safe-top)' }}>
       <div className="page flex items-center h-14 pl-4 pr-2 gap-2">
         {/* Beside three buttons on a small phone it does not fit in one line: two lines rather than cut. */}
         <h1 className="flex-1 min-w-0 font-bold text-row leading-tight line-clamp-2">{t('Modo emergencia')}</h1>
-        <TopBarLanguageSelector className="bg-rojo-press border-white/20 text-white" />
+        <TopBarLanguageSelector className="bg-status-danger-press border-white/20 text-white" />
         <AudioGuideButton className="text-white hover:bg-white/10" screenTitle={t('Modo emergencia')} />
         <button
           type="button"
           onClick={onExit}
-          className="min-h-12 px-4 rounded-lg font-bold text-secondary bg-white text-rojo"
+          className="min-h-12 px-4 rounded-lg font-bold text-secondary bg-white text-status-danger"
         >
           {t('Salir')}
         </button>

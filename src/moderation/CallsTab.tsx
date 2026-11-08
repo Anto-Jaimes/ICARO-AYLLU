@@ -29,18 +29,18 @@ export const CallSummary: React.FC<{ call: CallRow; onChange: () => void }> = ({
       <p className="text-row font-bold">
         Usuario {call.user_code}: {formatPhone(call.caller_phone)} llamó a {formatPhone(call.destination)}
       </p>
-      <p className="text-secondary text-ink-2">
+      <p className="text-secondary text-ink-secondary">
         {CALL_STATUS[call.status] ?? call.status}
         {call.talk_seconds !== null ? `, ${call.talk_seconds} s de conversación` : ''}, el {formatDate(call.created_at)}
-        {call.has_complaint && <strong className="block text-rojo">Con denuncia: la grabación se conserva.</strong>}
+        {call.has_complaint && <strong className="block text-status-danger">Con denuncia: la grabación se conserva.</strong>}
       </p>
-      <p className="text-secondary text-ink-2">
+      <p className="text-secondary text-ink-secondary">
         Ubicación de quien llamó:{' '}
         {call.caller_lat !== null && call.caller_lng !== null
-          ? <a href={mapsLink(call.caller_lat, call.caller_lng)} target="_blank" rel="noreferrer" className="text-anil underline">{call.caller_place || 'ver en el mapa'}</a>
+          ? <a href={mapsLink(call.caller_lat, call.caller_lng)} target="_blank" rel="noreferrer" className="text-primary underline">{call.caller_place || 'ver en el mapa'}</a>
           : 'no la compartió'}
       </p>
-      {call.recording_path ? <RecordingPlayer path={call.recording_path} /> : <p className="text-secondary text-ink-2">Sin grabación.</p>}
+      {call.recording_path ? <RecordingPlayer path={call.recording_path} /> : <p className="text-secondary text-ink-secondary">Sin grabación.</p>}
       <div className="flex flex-wrap gap-2">
         <button type="button" className="btn btn-secondary w-auto min-h-12" onClick={toggleComplaint}>
           {call.has_complaint ? 'Quitar marca de denuncia' : 'Marcar con denuncia'}
@@ -89,7 +89,7 @@ export const CallsTab: React.FC = () => {
         {search && <button type="button" className="btn btn-secondary w-auto min-h-12" onClick={() => { setSearch(''); load(''); }}>Ver todas</button>}
       </form>
       <ErrorLine message={problem} />
-      {calls === null && <p role="status" className="text-secondary text-ink-2">Cargando...</p>}
+      {calls === null && <p role="status" className="text-secondary text-ink-secondary">Cargando...</p>}
       {calls?.length === 0 && <EmptyLine text="No hay llamadas que coincidan." />}
       <ul className="list-plain">
         {calls?.map((call) => (

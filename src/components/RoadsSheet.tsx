@@ -85,15 +85,15 @@ export const RoadsSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ o
                 setShown(PAGE);
                 setOpenId(null);
               }}
-              className={`flex-1 min-h-12 rounded-lg border-2 text-secondary font-bold disabled:opacity-50 ${near === value ? 'bg-anil border-anil text-white' : 'bg-surface border-line text-ink'}`}
+              className={`flex-1 min-h-12 rounded-lg border-2 text-secondary font-bold disabled:opacity-50 ${near === value ? 'bg-primary border-primary text-white' : 'bg-surface border-border text-ink'}`}
             >
               {value ? t('Cerca de ti') : t('Todo el Perú')}
             </button>
           ))}
         </div>
-        {!hasLocation && <p className="px-4 pt-2 text-meta text-ink-2">{t('Activa tu ubicación para ver solo las de tu zona.')}</p>}
+        {!hasLocation && <p className="px-4 pt-2 text-meta text-ink-secondary">{t('Activa tu ubicación para ver solo las de tu zona.')}</p>}
 
-        {isLoading && !data && <p role="status" className="px-4 pt-4 text-secondary text-ink-2">{t('Consultando al MTC...')}</p>}
+        {isLoading && !data && <p role="status" className="px-4 pt-4 text-secondary text-ink-secondary">{t('Consultando al MTC...')}</p>}
         {!data && failed && !isLoading && (
           <p role="alert" className="mx-4 mt-4 p-3 rounded-lg bg-sunken text-secondary">{t('No se pudo consultar al MTC. Revisa tu internet y vuelve a abrir esta sección.')}</p>
         )}
@@ -101,15 +101,15 @@ export const RoadsSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ o
         {summary && (
           <p role="status" className="mx-4 mt-4 flex gap-3 items-start text-row font-bold">
             {roads.length === 0
-              ? <CircleCheck className="w-7 h-7 shrink-0 text-verde" aria-hidden="true" />
+              ? <CircleCheck className="w-7 h-7 shrink-0 text-status-safe" aria-hidden="true" />
               : closed > 0
-                ? <Ban className="w-7 h-7 shrink-0 text-rojo" aria-hidden="true" />
-                : <TriangleAlert className="w-7 h-7 shrink-0 text-naranja" aria-hidden="true" />}
+                ? <Ban className="w-7 h-7 shrink-0 text-status-danger" aria-hidden="true" />
+                : <span className="status-tile bg-status-severe text-ink w-7 h-7"><TriangleAlert className="w-5 h-5" aria-hidden="true" /></span>}
             <span>{summary}</span>
           </p>
         )}
         {data && failed && (
-          <p className="px-4 pt-1 text-meta text-ink-2">{t('Sin conexión con el MTC. Datos guardados {time}.', { time: formatRelativeTime(data.savedAt).toLowerCase() })}</p>
+          <p className="px-4 pt-1 text-meta text-ink-secondary">{t('Sin conexión con el MTC. Datos guardados {time}.', { time: formatRelativeTime(data.savedAt).toLowerCase() })}</p>
         )}
 
         {roads.length > 0 && (
@@ -128,7 +128,7 @@ export const RoadsSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ o
         )}
 
         <section aria-labelledby="roads-source" className="px-4 pt-5 space-y-2">
-          <p id="roads-source" className="text-meta text-ink-2">
+          <p id="roads-source" className="text-meta text-ink-secondary">
             {data
               ? t('Fuente: MTC, Centro de Operaciones de Emergencia. Consultado {time}.', { time: formatRelativeTime(data.savedAt).toLowerCase() })
               : t('Fuente: MTC, Centro de Operaciones de Emergencia.')}
@@ -166,23 +166,25 @@ const RoadRow: React.FC<{ road: RoadEventNear; isOpen: boolean; onToggle: () => 
   return (
     <li>
       <button type="button" className="row" aria-expanded={isOpen} onClick={onToggle}>
-        <Icon className={`w-6 h-6 shrink-0 ${isClosed ? 'text-rojo' : 'text-naranja'}`} aria-hidden="true" />
+        {isClosed
+          ? <Icon className="w-6 h-6 shrink-0 text-status-danger" aria-hidden="true" />
+          : <span className="status-tile bg-status-severe text-ink w-6 h-6"><Icon className="w-4 h-4" aria-hidden="true" /></span>}
         <span className="flex-1 min-w-0">
           <span className="block text-row font-semibold">{routeTitle(road.route)}</span>
           <span className="block text-secondary">
-            <strong className={isClosed ? 'text-rojo' : 'text-ink'}>{isClosed ? t('Cerrada') : t('Paso restringido')}</strong>
+            <strong className={isClosed ? 'text-status-danger' : 'text-ink'}>{isClosed ? t('Cerrada') : t('Paso restringido')}</strong>
             {road.cause ? `. ${road.cause}` : ''}
           </span>
-          <span className="block text-secondary text-ink-2">{where}. {t('Desde {when}', { when: sinceText(road.date) })}</span>
+          <span className="block text-secondary text-ink-secondary">{where}. {t('Desde {when}', { when: sinceText(road.date) })}</span>
         </span>
-        <ChevronDown className={`w-5 h-5 shrink-0 text-ink-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+        <ChevronDown className={`w-5 h-5 shrink-0 text-ink-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
       {isOpen && (
         <div className="px-4 pb-4 -mt-1 space-y-2 text-secondary">
           {road.section && <p>{road.section}</p>}
           {road.facts && <p><strong>{t('Qué pasó:')}</strong> {road.facts}</p>}
           {road.latest && <p><strong>{t('Última novedad:')}</strong> {road.latest}</p>}
-          <a href={`https://maps.google.com/?q=${road.lat},${road.lng}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 min-h-12 font-bold text-anil">
+          <a href={`https://maps.google.com/?q=${road.lat},${road.lng}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 min-h-12 font-bold text-primary">
             <MapPin className="w-5 h-5" aria-hidden="true" />
             {t('Ver en el mapa')}
           </a>
@@ -195,10 +197,10 @@ const RoadRow: React.FC<{ road: RoadEventNear; isOpen: boolean; onToggle: () => 
 const ContactRow: React.FC<{ href: string; icon: typeof Phone; title: string; line: string; external?: boolean }> = ({ href, icon: Icon, title, line, external }) => (
   <li>
     <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined} className="row no-underline">
-      <Icon className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+      <Icon className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
       <span className="flex-1 min-w-0">
         <span className="block text-row font-semibold">{title}</span>
-        <span className="block text-secondary text-ink-2">{line}</span>
+        <span className="block text-secondary text-ink-secondary">{line}</span>
       </span>
     </a>
   </li>

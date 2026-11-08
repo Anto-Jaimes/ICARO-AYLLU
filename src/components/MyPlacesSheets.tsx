@@ -26,7 +26,7 @@ export const HomeSheet: React.FC<HomeSheetProps> = ({
   return (
   <BottomSheet open={open} onClose={onClose} title={home ? t('Cambiar mi casa') : t('¿Dónde es tu casa?')}>
     <div className={SHEET_BODY} style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-      <p className="text-secondary text-ink-2">
+      <p className="text-secondary text-ink-secondary">
         {home
           ? home.address
             ? t('Ahora está en {place}.', { place: home.address })
@@ -50,11 +50,11 @@ export const HomeSheet: React.FC<HomeSheetProps> = ({
             <MapPin className="w-6 h-6" aria-hidden="true" />
             {t('Elegirla en el mapa')}
           </button>
-          <p className="text-meta text-ink-2">{t('También puedes buscar tu dirección arriba y tocar «Es mi casa».')}</p>
+          <p className="text-meta text-ink-secondary">{t('También puedes buscar tu dirección arriba y tocar «Es mi casa».')}</p>
         </>
       )}
       {home && (
-        <button type="button" onClick={onRemove} className="flex items-center gap-2 min-h-12 px-1 text-secondary font-bold text-rojo">
+        <button type="button" onClick={onRemove} className="flex items-center gap-2 min-h-12 px-1 text-secondary font-bold text-status-danger">
           <Trash2 className="w-5 h-5" aria-hidden="true" />
           {t('Quitar mi casa')}
         </button>
@@ -88,7 +88,7 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
   if (!open && confirmingId !== null) setConfirmingId(null);
 
   const footer = isFull ? (
-    <p className="pb-1 text-secondary text-ink-2">{t('Tienes {count} lugares, el máximo. Borra uno para agregar otro.', { count: MAX_PLACES })}</p>
+    <p className="pb-1 text-secondary text-ink-secondary">{t('Tienes {count} lugares, el máximo. Borra uno para agregar otro.', { count: MAX_PLACES })}</p>
   ) : (
     <div>
       <p className="pb-2 text-secondary font-bold">{t("Agregar un lugar")}</p>
@@ -118,22 +118,22 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
       {places.length === 0 ? (
         <div className="px-4 pb-4">
           <p className="text-row font-bold">{t("Aún no guardas lugares")}</p>
-          <p className="mt-1 text-secondary text-ink-2">
+          <p className="mt-1 text-secondary text-ink-secondary">
             {t('Guarda el colegio de tus hijos, tu trabajo o el punto de reunión de tu familia.')} {t(STAYS_HERE)}
           </p>
         </div>
       ) : (
-        <ul className="list-plain border-t border-line" aria-label={t("Lugares guardados")}>
+        <ul className="list-plain border-t border-border" aria-label={t("Lugares guardados")}>
           {places.map((place) => {
             const distance = distanceTo(place);
             const isConfirming = confirmingId === place.id;
             return (
               <li key={place.id} className="flex items-center pr-2">
                 <button type="button" onClick={() => onOpenPlace(place)} className="row min-h-16 flex-1 min-w-0 py-2">
-                  <Star className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                  <Star className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
                   <span className="flex-1 min-w-0">
                     <span className="block text-row font-bold truncate">{place.name}</span>
-                    <span className="block text-meta text-ink-2 truncate">
+                    <span className="block text-meta text-ink-secondary truncate">
                       {[distance && distance.charAt(0).toUpperCase() + distance.slice(1), place.address].filter(Boolean).join('. ') || t('Punto elegido en el mapa')}
                     </span>
                   </span>
@@ -146,11 +146,11 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
                         setConfirmingId(null);
                         onDelete(place);
                       }}
-                      className="min-h-12 px-3 rounded-lg bg-rojo text-white text-secondary font-bold"
+                      className="min-h-12 px-3 rounded-lg bg-status-danger text-white text-secondary font-bold"
                     >
                       {t("Borrar")}
                     </button>
-                    <button type="button" onClick={() => setConfirmingId(null)} className="min-h-12 px-3 rounded-lg text-secondary font-bold text-ink-2">
+                    <button type="button" onClick={() => setConfirmingId(null)} className="min-h-12 px-3 rounded-lg text-secondary font-bold text-ink-secondary">
                       {t("No")}
                     </button>
                   </span>
@@ -160,7 +160,7 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
                     onClick={() => setConfirmingId(place.id)}
                     aria-label={t('Borrar {place}', { place: place.name })}
                     title={t('Borrar')}
-                    className="icon-btn text-ink-2"
+                    className="icon-btn text-ink-secondary"
                   >
                     <Trash2 className="w-5 h-5" aria-hidden="true" />
                   </button>
@@ -211,7 +211,7 @@ export const SavePlaceSheet: React.FC<SavePlaceSheetProps> = ({ draft, onClose, 
           if (trimmed) onSave(trimmed);
         }}
       >
-        <p className="flex items-start gap-2 text-secondary text-ink-2">
+        <p className="flex items-start gap-2 text-secondary text-ink-secondary">
           <MapPin className="w-5 h-5 mt-0.5 shrink-0" aria-hidden="true" />
           {draft?.address || t('Punto elegido en el mapa')}
         </p>
@@ -235,7 +235,7 @@ export const SavePlaceSheet: React.FC<SavePlaceSheetProps> = ({ draft, onClose, 
             </button>
           ))}
         </div>
-        <p className="text-meta text-ink-2">{t(STAYS_HERE)}</p>
+        <p className="text-meta text-ink-secondary">{t(STAYS_HERE)}</p>
         <button type="submit" className="btn btn-primary disabled:opacity-60" disabled={!trimmed}>
           <Star className="w-6 h-6" aria-hidden="true" />
           {t("Guardar en mis lugares")}

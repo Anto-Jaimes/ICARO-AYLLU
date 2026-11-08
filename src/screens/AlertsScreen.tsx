@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronRight, CircleHelp, ShieldAlert, Waves, TrafficCone, Compass } from 'lucide-react';
+import { ChevronRight, CircleCheck, CircleHelp, ShieldAlert, TriangleAlert, Waves, TrafficCone, Compass } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { PERU_DEPARTMENTS } from '../data/departments';
@@ -101,46 +101,49 @@ export const AlertsScreen: React.FC = () => {
         </div>
 
         {/* National roads closed or restricted, from the MTC */}
-        <button type="button" className="row mt-3 border-y border-line" onClick={() => setIsSutranOpen(true)}>
-          <TrafficCone className="w-6 h-6 shrink-0 text-naranja" aria-hidden="true" />
+        <button type="button" className="row mt-3 border-y border-border" onClick={() => setIsSutranOpen(true)}>
+          <TrafficCone className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
           <span className="flex-1 min-w-0">
             <span className="block text-row font-semibold">{t('Carreteras')}</span>
-            <span className="block text-secondary text-ink-2">{t('Vías cerradas o con paso restringido, según el MTC')}</span>
+            <span className="block text-secondary text-ink-secondary">{t('Vías cerradas o con paso restringido, según el MTC')}</span>
           </span>
-          <ChevronRight className="w-5 h-5 shrink-0 text-ink-2" aria-hidden="true" />
+          <ChevronRight className="w-5 h-5 shrink-0 text-ink-secondary" aria-hidden="true" />
         </button>
 
         {!departmentId && ownSavedAt && (
-          <p role="status" className="mx-4 mt-3 p-3 rounded-lg bg-offline text-white text-secondary">
+          <p role="status" className="mx-4 mt-3 p-3 rounded-lg bg-status-offline text-white text-secondary">
             {t('Sin internet')}. {t('Datos guardados')} {formatRelativeTime(ownSavedAt).toLowerCase()}.
           </p>
         )}
 
         {!feed ? (
-          <p className="px-4 pt-6 text-secondary text-ink-2">
+          <p className="px-4 pt-6 text-secondary text-ink-secondary">
             {departmentId ? t('Consultando alertas...') : t('Conéctate a internet para ver las alertas.')}
           </p>
         ) : (
           <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
             {/* Tsunami risk: an AYLLU estimate from the IGP quake (magnitude, depth, place), not a DHN bulletin. */}
             {tsunamiEvaluation && (
-              <div className="mx-4 mt-4 p-3.5 rounded-2xl border border-line bg-surface shadow-xs flex flex-col gap-2">
+              <div className="mx-4 mt-4 p-3.5 rounded-2xl border border-border bg-surface shadow-xs flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Waves className="w-5 h-5 text-blue-500" />
+                    <Waves className="w-5 h-5 text-primary" />
                     <span className="text-secondary font-bold text-ink">
                       {t('Riesgo de tsunami (estimado)')}
                     </span>
                   </div>
                   <span
                     className={`px-2 py-0.5 rounded text-meta font-black uppercase tracking-wider ${
-                      tsunamiEvaluation.status === 'ALERTA'
-                        ? 'bg-red-600 text-white animate-pulse'
-                        : tsunamiEvaluation.status === 'VIGILANCIA'
-                        ? 'bg-amber-600 text-white'
-                        : 'bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 border border-emerald-600/30'
-                    }`}
+ tsunamiEvaluation.status === 'ALERTA'
+ ? 'badge-status badge-danger'
+ : tsunamiEvaluation.status === 'VIGILANCIA'
+ ? 'badge-status badge-severe'
+ : 'badge-status badge-safe'
+ }`}
                   >
+                    {tsunamiEvaluation.status === 'NO_GENERA'
+                      ? <CircleCheck className="w-4 h-4 shrink-0" aria-hidden="true" />
+                      : <TriangleAlert className="w-4 h-4 shrink-0" aria-hidden="true" />}
                     {tsunamiEvaluation.status === 'ALERTA'
                       ? t('Posible tsunami')
                       : tsunamiEvaluation.status === 'VIGILANCIA'
@@ -151,7 +154,7 @@ export const AlertsScreen: React.FC = () => {
                 <p className="text-secondary text-ink-secondary leading-relaxed">
                   {tsunamiEvaluation.detail}
                 </p>
-                <div className="flex items-center justify-between gap-2 text-meta text-ink-2 pt-1 border-t border-line/40">
+                <div className="flex items-center justify-between gap-2 text-meta text-ink-secondary pt-1 border-t border-border/40">
                   <span>{t('Estimado por AYLLU con el sismo del IGP. El aviso oficial lo da la DHN.')}</span>
                   {tsunamiEvaluation.coastalSafetyZoneMeters > 0 && (
                     <span className="font-bold text-ink shrink-0">{t('Zona segura: más de 30 m de altura')}</span>
@@ -191,7 +194,7 @@ export const AlertsScreen: React.FC = () => {
                         <LevelTag level={LEVEL_NAMES[summary.max_level]} />
                       </p>
                       {summary.top_districts?.length > 0 && (
-                        <p className="mt-1 text-secondary text-ink-2">
+                        <p className="mt-1 text-secondary text-ink-secondary">
                           {t('Entre ellos: {places}.', { places: summary.top_districts.join(', ') })}
                         </p>
                       )}
@@ -220,7 +223,7 @@ export const AlertsScreen: React.FC = () => {
                         <span className="flex-1 min-w-0">
                           <span className="flex items-center gap-2">
                             <LevelTag level={notice.level} />
-                            <span className="text-secondary text-ink-2">{formatDayRange(notice.starts_at, notice.ends_at)}</span>
+                            <span className="text-secondary text-ink-secondary">{formatDayRange(notice.starts_at, notice.ends_at)}</span>
                           </span>
                           <span className="block mt-1 text-row font-semibold first-letter:uppercase lowercase">{notice.title}</span>
                         </span>
@@ -233,19 +236,19 @@ export const AlertsScreen: React.FC = () => {
 
             <Section title={t('Sismos en {place}', { place: departmentName })}>
               {feed.quakes.length === 0 ? (
-                <p className="px-4 text-secondary text-ink-2">{t('Sin sismos registrados aquí este año.')}</p>
+                <p className="px-4 text-secondary text-ink-secondary">{t('Sin sismos registrados aquí este año.')}</p>
               ) : (
                 <ul className="list-plain">
                   {feed.quakes.slice(0, 5).map((quake) => (
                     <li key={quake.id} className="px-4 py-3">
                       <p className="text-row font-semibold">{t('Magnitud')} {quake.magnitude}</p>
                       <p className="text-secondary">{quake.detail}</p>
-                      <p className="text-meta text-ink-2">{formatRelativeTime(quake.occurred_at)}</p>
+                      <p className="text-meta text-ink-secondary">{formatRelativeTime(quake.occurred_at)}</p>
                     </li>
                   ))}
                 </ul>
               )}
-              <p className="flex gap-2 px-4 pt-2 text-meta text-ink-2">
+              <p className="flex gap-2 px-4 pt-2 text-meta text-ink-secondary">
                 <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
                 {t('Los sismos no se pueden predecir. Aquí ves los registrados por el IGP.')}
               </p>
@@ -255,7 +258,7 @@ export const AlertsScreen: React.FC = () => {
               <ForecastStrip days={forecast} />
             </Section>
 
-            <p className="px-4 pt-6 text-meta text-ink-2 lg:col-span-2">
+            <p className="px-4 pt-6 text-meta text-ink-secondary lg:col-span-2">
               {t('Fuentes oficiales: IGP, SENAMHI, DHN (Marina de Guerra), SUTRAN. Pronóstico: Open-Meteo.')}
             </p>
           </div>

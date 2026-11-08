@@ -190,13 +190,13 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
     <BottomSheet open={open} onClose={onClose} title="Triage de Emergencia (START)">
       <div className="flex flex-col gap-4 text-ink pb-6">
         {/* Navigation Tabs */}
-        <div className="flex rounded-xl bg-surface border border-line p-1 gap-1">
+        <div className="flex rounded-xl bg-surface border border-border p-1 gap-1">
           <button
             type="button"
             onClick={() => setActiveTab('padron')}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'padron' ? 'bg-primary text-white shadow-sm' : 'text-ink-secondary hover:bg-neutral-100 dark:hover:bg-neutral-800'
-            }`}
+            className={`flex-1 py-2 text-meta font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+ activeTab === 'padron' ? 'bg-primary text-white shadow-sm' : 'text-ink-secondary hover:bg-sunken '
+ }`}
           >
             <HeartPulse className="w-4 h-4" />
             Padrón ({victims.length})
@@ -204,9 +204,9 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
           <button
             type="button"
             onClick={() => setActiveTab('evaluar')}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'evaluar' ? 'bg-primary text-white shadow-sm' : 'text-ink-secondary hover:bg-neutral-100 dark:hover:bg-neutral-800'
-            }`}
+            className={`flex-1 py-2 text-meta font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+ activeTab === 'evaluar' ? 'bg-primary text-white shadow-sm' : 'text-ink-secondary hover:bg-sunken '
+ }`}
           >
             <PlusCircle className="w-4 h-4" />
             + Evaluar (START)
@@ -214,9 +214,9 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
           <button
             type="button"
             onClick={() => setActiveTab('qr')}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'qr' ? 'bg-primary text-white shadow-sm' : 'text-ink-secondary hover:bg-neutral-100 dark:hover:bg-neutral-800'
-            }`}
+            className={`flex-1 py-2 text-meta font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+ activeTab === 'qr' ? 'bg-primary text-white shadow-sm' : 'text-ink-secondary hover:bg-sunken '
+ }`}
           >
             <QrCode className="w-4 h-4" />
             QR Rescatistas
@@ -228,33 +228,33 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
           <div className="flex flex-col gap-3">
             {/* Metric counters */}
             <div className="grid grid-cols-4 gap-2">
-              <div className="bg-red-950/20 border border-red-500/40 rounded-xl p-2 text-center">
-                <span className="block text-2xl font-black text-red-600 dark:text-red-400">{counts.rojo}</span>
-                <span className="block text-[11px] font-bold text-red-700 dark:text-red-300">
+              <div className="badge-danger border border-ink rounded-xl p-2 text-center">
+                <span className="block text-2xl font-black">{counts.rojo}</span>
+                <span className="block text-meta font-bold">
                   {lang !== 'es' && TRIAGE_CONFIG.ROJO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
                     ? `${TRIAGE_CONFIG.ROJO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Rojo)`
                     : 'ROJO'}
                 </span>
               </div>
-              <div className="bg-amber-950/20 border border-amber-500/40 rounded-xl p-2 text-center">
-                <span className="block text-2xl font-black text-amber-600 dark:text-amber-400">{counts.amarillo}</span>
-                <span className="block text-[11px] font-bold text-amber-700 dark:text-amber-300">
+              <div className="badge-warning border border-ink rounded-xl p-2 text-center">
+                <span className="block text-2xl font-black">{counts.amarillo}</span>
+                <span className="block text-meta font-bold">
                   {lang !== 'es' && TRIAGE_CONFIG.AMARILLO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
                     ? `${TRIAGE_CONFIG.AMARILLO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Amarillo)`
                     : 'AMARILLO'}
                 </span>
               </div>
-              <div className="bg-emerald-950/20 border border-emerald-500/40 rounded-xl p-2 text-center">
-                <span className="block text-2xl font-black text-emerald-600 dark:text-emerald-400">{counts.verde}</span>
-                <span className="block text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+              <div className="badge-safe border border-ink rounded-xl p-2 text-center">
+                <span className="block text-2xl font-black">{counts.verde}</span>
+                <span className="block text-meta font-bold">
                   {lang !== 'es' && TRIAGE_CONFIG.VERDE.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
                     ? `${TRIAGE_CONFIG.VERDE.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Verde)`
                     : 'VERDE'}
                 </span>
               </div>
-              <div className="bg-neutral-900/10 dark:bg-neutral-900 border border-neutral-400 dark:border-neutral-700 rounded-xl p-2 text-center">
-                <span className="block text-2xl font-black text-neutral-700 dark:text-neutral-300">{counts.negro}</span>
-                <span className="block text-[11px] font-bold text-neutral-600 dark:text-neutral-400">
+              <div className="badge-triage-black border border-ink rounded-xl p-2 text-center">
+                <span className="block text-2xl font-black">{counts.negro}</span>
+                <span className="block text-meta font-bold">
                   {lang !== 'es' && TRIAGE_CONFIG.NEGRO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
                     ? `${TRIAGE_CONFIG.NEGRO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Negro)`
                     : 'NEGRO'}
@@ -263,16 +263,16 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
             </div>
 
             {victims.length === 0 ? (
-              <div className="p-8 text-center bg-surface border border-line rounded-2xl flex flex-col items-center gap-2">
-                <Stethoscope className="w-10 h-10 text-ink-secondary/50" />
+              <div className="p-8 text-center bg-surface border border-border rounded-2xl flex flex-col items-center gap-2">
+                <Stethoscope className="w-10 h-10 text-ink-muted" aria-hidden="true" />
                 <p className="text-sm font-bold text-ink">No hay víctimas registradas en este sector</p>
-                <p className="text-xs text-ink-secondary max-w-xs">
+                <p className="text-meta text-ink-secondary max-w-xs">
                   Usa el asistente para clasificar heridos rápidamente con el método internacional START.
                 </p>
                 <button
                   type="button"
                   onClick={() => setActiveTab('evaluar')}
-                  className="mt-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl shadow"
+                  className="mt-2 px-4 py-2 bg-primary text-white text-meta font-bold rounded-xl shadow"
                 >
                   Evaluar primera víctima
                 </button>
@@ -289,12 +289,11 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span
-                            className="px-2 py-0.5 rounded text-xs font-black uppercase text-white tracking-wider flex items-center gap-1"
-                            style={{ backgroundColor: cfg.color }}
+                            className={`badge-status ${cfg.badge} uppercase tracking-wider`}
                           >
                             <span>{v.tag}</span>
                             {lang !== 'es' && cfg.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni'] && (
-                              <span className="opacity-90 text-[10px] lowercase font-semibold">
+                              <span className="opacity-90 text-meta lowercase font-semibold">
                                 ({cfg.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']})
                               </span>
                             )}
@@ -304,14 +303,14 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                         <button
                           type="button"
                           onClick={() => handleDelete(v.id)}
-                          className="p-1 text-ink-secondary hover:text-red-500 rounded"
+                          className="p-1 text-ink-secondary hover:text-status-danger rounded"
                           title="Eliminar de la lista"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
-                      <div className="text-xs text-ink-secondary flex flex-col gap-0.5">
+                      <div className="text-meta text-ink-secondary flex flex-col gap-0.5">
                         <span className="flex items-center gap-1 font-medium">
                           <MapPin className="w-3.5 h-3.5 shrink-0" />
                           {v.locationNote}
@@ -319,35 +318,35 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                         <span><strong>Lesión:</strong> {v.injuries}</span>
                       </div>
 
-                      <div className="flex items-center justify-between pt-1 border-t border-line/30 text-xs">
-                        <span className="text-[11px] text-ink-secondary">
+                      <div className="flex items-center justify-between pt-1 border-t border-border/30 text-meta">
+                        <span className="text-meta text-ink-secondary">
                           {new Date(v.createdAt).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <div className="flex gap-1.5">
                           <button
                             type="button"
                             onClick={() => handleStatusChange(v.id, 'esperando')}
-                            className={`px-2 py-0.5 text-[10px] font-bold rounded ${
-                              v.status === 'esperando' ? 'bg-rojo text-white' : 'bg-surface text-ink-secondary border border-line'
-                            }`}
+                            className={`px-2 py-0.5 text-meta font-bold rounded ${
+ v.status === 'esperando' ? 'bg-status-danger text-white' : 'bg-surface text-ink-secondary border border-border'
+ }`}
                           >
                             Esperando
                           </button>
                           <button
                             type="button"
                             onClick={() => handleStatusChange(v.id, 'atendido')}
-                            className={`px-2 py-0.5 text-[10px] font-bold rounded ${
-                              v.status === 'atendido' ? 'bg-amarillo text-ink' : 'bg-surface text-ink-secondary border border-line'
-                            }`}
+                            className={`px-2 py-0.5 text-meta font-bold rounded ${
+ v.status === 'atendido' ? 'bg-status-warning text-ink' : 'bg-surface text-ink-secondary border border-border'
+ }`}
                           >
                             Atendido
                           </button>
                           <button
                             type="button"
                             onClick={() => handleStatusChange(v.id, 'evacuado')}
-                            className={`px-2 py-0.5 text-[10px] font-bold rounded ${
-                              v.status === 'evacuado' ? 'bg-verde text-white' : 'bg-surface text-ink-secondary border border-line'
-                            }`}
+                            className={`px-2 py-0.5 text-meta font-bold rounded ${
+ v.status === 'evacuado' ? 'bg-status-safe text-white' : 'bg-surface text-ink-secondary border border-border'
+ }`}
                           >
                             Evacuado
                           </button>
@@ -367,45 +366,44 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
             {/* Visual START banner result */}
             <div className={`p-3.5 rounded-xl border ${tagConfig.border} ${tagConfig.bg} flex items-center justify-between`}>
               <div>
-                <span className="block text-xs font-bold text-ink-secondary uppercase tracking-wider">
+                <span className="block text-meta font-bold text-ink-secondary uppercase tracking-wider">
                   Clasificación Calculada:
                 </span>
                 <span className="block text-lg font-black text-ink flex items-center gap-2">
                   <span
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: tagConfig.color }}
+                    className={`w-3 h-3 rounded-full border border-ink ${tagConfig.dot}`}
                   />
                   {calculatedTag} - {tagConfig.label}
                 </span>
-                <span className="block text-xs text-ink-secondary font-medium">
+                <span className="block text-meta text-ink-secondary font-medium">
                   {tagConfig.priority}
                 </span>
               </div>
             </div>
 
             {/* Guided START algorithm questions */}
-            <div className="flex flex-col gap-3 bg-surface p-3.5 rounded-xl border border-line">
+            <div className="flex flex-col gap-3 bg-surface p-3.5 rounded-xl border border-border">
               {/* Question 1: Ambulación */}
               <div>
-                <label className="block text-xs font-bold text-ink mb-1.5">
+                <label className="block text-meta font-bold text-ink mb-1.5">
                   1. ¿La víctima puede ponerse de pie y caminar?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => { setCanWalk(true); tapFeedback(); }}
-                    className={`py-2 text-xs font-bold rounded-lg border transition-all ${
-                      canWalk ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-surface text-ink border-line'
-                    }`}
+                    className={`py-2 text-meta font-bold rounded-lg border transition-all ${
+ canWalk ? 'bg-status-safe text-white border-status-safe' : 'bg-surface text-ink border-border'
+ }`}
                   >
                     Sí (Camina por sí solo)
                   </button>
                   <button
                     type="button"
                     onClick={() => { setCanWalk(false); tapFeedback(); }}
-                    className={`py-2 text-xs font-bold rounded-lg border transition-all ${
-                      !canWalk ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
-                    }`}
+                    className={`py-2 text-meta font-bold rounded-lg border transition-all ${
+ !canWalk ? 'bg-status-danger text-white border-status-danger-press' : 'bg-surface text-ink border-border'
+ }`}
                   >
                     No (Inmovilizado / En suelo)
                   </button>
@@ -416,34 +414,34 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                 <>
                   {/* Question 2: Respiración */}
                   <div>
-                    <label className="block text-xs font-bold text-ink mb-1.5">
+                    <label className="block text-meta font-bold text-ink mb-1.5">
                       2. Respiración tras despejar vía aérea:
                     </label>
                     <div className="grid grid-cols-3 gap-1.5">
                       <button
                         type="button"
                         onClick={() => { setBreathing('normal'); tapFeedback(); }}
-                        className={`py-2 text-[11px] font-bold rounded-lg border ${
-                          breathing === 'normal' ? 'bg-amarillo text-ink border-amber-500' : 'bg-surface text-ink border-line'
-                        }`}
+                        className={`py-2 text-meta font-bold rounded-lg border ${
+ breathing === 'normal' ? 'bg-status-warning text-ink border-ink' : 'bg-surface text-ink border-border'
+ }`}
                       >
                         Normal (&lt;30 rpm)
                       </button>
                       <button
                         type="button"
                         onClick={() => { setBreathing('rapida'); tapFeedback(); }}
-                        className={`py-2 text-[11px] font-bold rounded-lg border ${
-                          breathing === 'rapida' ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
-                        }`}
+                        className={`py-2 text-meta font-bold rounded-lg border ${
+ breathing === 'rapida' ? 'bg-status-danger text-white border-status-danger-press' : 'bg-surface text-ink border-border'
+ }`}
                       >
                         Rápida (&gt;30 rpm)
                       </button>
                       <button
                         type="button"
                         onClick={() => { setBreathing('nula'); tapFeedback(); }}
-                        className={`py-2 text-[11px] font-bold rounded-lg border ${
-                          breathing === 'nula' ? 'bg-neutral-800 text-white border-neutral-900' : 'bg-surface text-ink border-line'
-                        }`}
+                        className={`py-2 text-meta font-bold rounded-lg border ${
+ breathing === 'nula' ? 'bg-triage-black text-white border-triage-black' : 'bg-surface text-ink border-border'
+ }`}
                       >
                         No respira
                       </button>
@@ -454,25 +452,25 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                     <>
                       {/* Question 3: Pulso */}
                       <div>
-                        <label className="block text-xs font-bold text-ink mb-1.5">
+                        <label className="block text-meta font-bold text-ink mb-1.5">
                           3. Pulso radial (muñeca) o llenado capilar:
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
                             onClick={() => { setPulse('radial_presente'); tapFeedback(); }}
-                            className={`py-2 text-xs font-bold rounded-lg border ${
-                              pulse === 'radial_presente' ? 'bg-amarillo text-ink border-amber-500' : 'bg-surface text-ink border-line'
-                            }`}
+                            className={`py-2 text-meta font-bold rounded-lg border ${
+ pulse === 'radial_presente' ? 'bg-status-warning text-ink border-ink' : 'bg-surface text-ink border-border'
+ }`}
                           >
                             Presente (&lt; 2 seg)
                           </button>
                           <button
                             type="button"
                             onClick={() => { setPulse('radial_ausente'); tapFeedback(); }}
-                            className={`py-2 text-xs font-bold rounded-lg border ${
-                              pulse === 'radial_ausente' ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
-                            }`}
+                            className={`py-2 text-meta font-bold rounded-lg border ${
+ pulse === 'radial_ausente' ? 'bg-status-danger text-white border-status-danger-press' : 'bg-surface text-ink border-border'
+ }`}
                           >
                             Ausente o débil (Shock)
                           </button>
@@ -481,25 +479,25 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
 
                       {/* Question 4: Estado mental */}
                       <div>
-                        <label className="block text-xs font-bold text-ink mb-1.5">
+                        <label className="block text-meta font-bold text-ink mb-1.5">
                           4. Estado mental ("Aprieta mi mano", "Abre los ojos"):
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
                             onClick={() => { setMentalState('obedece'); tapFeedback(); }}
-                            className={`py-2 text-xs font-bold rounded-lg border ${
-                              mentalState === 'obedece' ? 'bg-verde text-white border-verde' : 'bg-surface text-ink border-line'
-                            }`}
+                            className={`py-2 text-meta font-bold rounded-lg border ${
+ mentalState === 'obedece' ? 'bg-status-safe text-white border-status-safe' : 'bg-surface text-ink border-border'
+ }`}
                           >
                             Obedece órdenes
                           </button>
                           <button
                             type="button"
                             onClick={() => { setMentalState('confuso_inconsciente'); tapFeedback(); }}
-                            className={`py-2 text-xs font-bold rounded-lg border ${
-                              mentalState === 'confuso_inconsciente' ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
-                            }`}
+                            className={`py-2 text-meta font-bold rounded-lg border ${
+ mentalState === 'confuso_inconsciente' ? 'bg-status-danger text-white border-status-danger-press' : 'bg-surface text-ink border-border'
+ }`}
                           >
                             Confuso / Inconsciente
                           </button>
@@ -514,7 +512,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
             {/* Victim details form */}
             <div className="flex flex-col gap-2.5">
               <div>
-                <label htmlFor={identifierId} className="block text-xs font-bold text-ink mb-1 flex items-center gap-1">
+                <label htmlFor={identifierId} className="block text-meta font-bold text-ink mb-1 flex items-center gap-1">
                   <User className="w-3.5 h-3.5" />
                   Nombre o Identificador Físico:
                 </label>
@@ -524,12 +522,12 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                   placeholder="Ej. Juan Pérez / Mujer ~30 años casaca roja"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-surface border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-meta rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label htmlFor={locationId} className="block text-xs font-bold text-ink mb-1 flex items-center gap-1">
+                <label htmlFor={locationId} className="block text-meta font-bold text-ink mb-1 flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5" />
                   Ubicación exacta / Lugar en los escombros:
                 </label>
@@ -539,12 +537,12 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                   placeholder="Ej. Jr. Huancavelica 320, 1er piso debajo de columna"
                   value={locationNote}
                   onChange={(e) => setLocationNote(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-surface border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-meta rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label htmlFor={injuriesId} className="block text-xs font-bold text-ink mb-1 flex items-center gap-1">
+                <label htmlFor={injuriesId} className="block text-meta font-bold text-ink mb-1 flex items-center gap-1">
                   <Stethoscope className="w-3.5 h-3.5" />
                   Lesiones observables y soporte aplicado:
                 </label>
@@ -554,14 +552,14 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                   placeholder="Ej. Traumatismo craneal, torniquete en muslo derecho"
                   value={injuries}
                   onChange={(e) => setInjuries(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-surface border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 text-meta rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98"
+              className="w-full py-3 bg-status-danger hover:bg-status-danger-press text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98"
             >
               <Check className="w-5 h-5" />
               Registrar en Padrón de Emergencia
@@ -572,9 +570,9 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
         {/* TAB 3: QR Y EXPORTACIÓN TÁCTICA PARA RESCATISTAS */}
         {activeTab === 'qr' && (
           <div className="flex flex-col items-center gap-4 text-center">
-            <div className="p-3 bg-amber-950/20 border border-amber-600/40 rounded-xl text-left w-full">
+            <div className="p-3 bg-sunken border border-border rounded-xl text-left w-full">
               <span className="text-secondary font-bold text-ink flex items-center gap-1.5">
-                <ShieldAlert className="w-5 h-5 text-naranja" aria-hidden="true" />
+                <ShieldAlert className="w-5 h-5 text-primary" aria-hidden="true" />
                 {t('Para quien llegue a ayudar')}
               </span>
               <p className="text-secondary text-ink-secondary mt-1">
@@ -583,7 +581,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
             </div>
 
             {/* QR display container */}
-            <div className="p-4 bg-white rounded-2xl shadow-md border border-neutral-200">
+            <div className="p-4 bg-white rounded-2xl shadow-md border border-border">
               {qrDataUrl ? (
                 <img
                   src={qrDataUrl}
@@ -591,13 +589,13 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                   className="w-56 h-56 object-contain"
                 />
               ) : (
-                <div className="w-56 h-56 flex items-center justify-center text-xs text-neutral-400">
+                <div className="w-56 h-56 flex items-center justify-center text-meta text-ink-secondary">
                   Generando QR...
                 </div>
               )}
             </div>
 
-            <span className="text-xs font-bold text-ink">
+            <span className="text-meta font-bold text-ink">
               {victims.length} víctima(s) censadas en el perímetro
             </span>
 
@@ -606,7 +604,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
               <button
                 type="button"
                 onClick={handleDownloadGeoJSON}
-                className="py-2.5 px-3 bg-surface hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-line text-ink text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs"
+                className="py-2.5 px-3 bg-surface hover:bg-sunken border border-border text-ink text-meta font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs"
               >
                 <Download className="w-4 h-4 text-primary" />
                 Descargar GeoJSON
@@ -615,11 +613,11 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
               <button
                 type="button"
                 onClick={handleCopySummary}
-                className="py-2.5 px-3 bg-surface hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-line text-ink text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs"
+                className="py-2.5 px-3 bg-surface hover:bg-sunken border border-border text-ink text-meta font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs"
               >
                 {copied ? (
                   <>
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                    <CheckCircle className="w-4 h-4 text-status-safe" />
                     ¡Copiado!
                   </>
                 ) : (

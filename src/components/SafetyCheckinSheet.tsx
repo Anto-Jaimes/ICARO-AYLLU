@@ -20,11 +20,11 @@ export const SafetyCheckinSheet: React.FC<SafetyCheckinSheetProps> = ({ open, on
   return (
     <BottomSheet open={open} onClose={onClose} title={t('Avisar a tu familia')}>
       <div className="px-4 space-y-3" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-        <p className="text-secondary text-ink-2">
+        <p className="text-secondary text-ink-secondary">
           {t('Después de un sismo las llamadas se saturan. Un mensaje de texto llega aunque no tengas internet. Se abrirá tu app de mensajes para que elijas a quién enviarlo.')}
         </p>
         <ExactReferenceField />
-        <a href={smsLink(SAFE_OPENING, userLocation, hasLocation)} onClick={onClose} className="btn bg-verde text-white">
+        <a href={smsLink(SAFE_OPENING, userLocation, hasLocation)} onClick={onClose} className="btn bg-status-safe text-white">
           <CircleCheck className="w-6 h-6" aria-hidden="true" />
           {t('Estoy a salvo')}
         </a>
@@ -32,7 +32,7 @@ export const SafetyCheckinSheet: React.FC<SafetyCheckinSheetProps> = ({ open, on
           <MessageSquareWarning className="w-6 h-6" aria-hidden="true" />
           {t('Necesito ayuda')}
         </a>
-        <p className="text-meta text-ink-2">
+        <p className="text-meta text-ink-secondary">
           {hasLocation
             ? t('El mensaje lleva tu ubicación: {place}.', { place: placeLabel(userLocation.name) })
             : t('No sabemos dónde estás: el mensaje no llevará tu ubicación.')}

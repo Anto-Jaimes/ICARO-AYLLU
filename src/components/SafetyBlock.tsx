@@ -16,12 +16,12 @@ interface ToneStyle {
 
 // Every state pairs its colour with an icon and words: colour alone says nothing to some eyes.
 export const TONE_STYLES: Record<SafetyTone, ToneStyle> = {
-  safe: { field: 'bg-verde text-white', link: 'text-white', icon: CircleCheck },
-  amarillo: { field: 'bg-amarillo text-ink', link: 'text-ink', icon: TriangleAlert },
-  naranja: { field: 'bg-naranja text-ink', link: 'text-ink', icon: TriangleAlert },
-  rojo: { field: 'bg-rojo text-white', link: 'text-white', icon: TriangleAlert },
-  unknown: { field: 'bg-unknown text-white', link: 'text-white', icon: CircleHelp },
-  offline: { field: 'bg-offline text-white', link: 'text-white', icon: CloudOff }
+  safe: { field: 'bg-status-safe text-white', link: 'text-white', icon: CircleCheck },
+  amarillo: { field: 'bg-status-warning text-ink', link: 'text-ink', icon: TriangleAlert },
+  naranja: { field: 'bg-status-severe text-ink', link: 'text-ink', icon: TriangleAlert },
+  rojo: { field: 'bg-status-danger text-white', link: 'text-white', icon: TriangleAlert },
+  unknown: { field: 'bg-status-unknown text-white', link: 'text-white', icon: CircleHelp },
+  offline: { field: 'bg-status-offline text-white', link: 'text-white', icon: CloudOff }
 };
 
 const LEVEL_NAMES: Partial<Record<SafetyTone, string>> = {

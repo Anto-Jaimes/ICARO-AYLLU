@@ -10,23 +10,48 @@
 @theme {
   --font-sans: 'Atkinson Hyperlegible Next Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
+  /*
+   * One semantic scale. Components name what a colour means (primary, status-danger), never a raw
+   * Tailwind colour: scripts/check-colors.mjs stops the build if one comes back. Contrast against
+   * white is noted where text goes on it; 7:1 is WCAG AAA for normal text.
+   */
+
+  /* Reading scale: surfaces and ink */
   --color-surface: #ffffff;
   --color-sunken: #eef1f6;
-  --color-line: #c9d0dc;
-  --color-ink: #121826;
-  --color-ink-2: #3a4456;
-  --color-ink-secondary: #3a4456;
-  --color-primary: #1e3f8f;
+  --color-border: #c9d0dc;
+  --color-ink: #121826; /* 17.7:1 */
+  --color-ink-secondary: #3a4456; /* 9.9:1 */
+  --color-ink-muted: #6b7280; /* 4.8:1: decorative icons only, never text */
+
+  /* Identity and action: Andean indigo */
+  --color-primary: #1e3f8f; /* white on it 9.9:1 */
   --color-primary-press: #16306e;
-  --color-anil: #1e3f8f;
-  --color-anil-press: #16306e;
-  --color-verde: #0b5a3c;
-  --color-amarillo: #ffd02e;
-  --color-naranja: #f58a07;
-  --color-rojo: #a90f1c;
-  --color-rojo-press: #860a15;
-  --color-unknown: #4b5463;
-  --color-offline: #5a4632;
+  --color-primary-subtle: #ebf0fa;
+
+  /* Official risk levels (SENAMHI / IGP). Warning and severe always carry ink text, never white. */
+  --color-status-safe: #0b5a3c; /* white on it 8.3:1 */
+  --color-status-warning: #ffd02e; /* ink on it 12:1 */
+  --color-status-severe: #f58a07; /* ink on it 7.2:1 */
+  --color-status-danger: #a90f1c; /* white on it 7.5:1 */
+  --color-status-danger-press: #860a15;
+  --color-status-offline: #5a4632; /* white on it 8.9:1 */
+  --color-status-unknown: #4b5463; /* white on it 7.6:1 */
+
+  /* START triage: red, yellow and green are the status colours; black is its own. */
+  --color-triage-black: #1f2937; /* white on it 14.7:1 */
+
+  /* Blackout mode: a black screen that lights as few pixels as possible. */
+  --color-night: #000000;
+  --color-night-raised: #171717;
+  --color-night-border: #333333;
+  --color-night-ink: #f5f5f5; /* on raised 16.6:1 */
+  --color-night-ink-secondary: #b3b3b3; /* on raised 8.5:1 */
+  --color-night-safe: #34d399; /* on raised 9.3:1 */
+  --color-night-warning: #fbbf24; /* on raised 10.6:1 */
+  --color-night-danger: #fca5a5; /* on raised 9.1:1 */
+  --color-night-info: #b9cbff; /* on raised 10.9:1 */
+
   --color-link-on-ink: #b9cbff;
 
   --text-sign: 1.875rem;
@@ -55,11 +80,15 @@
   --content-bottom: calc(var(--nav-height) + var(--safe-bottom));
 }
 
-/* Emergency: red frame, pure white page for sunlight, black text, bigger targets. */
+/* Emergency: red frame, pure white page for sunlight, black text and lines, bigger targets.
+   Every component reads these tokens, so all of them switch, with nothing left grey. */
 [data-mode='emergency'] {
+  --color-surface: #ffffff;
+  --color-sunken: #ffffff;
   --color-ink: #000000;
-  --color-ink-2: #000000;
-  --color-line: #000000;
+  --color-ink-secondary: #000000;
+  --color-ink-muted: #000000;
+  --color-border: #000000;
   --row-min: 96px;
   --top-bar: calc(56px + var(--safe-top));
   --map-top-inset: 0px;
@@ -103,7 +132,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-anil);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
@@ -153,18 +182,18 @@
   }
 
   .btn-primary {
-    background: var(--color-anil);
+    background: var(--color-primary);
     color: #ffffff;
   }
 
   .btn-primary:active {
-    background: var(--color-anil-press);
+    background: var(--color-primary-press);
   }
 
   .btn-secondary {
     background: var(--color-surface);
-    color: var(--color-anil);
-    box-shadow: inset 0 0 0 2px var(--color-anil);
+    color: var(--color-primary);
+    box-shadow: inset 0 0 0 2px var(--color-primary);
   }
 
   .btn-secondary:active {
@@ -172,12 +201,69 @@
   }
 
   .btn-danger {
-    background: var(--color-rojo);
+    background: var(--color-status-danger);
     color: #ffffff;
   }
 
   .btn-danger:active {
-    background: var(--color-rojo-press);
+    background: var(--color-status-danger-press);
+  }
+
+  /* A state in words and colour together (the component adds the icon or the terrace glyph). */
+  /* A status colour too light for an icon on white (orange, yellow) goes behind the icon instead. */
+.status-tile {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 0.375rem;
+}
+
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--color-ink);
+    font-size: var(--text-secondary);
+    line-height: var(--text-secondary--line-height);
+    font-weight: 700;
+  }
+
+  .badge-safe {
+    background: var(--color-status-safe);
+    color: #ffffff;
+  }
+
+  .badge-warning {
+    background: var(--color-status-warning);
+    color: var(--color-ink);
+  }
+
+  .badge-severe {
+    background: var(--color-status-severe);
+    color: var(--color-ink);
+  }
+
+  .badge-danger {
+    background: var(--color-status-danger);
+    color: #ffffff;
+  }
+
+  .badge-offline {
+    background: var(--color-status-offline);
+    color: #ffffff;
+  }
+
+  .badge-unknown {
+    background: var(--color-status-unknown);
+    color: #ffffff;
+  }
+
+  .badge-triage-black {
+    background: var(--color-triage-black);
+    color: #ffffff;
   }
 
   .icon-btn {
@@ -214,7 +300,7 @@
   }
 
   .chip[aria-pressed='true'] {
-    background: var(--color-anil);
+    background: var(--color-primary);
     color: #ffffff;
     font-weight: 700;
   }
@@ -251,7 +337,7 @@
 
   /* Dividers only between rows of one list, starting at the text. */
   .list > li + li {
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid var(--color-border);
     margin-left: 72px;
   }
 
@@ -261,7 +347,7 @@
   }
 
   .list-plain > li + li {
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid var(--color-border);
   }
 
   .field {
@@ -269,7 +355,7 @@
     width: 100%;
     min-height: 56px;
     padding: 14px 16px;
-    border: 1px solid var(--color-ink-2);
+    border: 1px solid var(--color-ink-secondary);
     border-radius: 8px;
     background: var(--color-surface);
     color: var(--color-ink);
@@ -317,7 +403,7 @@
   }
 
   .camera-shutter[data-mode='video']::after {
-    background: var(--color-rojo);
+    background: var(--color-status-danger);
   }
 
   .camera-shutter[data-recording]::after {
@@ -412,7 +498,7 @@
     height: 44px;
     border-radius: 9999px;
     background: #ffffff;
-    color: var(--color-anil);
+    color: var(--color-primary);
     box-shadow: 0 2px 8px #12182666;
     animation: tour-tap 1.2s ease-in-out infinite;
     pointer-events: none;
@@ -479,8 +565,8 @@
 
   /* The radar: a wave that leaves the neighbour's dot again and again. */
   .map-me.is-radar {
-    background: var(--color-anil);
-    box-shadow: 0 0 0 2px var(--color-anil);
+    background: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary);
   }
 
   .map-me.is-radar::after {
@@ -488,7 +574,7 @@
     position: absolute;
     inset: -4px;
     border-radius: 50%;
-    border: 3px solid var(--color-anil);
+    border: 3px solid var(--color-primary);
     animation: radar-wave 2s ease-out infinite;
     pointer-events: none;
   }
@@ -502,7 +588,7 @@
     padding: 0;
     border: 3px solid #ffffff;
     border-radius: 12px;
-    background: var(--color-verde);
+    background: var(--color-status-safe);
     color: #ffffff;
     box-shadow: 0 2px 6px #12182666;
     cursor: pointer;
@@ -529,7 +615,7 @@
     height: 36px;
     border: 3px solid #ffffff;
     border-radius: 10px;
-    background: var(--color-anil);
+    background: var(--color-primary);
     color: #ffffff;
     box-shadow: 0 1px 4px #12182680;
   }
@@ -537,10 +623,10 @@
   .map-spot-place .map-spot-badge {
     width: 32px;
     height: 32px;
-    border: 2px solid var(--color-anil);
+    border: 2px solid var(--color-primary);
     border-radius: 50%;
     background: #ffffff;
-    color: var(--color-anil);
+    color: var(--color-primary);
   }
 
   .map-spot-place svg {
@@ -648,7 +734,7 @@
   .grid-wide > li,
   .grid-wide > li + li {
     margin-left: 0;
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid var(--color-border);
   }
 
   .grid-wide > li + li > * {

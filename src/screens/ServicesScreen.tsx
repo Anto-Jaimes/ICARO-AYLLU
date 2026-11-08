@@ -53,7 +53,7 @@ export const ServicesScreen: React.FC = () => {
       <div className="page">
       <div className="px-4 pt-3 relative lg:max-w-xl">
         <label htmlFor="services-search" className="sr-only">{t('Buscar un servicio')}</label>
-        <Search className="absolute left-8 top-[30px] w-5 h-5 text-ink-2" aria-hidden="true" />
+        <Search className="absolute left-8 top-[30px] w-5 h-5 text-ink-secondary" aria-hidden="true" />
         <input
           id="services-search"
           type="search"
@@ -91,23 +91,23 @@ export const ServicesScreen: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsPharmacyOpen(true)}
-          className="min-h-14 px-3 rounded-lg border border-line bg-surface flex items-center gap-2 text-left active:bg-sunken"
+          className="min-h-14 px-3 rounded-lg border border-border bg-surface flex items-center gap-2 text-left active:bg-sunken"
         >
-          <Pill className="w-6 h-6 shrink-0 text-verde" aria-hidden="true" />
+          <Pill className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
           <span className="min-w-0">
             <span className="block text-secondary font-bold truncate">{t('Farmacias')}</span>
-            <span className="block text-meta text-ink-2 truncate">{t('Cerca de ti')}</span>
+            <span className="block text-meta text-ink-secondary truncate">{t('Cerca de ti')}</span>
           </span>
         </button>
         <button
           type="button"
           onClick={() => setIsGasOpen(true)}
-          className="min-h-14 px-3 rounded-lg border border-line bg-surface flex items-center gap-2 text-left active:bg-sunken"
+          className="min-h-14 px-3 rounded-lg border border-border bg-surface flex items-center gap-2 text-left active:bg-sunken"
         >
-          <Flame className="w-6 h-6 shrink-0 text-naranja" aria-hidden="true" />
+          <Flame className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
           <span className="min-w-0">
             <span className="block text-secondary font-bold truncate">{t('Balón de gas')}</span>
-            <span className="block text-meta text-ink-2 truncate">{t('Precio oficial')}</span>
+            <span className="block text-meta text-ink-secondary truncate">{t('Precio oficial')}</span>
           </span>
         </button>
       </div>
@@ -154,9 +154,9 @@ export const ServicesScreen: React.FC = () => {
               >
                 <span className="flex-1">
                   <span className="block text-row font-semibold">{t(distance.label)}</span>
-                  <span className="block text-secondary text-ink-2">{t(distance.detail)}</span>
+                  <span className="block text-secondary text-ink-secondary">{t(distance.detail)}</span>
                 </span>
-                {radius === distance.meters && <Check className="w-6 h-6 text-anil" aria-hidden="true" />}
+                {radius === distance.meters && <Check className="w-6 h-6 text-primary" aria-hidden="true" />}
               </button>
             </li>
           ))}

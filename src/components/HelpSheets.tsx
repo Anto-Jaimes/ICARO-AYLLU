@@ -55,13 +55,13 @@ export const MenuSheet: React.FC = () => {
                 }}
               >
                 {canWrite
-                  ? <LogOut className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-                  : <LogIn className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
+                  ? <LogOut className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
+                  : <LogIn className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />}
                 <span className="flex-1">
                   <span className="block text-row font-semibold">
                     {t(canWrite ? 'Cerrar sesión' : isNative ? 'Entrar con mi número' : 'Entrar con mi código')}
                   </span>
-                  <span className="block text-secondary text-ink-2">
+                  <span className="block text-secondary text-ink-secondary">
                     {t(canWrite
                       ? (isNative ? 'Para volver, entras con tu número' : 'Solo en esta computadora. Tu celular sigue con tu cuenta')
                       : 'Para publicar, comentar y llamar')}
@@ -80,11 +80,11 @@ export const MenuSheet: React.FC = () => {
                   }}
                 >
                   {pushChoice() === 'on'
-                    ? <Bell className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-                    : <BellOff className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
+                    ? <Bell className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
+                    : <BellOff className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />}
                   <span className="flex-1">
                     <span className="block text-row font-semibold">{t('Avisos en tu celular')}</span>
-                    <span className="block text-secondary text-ink-2">{t(pushChoice() === 'on' ? 'Activados' : 'Desactivados')}</span>
+                    <span className="block text-secondary text-ink-secondary">{t(pushChoice() === 'on' ? 'Activados' : 'Desactivados')}</span>
                   </span>
                 </button>
               </li>
@@ -98,7 +98,7 @@ export const MenuSheet: React.FC = () => {
                   setIsTutorialOpen(true);
                 }}
               >
-                <CircleHelp className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <CircleHelp className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
                 <span className="flex-1 text-row font-semibold">{t('Cómo se usa')}</span>
               </button>
             </li>
@@ -111,7 +111,7 @@ export const MenuSheet: React.FC = () => {
                   setIsMuralOpen(true);
                 }}
               >
-                <Printer className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <Printer className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
                 <span className="flex-1 text-row font-semibold">{t('Imprimir mural comunal')}</span>
               </button>
             </li>
@@ -124,10 +124,10 @@ export const MenuSheet: React.FC = () => {
                   setIsBatterySaver(true);
                 }}
               >
-                <BatteryLow className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <BatteryLow className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
                 <span className="flex-1">
                   <span className="block text-row font-semibold">{t('Modo apagón')}</span>
-                  <span className="block text-secondary text-ink-2">{t('Pantalla negra para cuidar la batería')}</span>
+                  <span className="block text-secondary text-ink-secondary">{t('Pantalla negra para cuidar la batería')}</span>
                 </span>
               </button>
             </li>
@@ -140,24 +140,24 @@ export const MenuSheet: React.FC = () => {
                   setIsBackpackOpen(true);
                 }}
               >
-                <Backpack className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                <Backpack className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
                 <span className="flex-1">
                   <span className="block text-row font-semibold">{t('Mochila de emergencia')}</span>
-                  <span className="block text-secondary text-ink-2">{t('Revisa qué te falta antes de un sismo')}</span>
+                  <span className="block text-secondary text-ink-secondary">{t('Revisa qué te falta antes de un sismo')}</span>
                 </span>
               </button>
             </li>
           </ul>
-          <section className="px-4 pt-4 border-t border-line">
+          <section className="px-4 pt-4 border-t border-border">
             <h3 className="flex items-center gap-2 text-row font-bold">
-              <HandHeart className="w-5 h-5 text-anil" aria-hidden="true" />
+              <HandHeart className="w-5 h-5 text-primary" aria-hidden="true" />
               {t('Qué es el ayllu')}
             </h3>
-            <p className="mt-1 text-secondary text-ink-2">
+            <p className="mt-1 text-secondary text-ink-secondary">
               {t('Es la comunidad andina que se ayuda entre sí. Esta app conecta a los vecinos de tu barrio.')}
             </p>
             <h3 className="mt-4 text-row font-bold">{t('De dónde vienen las alertas')}</h3>
-            <p className="mt-1 text-secondary text-ink-2">
+            <p className="mt-1 text-secondary text-ink-secondary">
               {t('Sismos del IGP. Huaicos, lluvias y avisos de SENAMHI. Son datos oficiales del Perú. Ante una emergencia, sigue a las autoridades.')}
             </p>
           </section>

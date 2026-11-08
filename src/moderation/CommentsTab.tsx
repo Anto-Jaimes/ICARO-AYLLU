@@ -39,25 +39,25 @@ export const CommentsTab: React.FC = () => {
     load();
   };
 
-  if (!comments) return <p role="status" className="text-secondary text-ink-2">Cargando...</p>;
+  if (!comments) return <p role="status" className="text-secondary text-ink-secondary">Cargando...</p>;
 
   return (
     <section aria-labelledby="comments-title" className="space-y-3">
       <h2 id="comments-title" className="text-section font-bold">Comentarios en las noticias</h2>
-      <p className="text-secondary text-ink-2">Los 100 más recientes. Borra insultos, datos personales de otros, estafas o mentiras que pongan en riesgo.</p>
+      <p className="text-secondary text-ink-secondary">Los 100 más recientes. Borra insultos, datos personales de otros, estafas o mentiras que pongan en riesgo.</p>
       <ErrorLine message={problem} />
       {comments.length === 0 && <EmptyLine text="Todavía no hay comentarios." />}
       <ul className="list-plain">
         {comments.map((comment) => (
-          <li key={comment.id} className="py-4 flex flex-wrap items-start gap-4 border-b border-line">
+          <li key={comment.id} className="py-4 flex flex-wrap items-start gap-4 border-b border-border">
             <div className="flex-1 min-w-64 space-y-1">
               {comment.reports && (
-                <p className="text-meta font-bold text-ink-2">
+                <p className="text-meta font-bold text-ink-secondary">
                   En: {KIND[comment.reports.kind] ?? comment.reports.kind} en {comment.reports.district}. "{comment.reports.description.slice(0, 80)}"
                 </p>
               )}
               <p className="text-body">{comment.body}</p>
-              <p className="text-secondary text-ink-2">{comment.author_name}, {formatDate(comment.created_at)}</p>
+              <p className="text-secondary text-ink-secondary">{comment.author_name}, {formatDate(comment.created_at)}</p>
             </div>
             <button type="button" className="btn btn-danger w-auto min-h-12" onClick={() => remove(comment)}>Borrar comentario</button>
           </li>

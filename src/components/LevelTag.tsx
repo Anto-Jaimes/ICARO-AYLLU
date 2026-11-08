@@ -5,9 +5,9 @@ import { useT } from '../i18n/LanguageContext';
 const FILLED_BARS: Record<NoticeLevel, number> = { amarillo: 1, naranja: 2, rojo: 3 };
 
 const TAG_STYLES: Record<NoticeLevel, string> = {
-  amarillo: 'bg-amarillo text-ink',
-  naranja: 'bg-naranja text-ink',
-  rojo: 'bg-rojo text-white'
+  amarillo: 'bg-status-warning text-ink',
+  naranja: 'bg-status-severe text-ink',
+  rojo: 'bg-status-danger text-white'
 };
 
 const LEVEL_LABELS: Record<NoticeLevel, string> = { amarillo: 'Amarillo', naranja: 'Naranja', rojo: 'Rojo' };

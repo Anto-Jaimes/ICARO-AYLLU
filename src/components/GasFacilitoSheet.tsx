@@ -19,7 +19,7 @@ export const GasFacilitoSheet: React.FC<GasFacilitoSheetProps> = ({ open, onClos
         <p className="text-secondary">
           {t('Facilito, de Osinergmin, muestra el precio del balón de gas de 10 kg en los locales formales de tu distrito, con su dirección y teléfono.')}
         </p>
-        <p className="text-secondary text-ink-2">{t('Ahí elige "GLP", luego "GLP envasado" y tu distrito.')}</p>
+        <p className="text-secondary text-ink-secondary">{t('Ahí elige "GLP", luego "GLP envasado" y tu distrito.')}</p>
         <a href={FACILITO_GLP_URL} target="_blank" rel="noreferrer" className="btn btn-primary no-underline">
           <ExternalLink className="w-6 h-6" aria-hidden="true" />
           {t('Ver precios en Facilito')}
@@ -30,13 +30,13 @@ export const GasFacilitoSheet: React.FC<GasFacilitoSheetProps> = ({ open, onClos
           <ul className="pt-2 space-y-3">
             {GAS_SAFETY_TIPS.map((tip) => (
               <li key={tip} className="flex gap-3 text-secondary">
-                <ShieldCheck className="w-6 h-6 shrink-0 text-verde" aria-hidden="true" />
+                <ShieldCheck className="w-6 h-6 shrink-0 text-status-safe" aria-hidden="true" />
                 <span>{t(tip)}</span>
               </li>
             ))}
           </ul>
         </section>
-        <p className="text-meta text-ink-2">{t('Precios oficiales: Osinergmin (Facilito).')}</p>
+        <p className="text-meta text-ink-secondary">{t('Precios oficiales: Osinergmin (Facilito).')}</p>
       </div>
     </BottomSheet>
   );

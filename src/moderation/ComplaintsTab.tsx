@@ -45,12 +45,12 @@ export const ComplaintsTab: React.FC<{ onCount: (count: number) => void }> = ({ 
     load();
   };
 
-  if (!complaints) return <p role="status" className="text-secondary text-ink-2">Cargando...</p>;
+  if (!complaints) return <p role="status" className="text-secondary text-ink-secondary">Cargando...</p>;
 
   return (
     <section aria-labelledby="complaints-title" className="space-y-3">
       <h2 id="complaints-title" className="text-section font-bold">Denuncias de llamadas</h2>
-      <p className="text-secondary text-ink-2">
+      <p className="text-secondary text-ink-secondary">
         Las envía quien recibió una llamada desde la página pública /denuncia. Si la llamada aparece, se une sola y su grabación se conserva.
       </p>
       <ErrorLine message={problem} />
@@ -64,7 +64,7 @@ export const ComplaintsTab: React.FC<{ onCount: (count: number) => void }> = ({ 
                 {STATUS[complaint.status]}: el {formatPhone(complaint.phone)} denuncia una llamada del {formatDate(complaint.called_at)}
               </p>
               <p className="text-body">{complaint.description}</p>
-              <p className="text-secondary text-ink-2">
+              <p className="text-secondary text-ink-secondary">
                 Código que escuchó: {complaint.heard_code ?? 'no lo anotó'}. Enviada el {formatDate(complaint.created_at)}
               </p>
               <div className="p-3 rounded-lg bg-sunken">

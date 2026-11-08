@@ -1,3 +1,4 @@
+import { SKY } from '../theme/colors';
 /**
  * Weather now and for the next days, from Open-Meteo (free, no key). The last answer is kept so the card
  * still shows something without internet, saying how old it is.
@@ -88,11 +89,11 @@ export function weatherIcon(code: number, isDay = true): LucideIcon {
   return CloudLightning;
 }
 
-/** The card's sky. Every pair keeps white text readable (contrast of 4.5 or more against the lighter end). */
+/** The card's sky (src/theme/colors.ts): white text at 7:1 or more on every gradient. */
 export function weatherSky(code: number, isDay: boolean): string {
-  if (!isDay) return 'linear-gradient(160deg, #0f172a 0%, #1e3a8a 100%)';
-  if (code <= 2) return 'linear-gradient(160deg, #1e40af 0%, #2563eb 100%)';
-  if (code <= 48) return 'linear-gradient(160deg, #374151 0%, #6b7280 100%)';
-  if (code <= 82) return 'linear-gradient(160deg, #1e293b 0%, #475569 100%)';
-  return 'linear-gradient(160deg, #1e1b4b 0%, #4c1d95 100%)';
+  if (!isDay) return SKY.night;
+  if (code <= 2) return SKY.clear;
+  if (code <= 48) return SKY.cloudy;
+  if (code <= 82) return SKY.rain;
+  return SKY.storm;
 }

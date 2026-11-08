@@ -56,7 +56,7 @@ export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ 
   return (
     <BottomSheet open={open} onClose={onClose} title={t("Mochila de emergencia")}>
       <div className="pb-6">
-        <p className="px-4 text-secondary text-ink-2">{t('Prepárala antes de un sismo o huaico, y tenla cerca de la puerta. Marca lo que ya tienes.')}</p>
+        <p className="px-4 text-secondary text-ink-secondary">{t('Prepárala antes de un sismo o huaico, y tenla cerca de la puerta. Marca lo que ya tienes.')}</p>
         <p className="px-4 pt-3 text-row font-bold" aria-live="polite">{summary}</p>
         <div
           className="mx-4 mt-2 h-3 rounded-full bg-sunken overflow-hidden"
@@ -66,7 +66,7 @@ export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ 
           aria-valuemax={ALL_ITEMS.length}
           aria-valuenow={ready}
         >
-          <div className="h-full rounded-full bg-verde" style={{ width: `${(ready / ALL_ITEMS.length) * 100}%` }} />
+          <div className="h-full rounded-full bg-status-safe" style={{ width: `${(ready / ALL_ITEMS.length) * 100}%` }} />
         </div>
 
         <ul className="list-plain mt-3">
@@ -77,7 +77,7 @@ export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ 
                 <button type="button" className="row" aria-pressed={isChecked} onClick={() => toggleItem(item.id)}>
                   <span
                     aria-hidden="true"
-                    className={`grid place-items-center w-7 h-7 shrink-0 rounded-md border-2 ${isChecked ? 'bg-verde border-verde text-white' : 'border-line'}`}
+                    className={`grid place-items-center w-7 h-7 shrink-0 rounded-md border-2 ${isChecked ? 'bg-status-safe border-status-safe text-white' : 'border-border'}`}
                   >
                     {isChecked && <Check className="w-5 h-5" />}
                   </span>

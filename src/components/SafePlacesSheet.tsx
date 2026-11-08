@@ -78,17 +78,17 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
   const getCategoryDetails = (cat: SafePlace['category']) => {
     switch (cat) {
       case 'salud':
-        return { label: 'Salud / Posta', color: 'bg-red-600', icon: Hospital, text: 'text-red-500' };
+        return { label: 'Salud / Posta', color: 'bg-primary', icon: Hospital, text: 'text-primary' };
       case 'agua':
-        return { label: 'Agua Potable', color: 'bg-blue-600', icon: Droplets, text: 'text-blue-500' };
+        return { label: 'Agua Potable', color: 'bg-primary', icon: Droplets, text: 'text-primary' };
       case 'refugio':
-        return { label: 'Refugio / Zona Segura', color: 'bg-emerald-600', icon: ShieldCheck, text: 'text-emerald-500' };
+        return { label: 'Refugio / Zona Segura', color: 'bg-status-safe', icon: ShieldCheck, text: 'text-status-safe' };
       case 'bomberos':
-        return { label: 'Bomberos (116)', color: 'bg-amber-600', icon: Flame, text: 'text-amber-500' };
+        return { label: 'Bomberos (116)', color: 'bg-status-danger', icon: Flame, text: 'text-status-danger' };
       case 'policia':
-        return { label: 'Comisaría (105)', color: 'bg-indigo-600', icon: Shield, text: 'text-indigo-500' };
+        return { label: 'Comisaría (105)', color: 'bg-primary', icon: Shield, text: 'text-primary' };
       default:
-        return { label: 'Punto Seguro', color: 'bg-slate-600', icon: MapPin, text: 'text-slate-500' };
+        return { label: 'Punto Seguro', color: 'bg-status-unknown', icon: MapPin, text: 'text-status-unknown' };
     }
   };
 
@@ -96,15 +96,15 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
     <BottomSheet open={open} onClose={onClose} title="Puntos Seguros y Recursos de Emergencia">
       <div className="flex flex-col gap-3 pb-6 text-ink">
         {/* Info Header */}
-        <div className="p-3 bg-emerald-950/20 border border-emerald-600/40 rounded-xl flex items-center justify-between">
+        <div className="p-3 bg-sunken border border-border rounded-xl flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
+            <ShieldCheck className="w-5 h-5 text-status-safe shrink-0" />
             <div className="text-left">
-              <span className="block text-xs font-bold text-ink">
-                Red de Supervivencia INDECI / OSM
+              <span className="block text-meta font-bold text-ink">
+                Lugares de ayuda del mapa (OpenStreetMap)
               </span>
-              <span className="block text-[11px] text-ink-secondary">
-                100% disponible offline con soporte de OpenStreetMap
+              <span className="block text-meta text-ink-secondary">
+                Se guardan en tu celular para verlos sin internet
               </span>
             </div>
           </div>
@@ -112,10 +112,10 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
             type="button"
             onClick={handleRefresh}
             disabled={isLoading}
-            className="p-2 bg-surface hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-line rounded-lg text-ink"
-            title="Actualizar datos con Overpass API"
+            className="p-2 bg-surface hover:bg-sunken border border-border rounded-lg text-ink"
+            aria-label="Actualizar"
           >
-            <RefreshCw className={`w-4 h-4 text-emerald-500 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 text-status-safe ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
 
@@ -127,7 +127,7 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar posta, punto de agua, albergue..."
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-surface border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full pl-9 pr-3 py-2 text-meta rounded-xl bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -145,11 +145,11 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
               key={cat.id}
               type="button"
               onClick={() => { setSelectedCategory(cat.id); tapFeedback(); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all ${
-                selectedCategory === cat.id
-                  ? 'bg-primary text-white shadow-xs'
-                  : 'bg-surface border border-line text-ink-secondary hover:bg-neutral-100 dark:hover:bg-neutral-800'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-meta font-bold shrink-0 transition-all ${
+ selectedCategory === cat.id
+ ? 'bg-primary text-white shadow-xs'
+ : 'bg-surface border border-border text-ink-secondary hover:bg-sunken '
+ }`}
             >
               {cat.label}
             </button>
@@ -159,7 +159,7 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
         {/* List of Safe Places */}
         <div className="flex flex-col gap-2 max-h-[55vh] overflow-y-auto pr-1">
           {filteredPlaces.length === 0 ? (
-            <div className="p-8 text-center text-xs text-ink-secondary">
+            <div className="p-8 text-center text-meta text-ink-secondary">
               No se encontraron puntos seguros con ese filtro en este radio.
             </div>
           ) : (
@@ -171,7 +171,7 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
               return (
                 <div
                   key={place.id}
-                  className="p-3 bg-surface border border-line rounded-xl flex flex-col gap-2 shadow-xs hover:border-primary/50 transition-all"
+                  className="p-3 bg-surface border border-border rounded-xl flex flex-col gap-2 shadow-xs hover:border-primary/50 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
@@ -179,10 +179,10 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
                         <CategoryIcon className="w-4 h-4" />
                       </div>
                       <div className="text-left">
-                        <span className="block text-xs font-bold text-ink leading-tight">
+                        <span className="block text-meta font-bold text-ink leading-tight">
                           {place.name}
                         </span>
-                        <span className="text-[10px] text-ink-secondary font-medium">
+                        <span className="text-meta text-ink-secondary font-medium">
                           {details.label} {distText ? `• a ${distText}` : ''}
                         </span>
                       </div>
@@ -190,17 +190,17 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
                   </div>
 
                   {place.address && (
-                    <span className="text-[11px] text-ink-secondary flex items-center gap-1 pl-1">
+                    <span className="text-meta text-ink-secondary flex items-center gap-1 pl-1">
                       <MapPin className="w-3.5 h-3.5 text-ink-secondary shrink-0" />
                       {place.address}
                     </span>
                   )}
 
-                  <div className="flex items-center gap-2 pt-1 border-t border-line/40">
+                  <div className="flex items-center gap-2 pt-1 border-t border-border/40">
                     {place.phone && (
                       <a
                         href={`tel:${place.phone}`}
-                        className="py-1 px-3 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all"
+                        className="py-1 px-3 bg-primary/10 text-primary hover:bg-primary/20 text-meta font-bold rounded-lg flex items-center gap-1.5 transition-all"
                       >
                         <Phone className="w-3.5 h-3.5" />
                         Llamar ({place.phone})
@@ -214,7 +214,7 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
                           onSelectOnMap(place);
                           onClose();
                         }}
-                        className="py-1 px-3 bg-surface border border-line text-ink hover:bg-neutral-100 text-xs font-bold rounded-lg flex items-center gap-1.5 ml-auto"
+                        className="py-1 px-3 bg-surface border border-border text-ink hover:bg-sunken text-meta font-bold rounded-lg flex items-center gap-1.5 ml-auto"
                       >
                         <Navigation className="w-3.5 h-3.5 text-primary" />
                         Ver en mapa
@@ -224,7 +224,7 @@ export const SafePlacesSheet: React.FC<SafePlacesSheetProps> = ({ open, onClose,
                         href={`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-1 px-3 bg-surface border border-line text-ink hover:bg-neutral-100 text-xs font-bold rounded-lg flex items-center gap-1.5 ml-auto"
+                        className="py-1 px-3 bg-surface border border-border text-ink hover:bg-sunken text-meta font-bold rounded-lg flex items-center gap-1.5 ml-auto"
                       >
                         <ExternalLink className="w-3.5 h-3.5 text-primary" />
                         Ruta GPS

@@ -54,11 +54,11 @@ export const SignOutSheet: React.FC<{ open: boolean; onClose: () => void }> = ({
       <FreeCallSheet open={isVerifying} onClose={() => setIsVerifying(false)} />
       <BottomSheet open={open && !isVerifying} onClose={onClose} title={t('Cerrar sesión')}>
         <div className="px-4 space-y-4" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          {phoneState.status === 'loading' && <p role="status" className="text-secondary text-ink-2">{t('Cargando...')}</p>}
+          {phoneState.status === 'loading' && <p role="status" className="text-secondary text-ink-secondary">{t('Cargando...')}</p>}
 
           {phone && (
             <p className="flex gap-3 text-secondary">
-              <ShieldCheck className="w-6 h-6 shrink-0 text-verde" aria-hidden="true" />
+              <ShieldCheck className="w-6 h-6 shrink-0 text-status-safe" aria-hidden="true" />
               <span>
                 {t('Para volver a esta cuenta toca "Entrar con mi número": te llamaremos al {phone} y te dictaremos un código.', { phone: formatPhone(phone) })}
               </span>
@@ -67,7 +67,7 @@ export const SignOutSheet: React.FC<{ open: boolean; onClose: () => void }> = ({
 
           {hasNoPhone && (
             <div role="alert" className="flex gap-3 p-3 rounded-lg bg-sunken">
-              <TriangleAlert className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
+              <TriangleAlert className="w-6 h-6 shrink-0 text-status-danger" aria-hidden="true" />
               <p className="text-secondary">
                 <strong className="block">{t('Tu número no está verificado.')}</strong>
                 {code

@@ -133,7 +133,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
     >
       <label htmlFor="map-search" className="sr-only">{t("Buscar un lugar o dirección")}</label>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 text-ink-2 pointer-events-none" aria-hidden="true" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 text-ink-secondary pointer-events-none" aria-hidden="true" />
         <input
           ref={inputRef}
           id="map-search"
@@ -153,37 +153,37 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
           onKeyDown={(event) => {
             if (event.key === 'Escape') setIsOpen(false);
           }}
-          className="map-search-input w-full min-h-14 pl-12 pr-14 rounded-lg bg-surface text-ink text-body border border-line shadow-sm placeholder:text-ink-2"
+          className="map-search-input w-full min-h-14 pl-12 pr-14 rounded-lg bg-surface text-ink text-body border border-border shadow-sm placeholder:text-ink-secondary"
         />
         {query && (
           <button
             type="button"
             onClick={clear}
             aria-label={t("Borrar búsqueda")}
-            className="icon-btn absolute right-1 top-1/2 -translate-y-1/2 text-ink-2"
+            className="icon-btn absolute right-1 top-1/2 -translate-y-1/2 text-ink-secondary"
           >
             <X className="w-6 h-6" aria-hidden="true" />
           </button>
         )}
       </div>
 
-      <div id="map-search-results" hidden={!showList} className="mt-2 rounded-lg bg-surface border border-line shadow-sm overflow-hidden">
-        <p role="status" className={message ? 'px-4 py-3 text-secondary text-ink-2' : 'sr-only'}>
+      <div id="map-search-results" hidden={!showList} className="mt-2 rounded-lg bg-surface border border-border shadow-sm overflow-hidden">
+        <p role="status" className={message ? 'px-4 py-3 text-secondary text-ink-secondary' : 'sr-only'}>
           {message ?? (results.length > 0 ? t('{count} lugares encontrados', { count: results.length }) : '')}
         </p>
         {results.length > 0 && status !== 'searching' && (
-          <ul className={`list-plain ${message ? 'border-t border-line' : ''}`} aria-label={t("Lugares encontrados")}>
+          <ul className={`list-plain ${message ? 'border-t border-border' : ''}`} aria-label={t("Lugares encontrados")}>
             {results.map((place) => {
               const distance = distanceTo(place);
               return (
                 <li key={place.id}>
                   <button type="button" onClick={() => pick(place)} className="row min-h-16 py-2">
-                    <MapPin className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                    <MapPin className="w-6 h-6 shrink-0 text-primary" aria-hidden="true" />
                     <span className="flex-1 min-w-0">
                       <span className="block text-secondary font-bold truncate">{place.name}</span>
-                      {place.address && <span className="block text-meta text-ink-2 truncate">{place.address}</span>}
+                      {place.address && <span className="block text-meta text-ink-secondary truncate">{place.address}</span>}
                     </span>
-                    {distance && <span className="shrink-0 text-meta text-ink-2">{distance}</span>}
+                    {distance && <span className="shrink-0 text-meta text-ink-secondary">{distance}</span>}
                   </button>
                 </li>
               );

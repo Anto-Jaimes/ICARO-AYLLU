@@ -31,7 +31,7 @@ export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }
   if (!weather) {
     return (
       <section aria-label={t('Pronóstico')} className="mx-4 p-4 rounded-2xl bg-sunken">
-        <p className="text-secondary text-ink-2">{t('Consultando el pronóstico...')}</p>
+        <p className="text-secondary text-ink-secondary">{t('Consultando el pronóstico...')}</p>
       </section>
     );
   }

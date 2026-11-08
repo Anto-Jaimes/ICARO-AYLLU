@@ -55,7 +55,7 @@ export const ReportsTab: React.FC<{ onCount: (count: number) => void }> = ({ onC
     load();
   };
 
-  if (!reports) return <p role="status" className="text-secondary text-ink-2">Cargando...</p>;
+  if (!reports) return <p role="status" className="text-secondary text-ink-secondary">Cargando...</p>;
 
   return (
     <section aria-labelledby="reports-title" className="space-y-3">
@@ -67,13 +67,13 @@ export const ReportsTab: React.FC<{ onCount: (count: number) => void }> = ({ onC
             type="button"
             aria-pressed={view === id}
             onClick={() => setView(id)}
-            className={`min-h-12 px-4 rounded-lg text-secondary font-bold ${view === id ? 'bg-anil text-white' : 'bg-sunken text-ink'}`}
+            className={`min-h-12 px-4 rounded-lg text-secondary font-bold ${view === id ? 'bg-primary text-white' : 'bg-sunken text-ink'}`}
           >
             {label}
           </button>
         ))}
       </div>
-      <p className="text-secondary text-ink-2">
+      <p className="text-secondary text-ink-secondary">
         Llegan aquí cuando tres vecinos las denuncian o cuando el detector del celular no pudo revisar la foto o el video.
       </p>
       <ErrorLine message={problem} />
@@ -89,7 +89,7 @@ export const ReportsTab: React.FC<{ onCount: (count: number) => void }> = ({ onC
               <div className="flex-1 min-w-64 space-y-1">
                 <p className="text-row font-bold">{KIND[report.kind] ?? report.kind} en {report.district}, {report.province}</p>
                 <p className="text-body">{report.description}</p>
-                <p className="text-secondary text-ink-2">
+                <p className="text-secondary text-ink-secondary">
                   Denuncias de vecinos: {report.flags}. Enviada por {report.author_name} el {formatDate(report.created_at)}
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2">

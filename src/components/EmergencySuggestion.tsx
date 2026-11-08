@@ -53,14 +53,14 @@ export const EmergencySuggestion: React.FC = () => {
     <BottomSheet open={isOpen} onClose={remember} title={t('¿Activar modo emergencia?')}>
       {reason && (
         <div className="px-4 space-y-3" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <div role="alert" className="p-3 rounded-lg border-2 border-rojo">
-            <p className="flex items-center gap-2 text-row font-bold text-rojo">
+          <div role="alert" className="p-3 rounded-lg border-2 border-status-danger">
+            <p className="flex items-center gap-2 text-row font-bold text-status-danger">
               <Siren className="w-6 h-6 shrink-0" aria-hidden="true" />
               {reason.title}
             </p>
             <p className="pt-1 text-secondary">{reason.line}</p>
           </div>
-          <p className="text-secondary text-ink-2">
+          <p className="text-secondary text-ink-secondary">
             {t('El modo emergencia muestra a los vecinos que piden ayuda, los recursos cercanos y los grupos de apoyo. Puedes salir cuando quieras.')}
           </p>
           <button type="button" className="btn btn-danger" onClick={activate}>

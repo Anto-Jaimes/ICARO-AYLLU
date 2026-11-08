@@ -22,44 +22,44 @@ export const MyPlacesPanel: React.FC<MyPlacesPanelProps> = ({
   <div>
     {hasHome ? (
       <section aria-label={t("Mi casa")} className="grid grid-cols-[40px_1fr_auto] items-center gap-x-3 px-4 pt-3 pb-3">
-        <span className="grid place-items-center w-10 h-10 rounded-lg bg-anil text-white">
+        <span className="grid place-items-center w-10 h-10 rounded-lg bg-primary text-white">
           <House className="w-6 h-6" aria-hidden="true" />
         </span>
         <button type="button" onClick={onOpenHome} className="flex items-center gap-1 min-h-12 text-left text-row font-bold">
           {t("Mi casa")}
-          <ChevronRight className="w-5 h-5 text-ink-2" aria-hidden="true" />
+          <ChevronRight className="w-5 h-5 text-ink-secondary" aria-hidden="true" />
           <span className="sr-only">{t(": verla en el mapa")}</span>
         </button>
         <button
           type="button"
           onClick={onRouteHome}
           aria-label={t("Cómo llegar a casa")}
-          className="inline-flex items-center gap-2 min-h-12 px-4 rounded-lg bg-anil active:bg-anil-press text-white text-secondary font-bold"
+          className="inline-flex items-center gap-2 min-h-12 px-4 rounded-lg bg-primary active:bg-primary-press text-white text-secondary font-bold"
         >
           <Navigation className="w-5 h-5" aria-hidden="true" />
           {t("Cómo llegar")}
         </button>
-        <p className="col-start-2 col-span-2 text-secondary text-ink-2" data-testid="home-line">{homeLine}</p>
+        <p className="col-start-2 col-span-2 text-secondary text-ink-secondary" data-testid="home-line">{homeLine}</p>
       </section>
     ) : (
       <button type="button" onClick={onSetHome} className="row min-h-16 py-3">
-        <span className="grid place-items-center w-10 h-10 rounded-lg bg-sunken text-anil shrink-0">
+        <span className="grid place-items-center w-10 h-10 rounded-lg bg-sunken text-primary shrink-0">
           <House className="w-6 h-6" aria-hidden="true" />
         </span>
         <span className="flex-1 min-w-0">
           <span className="block text-row font-bold">{t("¿Dónde es tu casa?")}</span>
-          <span className="block text-secondary text-ink-2">{t("Guárdala para saber a cuánto estás y cómo volver.")}</span>
+          <span className="block text-secondary text-ink-secondary">{t("Guárdala para saber a cuánto estás y cómo volver.")}</span>
         </span>
-        <ChevronRight className="w-6 h-6 shrink-0 text-ink-2" aria-hidden="true" />
+        <ChevronRight className="w-6 h-6 shrink-0 text-ink-secondary" aria-hidden="true" />
       </button>
     )}
-    <button type="button" onClick={onOpenPlaces} className="row min-h-14 py-2 border-t border-line">
-      <span className="grid place-items-center w-10 h-10 shrink-0 text-anil">
+    <button type="button" onClick={onOpenPlaces} className="row min-h-14 py-2 border-t border-border">
+      <span className="grid place-items-center w-10 h-10 shrink-0 text-primary">
         <Star className="w-6 h-6" aria-hidden="true" />
       </span>
       <span className="flex-1 text-row font-bold">{t("Mis lugares")}</span>
-      <span className="text-secondary text-ink-2">{placesCount === 0 ? t('Ninguno') : placesCount}</span>
-      <ChevronRight className="w-6 h-6 shrink-0 text-ink-2" aria-hidden="true" />
+      <span className="text-secondary text-ink-secondary">{placesCount === 0 ? t('Ninguno') : placesCount}</span>
+      <ChevronRight className="w-6 h-6 shrink-0 text-ink-secondary" aria-hidden="true" />
     </button>
   </div>
   );
@@ -94,12 +94,12 @@ export const SpotCard: React.FC<SpotCardProps> = ({
   return (
     <section aria-label={name} className="px-4 pt-3 pb-3" data-testid="spot-card">
       <div className="flex items-start gap-3">
-        <Icon className={`w-6 h-6 mt-1 shrink-0 ${kind === 'result' || kind === 'point' ? 'text-rojo' : 'text-anil'}`} aria-hidden="true" />
+        <Icon className={`w-6 h-6 mt-1 shrink-0 ${kind === 'result' || kind === 'point' ? 'text-status-danger' : 'text-primary'}`} aria-hidden="true" />
         <div className="flex-1 min-w-0">
           <h2 className="text-row font-bold line-clamp-2">{name}</h2>
-          {address && <p className="text-meta text-ink-2 truncate">{address}</p>}
+          {address && <p className="text-meta text-ink-secondary truncate">{address}</p>}
         </div>
-        <button type="button" onClick={onClose} aria-label={t("Cerrar")} className="icon-btn -mr-2 -mt-1 text-ink-2">
+        <button type="button" onClick={onClose} aria-label={t("Cerrar")} className="icon-btn -mr-2 -mt-1 text-ink-secondary">
           <X className="w-6 h-6" aria-hidden="true" />
         </button>
       </div>
@@ -173,17 +173,17 @@ export const TripCard: React.FC<TripCardProps> = ({
   return (
   <section aria-label={title} className="px-4 pt-3 pb-3" data-testid="trip-card" data-status={status}>
     <div className="flex items-start gap-3">
-      <Navigation className="w-6 h-6 mt-1 shrink-0 text-anil" aria-hidden="true" />
+      <Navigation className="w-6 h-6 mt-1 shrink-0 text-primary" aria-hidden="true" />
       <div className="flex-1 min-w-0">
         <h2 className="text-row font-bold line-clamp-2">{title}</h2>
-        {address && <p className="text-meta text-ink-2 truncate">{address}</p>}
+        {address && <p className="text-meta text-ink-secondary truncate">{address}</p>}
       </div>
-      <button type="button" onClick={onClose} aria-label={t("Quitar el camino")} className="icon-btn -mr-2 -mt-1 text-ink-2">
+      <button type="button" onClick={onClose} aria-label={t("Quitar el camino")} className="icon-btn -mr-2 -mt-1 text-ink-secondary">
         <X className="w-6 h-6" aria-hidden="true" />
       </button>
     </div>
 
-    {status === 'loading' && <p role="status" className="mt-2 text-secondary text-ink-2">{t("Buscando el camino por las calles...")}</p>}
+    {status === 'loading' && <p role="status" className="mt-2 text-secondary text-ink-secondary">{t("Buscando el camino por las calles...")}</p>}
 
     {status === 'streets' && (
       <>
@@ -199,7 +199,7 @@ export const TripCard: React.FC<TripCardProps> = ({
               disabled={minutes === null}
               onClick={() => onMode(value)}
               className={`flex items-center justify-center gap-2 min-h-12 px-2 rounded-lg text-secondary font-bold whitespace-nowrap disabled:opacity-50 ${
-                mode === value ? 'bg-anil text-white' : 'bg-sunken text-ink'
+                mode === value ? 'bg-primary text-white' : 'bg-sunken text-ink'
               }`}
             >
               <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
@@ -220,7 +220,7 @@ export const TripCard: React.FC<TripCardProps> = ({
         </p>
         <p className="mt-1 text-secondary">{summary}</p>
         {!isOffline && (
-          <button type="button" onClick={onRetry} className="mt-2 min-h-12 px-1 text-secondary font-bold text-anil">
+          <button type="button" onClick={onRetry} className="mt-2 min-h-12 px-1 text-secondary font-bold text-primary">
             {t("Intentar otra vez")}
           </button>
         )}
@@ -242,7 +242,7 @@ export const PickBar: React.FC<PickBarProps> = ({ purpose, onCancel, onConfirm }
   return (
   <section aria-label={t("Elegir en el mapa")} className="px-4 pt-3 pb-3">
     <p className="text-row font-bold">{purpose === 'home' ? t('Mueve el mapa hasta tu casa') : t('Mueve el mapa hasta el lugar')}</p>
-    <p className="text-secondary text-ink-2">{t("El marcador rojo del centro señala el punto que se guarda.")}</p>
+    <p className="text-secondary text-ink-secondary">{t("El marcador rojo del centro señala el punto que se guarda.")}</p>
     <div className="mt-3 grid grid-cols-2 gap-2">
       <button type="button" onClick={onCancel} className={`${SMALL_BTN} btn-secondary`}>{t("Cancelar")}</button>
       <button type="button" onClick={onConfirm} className={`${SMALL_BTN} btn-primary`}>{t("Guardar aquí")}</button>

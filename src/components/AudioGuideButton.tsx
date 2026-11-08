@@ -81,7 +81,7 @@ export const AudioGuideButton: React.FC<AudioGuideButtonProps> = ({ className = 
       aria-label={label}
       aria-pressed={isSpeaking}
       title={label}
-      className={`icon-btn ${isSpeaking ? 'bg-sunken text-anil' : ''} ${className}`}
+      className={`icon-btn ${isSpeaking ? 'bg-sunken text-primary' : ''} ${className}`}
     >
       {isSpeaking ? <VolumeX className="w-6 h-6" aria-hidden="true" /> : <Volume2 className="w-6 h-6" aria-hidden="true" />}
     </button>

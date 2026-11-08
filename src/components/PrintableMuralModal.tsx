@@ -41,7 +41,7 @@ const MuralSection: React.FC<{ title: string; items: CommunityItem[]; showVotes?
         {items.map((item) => (
           <li key={item.id} className="py-2 break-inside-avoid">
             <p className="text-row font-bold">{item.title}</p>
-            <p className="text-secondary text-ink-2">
+            <p className="text-secondary text-ink-secondary">
               {item.authorName}{item.neighborhood ? `, ${item.neighborhood}` : ''}
               {showVotes && item.vistosBuenos > 0 ? `. ${t('Recomendado por {count} vecinos', { count: item.vistosBuenos })}` : ''}
             </p>
@@ -83,7 +83,7 @@ const Mural: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div className="mural fixed inset-0 z-50 overflow-y-auto bg-surface text-ink" role="dialog" aria-modal="true" aria-labelledby="mural-title">
-      <div className="print:hidden sticky top-0 z-10 bg-surface border-b border-line" style={{ paddingTop: 'var(--safe-top)' }}>
+      <div className="print:hidden sticky top-0 z-10 bg-surface border-b border-border" style={{ paddingTop: 'var(--safe-top)' }}>
         <div className="page flex items-center gap-2 min-h-14 pl-4 pr-1">
           <h2 id="mural-title" ref={titleRef} tabIndex={-1} className="flex-1 text-title font-bold outline-none">{t('Mural para imprimir')}</h2>
           {!isNative && (
@@ -96,7 +96,7 @@ const Mural: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <X className="w-6 h-6" aria-hidden="true" />
           </button>
         </div>
-        <p className="page px-4 pb-3 text-secondary text-ink-2">
+        <p className="page px-4 pb-3 text-secondary text-ink-secondary">
           {isNative
             ? t('Para imprimirlo, abre ayllu-five.vercel.app en una computadora y entra a Ayuda.')
             : t('Pégalo en una bodega o en el tambo para los vecinos sin celular o cuando no haya luz.')}
@@ -106,14 +106,14 @@ const Mural: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       <article className="page px-4 py-5 space-y-6">
         <header className="pb-3 border-b-4 border-ink">
           <h1 className="text-sign font-bold">{t('Mural del barrio')}</h1>
-          <p className="text-secondary text-ink-2">
+          <p className="text-secondary text-ink-secondary">
             {t('Red de vecinos AYLLU.')} {hasLocation ? `${t('Zona: {zone}.', { zone: placeLabel(userLocation.name) })} ` : ''}
             {t('Actualizado el {date}.', { date: today })}
           </p>
         </header>
 
-        <section className="break-inside-avoid p-4 rounded-lg border-2 border-rojo">
-          <h3 className="pb-2 text-section font-bold text-rojo">{t('En una emergencia llama gratis, sin saldo')}</h3>
+        <section className="break-inside-avoid p-4 rounded-lg border-2 border-status-danger">
+          <h3 className="pb-2 text-section font-bold text-status-danger">{t('En una emergencia llama gratis, sin saldo')}</h3>
           <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
             {OFFICIAL_NUMBERS.map(({ number, label }) => (
               <li key={number} className="flex items-baseline gap-2">
@@ -128,7 +128,7 @@ const Mural: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <MuralSection title="Oficios recomendados por vecinos" items={services} showVotes />
         <MuralSection title={t('Donaciones')} items={favors} />
 
-        <p className="pt-3 border-t border-line text-secondary text-ink-2 text-center">
+        <p className="pt-3 border-t border-border text-secondary text-ink-secondary text-center">
           {t('La verdadera riqueza del barrio es la ayuda entre vecinos.')}
         </p>
       </article>

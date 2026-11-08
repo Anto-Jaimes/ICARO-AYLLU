@@ -53,7 +53,7 @@ export const PostsTab: React.FC<{ onCount: (count: number) => void }> = ({ onCou
     load();
   };
 
-  if (!posts) return <p role="status" className="text-secondary text-ink-2">Cargando...</p>;
+  if (!posts) return <p role="status" className="text-secondary text-ink-secondary">Cargando...</p>;
 
   const shown = posts.filter((post) =>
     filter === 'removed' ? post.status === 'removed' : post.status !== 'removed' && (filter === 'all' || post.flags > 0)
@@ -62,7 +62,7 @@ export const PostsTab: React.FC<{ onCount: (count: number) => void }> = ({ onCou
   return (
     <section aria-labelledby="posts-title" className="space-y-3">
       <h2 id="posts-title" className="text-section font-bold">Servicios y donaciones</h2>
-      <p className="text-secondary text-ink-2">
+      <p className="text-secondary text-ink-secondary">
         Quita lo que sea estafa, publicidad engañosa, venta de cosas prohibidas o una ofensa. Se oculta para todos y queda en el registro.
       </p>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Qué publicaciones ver">
@@ -72,7 +72,7 @@ export const PostsTab: React.FC<{ onCount: (count: number) => void }> = ({ onCou
             type="button"
             aria-pressed={filter === id}
             onClick={() => setFilter(id)}
-            className={`min-h-12 px-4 rounded-lg text-secondary font-bold ${filter === id ? 'bg-anil text-white' : 'bg-sunken text-ink'}`}
+            className={`min-h-12 px-4 rounded-lg text-secondary font-bold ${filter === id ? 'bg-primary text-white' : 'bg-sunken text-ink'}`}
           >
             {label}
           </button>
@@ -84,7 +84,7 @@ export const PostsTab: React.FC<{ onCount: (count: number) => void }> = ({ onCou
       )}
       <ul className="list-plain">
         {shown.map((post) => (
-          <li key={post.id} className="py-4 flex flex-wrap gap-4 border-b border-line">
+          <li key={post.id} className="py-4 flex flex-wrap gap-4 border-b border-border">
             {post.photos?.[0] && (
               <img
                 src={db.storage.from('post-photos').getPublicUrl(post.photos[0]).data.publicUrl}
@@ -93,13 +93,13 @@ export const PostsTab: React.FC<{ onCount: (count: number) => void }> = ({ onCou
               />
             )}
             <div className="flex-1 min-w-64 space-y-1">
-              <p className="text-meta font-bold text-ink-2">{TYPE[post.type]} ({post.category})</p>
+              <p className="text-meta font-bold text-ink-secondary">{TYPE[post.type]} ({post.category})</p>
               <p className="text-row font-bold">{post.title}</p>
               {post.description && <p className="text-body">{post.description}</p>}
-              <p className="text-secondary text-ink-2">
+              <p className="text-secondary text-ink-secondary">
                 {post.author_name}{post.author_phone ? `, ${formatPhone(post.author_phone.replace('+51', ''))}` : ''}. {post.neighborhood}. {formatDate(post.created_at)}
               </p>
-              <p className={`text-secondary font-bold ${post.flags > 0 ? 'text-rojo' : 'text-ink-2'}`}>
+              <p className={`text-secondary font-bold ${post.flags > 0 ? 'text-status-danger' : 'text-ink-secondary'}`}>
                 Denuncias de vecinos: {post.flags}
               </p>
               <label className="block pt-1 text-secondary font-bold" htmlFor={`note-${post.id}`}>Motivo (queda en el registro)</label>

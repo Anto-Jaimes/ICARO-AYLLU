@@ -32,7 +32,7 @@ export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: bool
       {item.photos?.length ? (
         <img src={postPhotoUrl(item.photos[0])} alt="" loading="lazy" className="shrink-0 w-14 h-14 rounded-lg object-cover bg-sunken" />
       ) : (
-        <span className="grid place-items-center shrink-0 w-11 h-11 rounded-lg bg-sunken text-anil">
+        <span className="grid place-items-center shrink-0 w-11 h-11 rounded-lg bg-sunken text-primary">
           <Icon className="w-6 h-6" aria-hidden="true" />
         </span>
       )}
@@ -41,28 +41,28 @@ export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: bool
         <span className="block text-row font-semibold line-clamp-2">{item.title}</span>
         {item.authorVerified && <VerifiedBadge />}
         {showRecommendations && item.vistosBuenos > 0 && (
-          <span className="flex items-center gap-1.5 text-secondary font-medium text-anil">
+          <span className="flex items-center gap-1.5 text-secondary font-medium text-primary">
             <ThumbsUp className="w-4 h-4 shrink-0" aria-hidden="true" />
             {recText}
           </span>
         )}
         {item.type === 'favor_request' && item.status === 'resolved' && (
-          <span className="block text-secondary font-bold text-verde">{t('Ya los ayudaron')}</span>
+          <span className="block text-secondary font-bold text-status-safe">{t('Ya los ayudaron')}</span>
         )}
         {item.type === 'favor_offer' && item.status === 'resolved' && (
-          <span className="block text-secondary font-bold text-verde">{t('Ya se entregó')}</span>
+          <span className="block text-secondary font-bold text-status-safe">{t('Ya se entregó')}</span>
         )}
         {(item.type === 'favor_offer' || item.type === 'favor_request') && item.audience === 'organizacion' && item.status !== 'resolved' && (
-          <span className="block text-secondary font-medium text-anil">
+          <span className="block text-secondary font-medium text-primary">
             {item.type === 'favor_offer' ? t('Para organizaciones') : t('Pide una organización')}
           </span>
         )}
-        <span className="block text-secondary text-ink-2 truncate">
+        <span className="block text-secondary text-ink-secondary truncate">
           {[t(category.label), distance].filter(Boolean).join(', ')}
         </span>
       </span>
 
-      <ChevronRight className="w-5 h-5 shrink-0 text-ink-2" aria-hidden="true" />
+      <ChevronRight className="w-5 h-5 shrink-0 text-ink-secondary" aria-hidden="true" />
     </button>
   );
 };

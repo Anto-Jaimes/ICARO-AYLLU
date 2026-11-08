@@ -10,11 +10,11 @@ export const VerifiedBadge: React.FC<{ explain?: boolean; className?: string }> 
   const t = useT();
   return (
     <span className={`block ${className}`}>
-      <span className="inline-flex items-center gap-1.5 text-secondary font-semibold text-verde">
+      <span className="inline-flex items-center gap-1.5 text-secondary font-semibold text-status-safe">
         <BadgeCheck className="w-5 h-5 shrink-0" aria-hidden="true" />
         {t('Celular verificado')}
       </span>
-      {explain && <span className="block text-meta text-ink-2">{t('Un moderador de AYLLU comprobó su número de celular.')}</span>}
+      {explain && <span className="block text-meta text-ink-secondary">{t('Un moderador de AYLLU comprobó su número de celular.')}</span>}
     </span>
   );
 };
