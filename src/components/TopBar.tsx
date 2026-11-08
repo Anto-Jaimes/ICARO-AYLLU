@@ -1,7 +1,5 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { ArrowLeft, CircleHelp, Languages, Radio } from 'lucide-react';
-import { emergencyRadio, RadioStatus } from '../services/emergencyRadioService';
-import { tapFeedback } from '../lib/native';
+import React, { ReactNode, useState } from 'react';
+import { ArrowLeft, CircleHelp, Languages } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { AudioGuideButton } from './AudioGuideButton';
 import { LANGUAGES, useLanguage, useT } from '../i18n/LanguageContext';
@@ -85,47 +83,12 @@ export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
 };
 
 /** The red frame of emergency mode: always says where you are and how to leave. */
-export const EmergencyRadioTopButton: React.FC = () => {
-  const [status, setStatus] = useState<RadioStatus>(emergencyRadio.getStatus());
-  const { t } = useLanguage();
-
-  useEffect(() => {
-    return emergencyRadio.subscribe(setStatus);
-  }, []);
-
-  const isPlaying = status === 'playing';
-  const isBuffering = status === 'buffering';
-
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        tapFeedback();
-        emergencyRadio.toggle();
-      }}
-      className={`min-h-12 px-2.5 rounded-lg font-bold text-caption flex items-center gap-1.5 transition-all ${
-        isPlaying
-          ? 'bg-white text-rojo shadow-sm animate-pulse'
-          : isBuffering
-          ? 'bg-amber-400 text-black'
-          : 'bg-rojo-press text-white border border-white/20'
-      }`}
-      aria-label={t('Radio Nacional 103.9 FM')}
-      title={t('Radio Nacional 103.9 FM (INDECI)')}
-    >
-      <Radio className={`w-4 h-4 ${isPlaying ? 'text-rojo' : 'text-white'}`} />
-      <span className="hidden sm:inline font-mono">{isPlaying ? '103.9 FM' : 'Radio'}</span>
-    </button>
-  );
-};
-
 export const EmergencyBar: React.FC<{ onExit: () => void }> = ({ onExit }) => {
   const { lang, t } = useLanguage();
   return (
     <header className="sticky top-0 z-20 bg-rojo text-white" style={{ paddingTop: 'var(--safe-top)' }}>
       <div className="page flex items-center h-14 pl-4 pr-2 gap-2">
         <h1 className={`flex-1 min-w-0 font-bold ${titleSize(lang, t('Modo emergencia'), { wraps: true })}`}>{t('Modo emergencia')}</h1>
-        <EmergencyRadioTopButton />
         <TopBarLanguageSelector className="bg-rojo-press border-white/20 text-white" />
         <AudioGuideButton className="text-white hover:bg-white/10" screenTitle={t('Modo emergencia')} />
         <button

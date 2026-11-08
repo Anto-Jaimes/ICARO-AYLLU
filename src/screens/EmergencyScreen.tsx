@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, Boxes, Flame, HandHeart, HeartPulse, Phone, Pill, ShieldAlert, ShieldCheck, TrafficCone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
+import { Activity, Boxes, Flame, HandHeart, HeartPulse, Phone, Radio, Pill, ShieldAlert, ShieldCheck, TrafficCone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { EmptyState, LoadingRow } from '../components/EmptyState';
@@ -13,6 +13,7 @@ import { SutranAlertsSheet } from '../components/SutranAlertsSheet';
 import { TacticalPanicSheet } from '../components/TacticalPanicSheet';
 import { PharmacySheet } from '../components/PharmacySheet';
 import { GasFacilitoSheet } from '../components/GasFacilitoSheet';
+import { RadioSheet } from '../components/RadioSheet';
 import { useT } from '../i18n/LanguageContext';
 
 interface EmergencyView {
@@ -74,6 +75,7 @@ export const EmergencyScreen: React.FC = () => {
   const [isSafePlacesOpen, setIsSafePlacesOpen] = useState(false);
   const [isPharmacyOpen, setIsPharmacyOpen] = useState(false);
   const [isGasOpen, setIsGasOpen] = useState(false);
+  const [isRadioOpen, setIsRadioOpen] = useState(false);
   const [isSutranOpen, setIsSutranOpen] = useState(false);
   const [isPanicOpen, setIsPanicOpen] = useState(false);
   const view = VIEWS[tab] ?? VIEWS.neighbors!;
@@ -97,9 +99,9 @@ export const EmergencyScreen: React.FC = () => {
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+            <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
               {t('Plus Code & Silbato Vecinal')}
-              <span className="text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded font-black uppercase">
+              <span className="text-meta whitespace-nowrap bg-red-600 text-white px-1.5 py-0.5 rounded font-black uppercase">
                 1-Toque
               </span>
             </span>
@@ -126,6 +128,15 @@ export const EmergencyScreen: React.FC = () => {
         </span>
       </button>
 
+      {/* Radio Nacional carries the official statements: the app with internet, a battery radio without it. */}
+      <button type="button" className="row border-b border-line" onClick={() => setIsRadioOpen(true)}>
+        <Radio className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
+        <span className="flex-1">
+          <span className="block text-row font-semibold">{t('Radio Nacional')}</span>
+          <span className="block text-secondary text-ink-2">{t('Comunicados oficiales: en la app o en una radio a pilas')}</span>
+        </span>
+      </button>
+
       {/* Banner de Rescate en Escombros (Geófono y Manos Libres) */}
       <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-neutral-950 to-amber-950 text-white rounded-2xl shadow-sm border border-amber-900/60 flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -133,9 +144,9 @@ export const EmergencyScreen: React.FC = () => {
             <Activity className="w-5 h-5 animate-pulse" />
           </div>
           <div className="min-w-0">
-            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+            <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
               {t('Rescate en Escombros')}
-              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
+              <span className="text-meta whitespace-nowrap bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
                 {t('Geófono')}
               </span>
             </span>
@@ -160,9 +171,9 @@ export const EmergencyScreen: React.FC = () => {
             <HeartPulse className="w-5 h-5 animate-pulse" />
           </div>
           <div className="min-w-0">
-            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+            <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
               {t('Triage START y QR Táctico')}
-              <span className="text-[10px] bg-red-900/80 text-red-300 px-1.5 py-0.5 rounded border border-red-700/60 font-bold uppercase">
+              <span className="text-meta whitespace-nowrap bg-red-900/80 text-red-300 px-1.5 py-0.5 rounded border border-red-700/60 font-bold uppercase">
                 {t('Bomberos 116')}
               </span>
             </span>
@@ -187,9 +198,9 @@ export const EmergencyScreen: React.FC = () => {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+            <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
               {t('Puntos Seguros y Refugios')}
-              <span className="text-[10px] bg-emerald-900/80 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/60 font-bold uppercase">
+              <span className="text-meta whitespace-nowrap bg-emerald-900/80 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/60 font-bold uppercase">
                 {t('Agua / Salud / Tambos')}
               </span>
             </span>
@@ -214,9 +225,9 @@ export const EmergencyScreen: React.FC = () => {
             <TrafficCone className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+            <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
               {t('Estado de Carreteras')}
-              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
+              <span className="text-meta whitespace-nowrap bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
                 SUTRAN
               </span>
             </span>
@@ -234,21 +245,18 @@ export const EmergencyScreen: React.FC = () => {
         </button>
       </div>
 
-      {/* Banner de Farmacias de Turno y DIGEMID */}
+      {/* Pharmacies near you (map) and medicines in DIGEMID: never "de turno", which is not published */}
       <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-teal-950 to-cyan-950 text-white rounded-2xl shadow-sm border border-teal-900/60 flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0 pr-2">
           <div className="w-10 h-10 rounded-xl bg-teal-950/80 text-teal-400 flex items-center justify-center shrink-0 border border-teal-800/60 shadow-inner">
             <Pill className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
-              {t('Farmacias de Turno')}
-              <span className="text-[10px] bg-teal-900/80 text-teal-300 px-1.5 py-0.5 rounded border border-teal-700/60 font-bold uppercase">
-                DIGEMID
-              </span>
+            <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+              {t('Farmacias cerca')}
             </span>
             <span className="block text-caption text-slate-300 truncate">
-              {t('Boticas 24h y precios regulados de medicinas básicas')}
+              {t('Las del mapa, y medicinas en DIGEMID')}
             </span>
           </div>
         </div>
@@ -261,21 +269,21 @@ export const EmergencyScreen: React.FC = () => {
         </button>
       </div>
 
-      {/* Banner de Facilito Gas GLP (OSINERGMIN) */}
+      {/* The official price of gas, in Osinergmin's Facilito */}
       <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-orange-950 to-amber-950 text-white rounded-2xl shadow-sm border border-amber-900/60 flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0 pr-2">
           <div className="w-10 h-10 rounded-xl bg-amber-950/80 text-amber-400 flex items-center justify-center shrink-0 border border-amber-800/60 shadow-inner">
             <Flame className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
-              {t('Facilito Balón de Gas')}
-              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
+            <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+              {t('Precio del balón de gas')}
+              <span className="text-meta whitespace-nowrap bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
                 OSINERGMIN
               </span>
             </span>
             <span className="block text-caption text-slate-300 truncate">
-              {t('Precios del balón de 10kg y distribuidores formales')}
+              {t('Precios oficiales en Facilito')}
             </span>
           </div>
         </div>
@@ -341,13 +349,15 @@ export const EmergencyScreen: React.FC = () => {
         onClose={() => setIsSutranOpen(false)}
       />
 
-      {/* Sheet de Farmacias de Turno & DIGEMID */}
+      <RadioSheet open={isRadioOpen} onClose={() => setIsRadioOpen(false)} />
+
+      {/* Pharmacies near you */}
       <PharmacySheet
         open={isPharmacyOpen}
         onClose={() => setIsPharmacyOpen(false)}
       />
 
-      {/* Sheet de Balón de Gas OSINERGMIN */}
+      {/* Price of gas */}
       <GasFacilitoSheet
         open={isGasOpen}
         onClose={() => setIsGasOpen(false)}

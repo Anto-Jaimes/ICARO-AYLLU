@@ -2,7 +2,8 @@
  * Loads Peru's police stations, fire stations and hospitals from OpenStreetMap into
  * public.emergency_places, so the app can show the nearest ones. Run it again to refresh:
  *
- *   node scripts/import-emergency-places.ts
+ *   node scripts/import-emergency-places.ts              police, fire stations and hospitals
+ *   node scripts/import-emergency-places.ts --farmacias  pharmacies (with address and hours)
  *
  * Needs .env (VITE_SUPABASE_URL) and .env.relay (SUPABASE_SECRET_KEY). Data © OpenStreetMap
  * contributors, under the ODbL: the app shows that credit next to it.
@@ -22,7 +23,9 @@ const MAIN_SERVER = 'https://overpass-api.de/api/interpreter';
 const SPARE_SERVER = 'https://overpass.private.coffee/api/interpreter';
 const SIZE = 1.5;
 const AT_ONCE = 2;
-const KINDS = ['police', 'fire_station', 'hospital'];
+// Each run reads one group, and only that group is refreshed or cleaned.
+const isPharmacies = process.argv.includes('--farmacias');
+const KINDS = isPharmacies ? ['pharmacy'] : ['police', 'fire_station', 'hospital'];
 
 // [south, west] of each square that touches Peru.
 const SQUARES: [number, number][] = [
@@ -48,6 +51,13 @@ interface OsmElement {
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/** The street and number written in OpenStreetMap, when the map has them. */
+function addressOf(tags: Record<string, string>): string | null {
+  const street = tags['addr:full'] ?? [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ');
+  const place = [street, tags['addr:city'] ?? tags['addr:district']].filter(Boolean).join(', ');
+  return place ? place.slice(0, 200) : null;
+}
+
 /** The first phone written, as it appears in OpenStreetMap. */
 function firstPhone(tags: Record<string, string>): string | null {
   const raw = tags.phone ?? tags['contact:phone'] ?? tags['emergency:phone'] ?? null;
@@ -57,7 +67,7 @@ function firstPhone(tags: Record<string, string>): string | null {
 
 async function readSquare(south: number, west: number): Promise<OsmElement[]> {
   const box = `${south},${west},${south + SIZE},${west + SIZE}`;
-  const query = `[out:json][timeout:110];nwr[amenity~"^(police|fire_station|hospital)$"](${box});out center tags;`;
+  const query = `[out:json][timeout:110];nwr[amenity~"^(${KINDS.join('|')})$"](${box});out center tags;`;
   // The main server is slow but works; the spare is tried only after it fails several times.
   const servers = [MAIN_SERVER, MAIN_SERVER, MAIN_SERVER, SPARE_SERVER, MAIN_SERVER];
   for (const [attempt, url] of servers.entries()) {
@@ -87,6 +97,8 @@ function toRow(element: OsmElement, importedAt: string) {
     kind: tags.amenity,
     name: (tags.name ?? tags.official_name ?? null)?.slice(0, 160) ?? null,
     phone: firstPhone(tags),
+    address: addressOf(tags),
+    opening_hours: tags.opening_hours?.slice(0, 200) ?? null,
     lat,
     lng,
     updated_at: importedAt
@@ -94,7 +106,7 @@ function toRow(element: OsmElement, importedAt: string) {
 }
 
 // Squares that failed can be read again alone: node scripts/import-emergency-places.ts -12.5,-75.5 -5,-75.5
-const chosen = process.argv.slice(2).map((arg) => arg.split(',').map(Number) as [number, number]);
+const chosen = process.argv.slice(2).filter((arg) => !arg.startsWith('--')).map((arg) => arg.split(',').map(Number) as [number, number]);
 const isPartial = chosen.length > 0;
 
 const startedAt = new Date().toISOString();
@@ -126,7 +138,7 @@ await Promise.all(Array.from({ length: AT_ONCE }, worker));
 
 // Only a complete reading of all squares may remove what is no longer on the map; everything outside Peru goes always.
 if (failed === 0 && !isPartial) {
-  const { error } = await db.from('emergency_places').delete().lt('updated_at', startedAt);
+  const { error } = await db.from('emergency_places').delete().lt('updated_at', startedAt).in('kind', KINDS);
   if (error) throw new Error(`No se pudo limpiar: ${error.message}`);
 }
 const { data: outside, error: pruneError } = await db.rpc('prune_emergency_places');
@@ -139,4 +151,5 @@ async function count(kind: string, needPhone = false): Promise<number> {
   return (await query).count ?? 0;
 }
 console.log(`Fuera del Perú y descartados: ${outside}. Cuadros que fallaron: ${failed}.`);
-console.log(`Listo: ${await count('police')} comisarías (${await count('police', true)} con teléfono), ${await count('fire_station')} bomberos (${await count('fire_station', true)}), ${await count('hospital')} hospitales (${await count('hospital', true)}).`);
+if (isPharmacies) console.log(`Listo: ${await count('pharmacy')} farmacias (${await count('pharmacy', true)} con teléfono).`);
+else console.log(`Listo: ${await count('police')} comisarías (${await count('police', true)} con teléfono), ${await count('fire_station')} bomberos (${await count('fire_station', true)}), ${await count('hospital')} hospitales (${await count('hospital', true)}).`);
