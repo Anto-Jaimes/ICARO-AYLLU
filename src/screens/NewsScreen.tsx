@@ -12,6 +12,7 @@ import { useReports } from '../hooks/useReports';
 import { authorLabel, mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
 import { formatRelativeTime } from '../utils/time';
 import { useT } from '../i18n/LanguageContext';
+import { VideoWithPoster } from '../components/VideoWithPoster';
 
 export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = ({ report, onChanged }) => {
   const { openNewsDetail } = useApp();
@@ -33,7 +34,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
 
       {report.media_path &&
         (report.media_type === 'video' ? (
-          <video src={mediaUrl(report.media_path)} controls playsInline preload="metadata" className="mt-2 w-full max-h-80 bg-black" />
+          <VideoWithPoster src={mediaUrl(report.media_path)} controls playsInline className="mt-2 w-full max-h-80 bg-black" />
         ) : (
           <img src={mediaUrl(report.media_path)} alt={report.description} loading="lazy" className="mt-2 w-full max-h-80 object-cover bg-sunken" />
         ))}

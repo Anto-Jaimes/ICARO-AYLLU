@@ -19,6 +19,7 @@ import { formatRelativeTime } from '../utils/time';
 import { BottomSheet } from './BottomSheet';
 import { VerifiedBadge } from './VerifiedBadge';
 import { useT } from '../i18n/LanguageContext';
+import { VideoWithPoster } from './VideoWithPoster';
 
 const NAME_KEY = 'ayllu_comment_name';
 
@@ -97,7 +98,7 @@ export const NewsDetailSheet: React.FC = () => {
     <BottomSheet open={true} onClose={closeNewsDetail} title={t(reportTitle(report.kind))}>
       {report.media_path &&
         (report.media_type === 'video' ? (
-          <video src={mediaUrl(report.media_path)} controls playsInline className="w-full max-h-96 bg-black" />
+          <VideoWithPoster src={mediaUrl(report.media_path)} controls playsInline className="w-full max-h-96 bg-black" />
         ) : (
           <img src={mediaUrl(report.media_path)} alt="" className="w-full max-h-96 object-cover bg-sunken" />
         ))}

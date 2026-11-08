@@ -10,6 +10,7 @@ import { loadContact, saveContact } from '../utils/storage';
 import { BottomSheet } from './BottomSheet';
 import { CameraCapture, CameraMode, canRecordVideo, canUseCamera } from './CameraCapture';
 import { EMPTY_PLACE, PlacePicker, PlaceValue } from './PlacePicker';
+import { VideoWithPoster } from './VideoWithPoster';
 
 const MAX_DESCRIPTION = 500;
 const MEDIA_OPTION = 'flex-1 basis-0 flex flex-col items-center gap-1 min-h-20 px-2 py-3 rounded-lg bg-sunken text-secondary font-bold text-primary text-center cursor-pointer active:bg-border';
@@ -194,7 +195,7 @@ export const ReportSheet: React.FC = () => {
             {previewUrl ? (
               <div>
                 {isVideo ? (
-                  <video src={previewUrl} controls playsInline className="w-full max-h-56 rounded-lg bg-black" />
+                  <VideoWithPoster src={previewUrl} controls playsInline className="w-full max-h-56 rounded-lg bg-black" />
                 ) : (
                   <img src={previewUrl} alt={t('Vista previa')} className="w-full max-h-56 object-cover rounded-lg" />
                 )}

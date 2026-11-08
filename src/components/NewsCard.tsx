@@ -5,6 +5,7 @@ import { mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reports
 import { formatRelativeTime } from '../utils/time';
 import { useT } from '../i18n/LanguageContext';
 import { VerifiedBadge } from './VerifiedBadge';
+import { VideoWithPoster } from './VideoWithPoster';
 
 /** A news item in large: the photo first, then what happened, where and how long ago. Opens the detail. */
 export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
@@ -23,7 +24,7 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
             <img src={mediaUrl(report.media_path)} alt="" loading="lazy" className="w-full h-full object-cover" />
           ) : report.media_path && report.media_type === 'video' ? (
             <>
-              <video src={mediaUrl(report.media_path)} muted playsInline preload="metadata" className="w-full h-full object-cover bg-black" />
+              <VideoWithPoster src={mediaUrl(report.media_path)} muted playsInline className="w-full h-full object-cover bg-black" />
               <span className="absolute inset-0 grid place-items-center">
                 <span className="grid place-items-center w-14 h-14 rounded-full bg-black/60 text-white">
                   <Play className="w-7 h-7" aria-hidden="true" />
