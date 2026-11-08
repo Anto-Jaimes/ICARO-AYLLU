@@ -264,7 +264,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
             type="button"
             onClick={() => { setActiveTab('silbato'); tapFeedback(); }}
             className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'silbato' ? 'bg-red-600 text-white shadow-xs' : 'text-ink-secondary hover:bg-neutral-100'
+              activeTab === 'silbato' ? 'bg-rojo text-white shadow-xs' : 'text-ink-secondary hover:bg-neutral-100'
             }`}
           >
             <BellRing className="w-4 h-4" />
@@ -340,7 +340,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
               <button
                 type="button"
                 onClick={handleSendRescueSMS}
-                className="w-full py-3 px-3 bg-red-600 hover:bg-red-500 active:scale-98 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+                className="w-full py-3 px-3 bg-rojo hover:bg-rojo-press active:scale-98 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
               >
                 <MessageSquare className="w-4 h-4 shrink-0" />
                 <span>{t('SMS de Rescate (Sin saldo)')}</span>
@@ -440,8 +440,8 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
         {/* TAB 2: SILBATO VECINAL ANTIRROBO (200 METROS) */}
         {activeTab === 'silbato' && (
           <div className="flex flex-col gap-3 text-center">
-            <div className="p-3 bg-red-950/20 border border-red-600/40 rounded-xl text-left flex items-start gap-2">
-              <ShieldAlert className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <div className="p-3 bg-rojo/10 border border-rojo/30 rounded-xl text-left flex items-start gap-2">
+              <ShieldAlert className="w-5 h-5 text-rojo shrink-0 mt-0.5" />
               <div>
                 <span className="block text-xs font-bold text-ink">
                   Disuasivo Acústico y Linterna Estroboscópica
@@ -459,8 +459,8 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
                 onClick={isAlarmActive ? stopAlarm : startAlarm}
                 className={`w-36 h-36 rounded-full flex flex-col items-center justify-center gap-1 text-white shadow-2xl transition-all transform active:scale-95 ${
                   isAlarmActive
-                    ? 'bg-red-600 ring-8 ring-red-400/50 animate-pulse'
-                    : 'bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 shadow-red-900/40'
+                    ? 'bg-rojo ring-8 ring-rojo/40 animate-pulse'
+                    : 'bg-gradient-to-br from-rojo to-rojo-press hover:brightness-110 shadow-rojo/30'
                 }`}
               >
                 {isAlarmActive ? (

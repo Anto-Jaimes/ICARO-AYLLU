@@ -152,7 +152,7 @@ export const HomeScreen: React.FC = () => {
       {/* Botón táctico de 1-toque: Plus Code y Silbato */}
       <div data-tour="auxilio" className="mx-4 mt-2 p-3 bg-surface border border-line rounded-2xl flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-2.5 min-w-0 pr-2">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center shrink-0 border border-red-500/20">
+          <div className="w-10 h-10 rounded-xl bg-rojo/10 text-rojo flex items-center justify-center shrink-0 border border-rojo/20">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div className="min-w-0">
@@ -167,7 +167,7 @@ export const HomeScreen: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsPanicOpen(true)}
-          className="min-h-12 px-4 bg-red-600 hover:bg-red-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
+          className="min-h-12 px-4 bg-rojo hover:bg-rojo-press text-white text-secondary font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
         >
           {t('Auxilio')}
         </button>
