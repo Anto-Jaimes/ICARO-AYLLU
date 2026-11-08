@@ -1,7 +1,10 @@
 import { STRINGS } from './strings';
 
-/** The four languages of the app: Spanish, English, Quechua and Aymara. */
-export type Lang = 'es' | 'en' | 'qu' | 'ay';
+/**
+ * Languages with a table. The four offered ones are Spanish, English, Southern Quechua and Aymara;
+ * Quechua Central (qu-cen) and Asháninka (cni) are started but not offered yet (see LanguageContext).
+ */
+export type Lang = 'es' | 'en' | 'qu' | 'ay' | 'qu-cen' | 'cni';
 
 /** Values put into a sentence: t('Hay avisos en {place}', { place }). */
 export type TextParams = Record<string, string | number>;
@@ -58,10 +61,10 @@ export function translateShort(lang: Lang, spanish: string): string {
   return SHORT_LABELS[lang]?.[spanish] ?? translate(lang, spanish);
 }
 
-const DATE_LOCALE: Record<Lang, string> = { es: 'es-PE', en: 'en-GB', qu: 'es-PE', ay: 'es-PE' };
+const DATE_LOCALE: Record<Lang, string> = { es: 'es-PE', en: 'en-GB', qu: 'es-PE', ay: 'es-PE', 'qu-cen': 'es-PE', cni: 'es-PE' };
 
 // Quechua and Aymara have no month names in the phone's date library: their dates are written in numbers.
-const NUMERIC_DATES: Lang[] = ['qu', 'ay'];
+const NUMERIC_DATES: Lang[] = ['qu', 'ay', 'qu-cen', 'cni'];
 
 /** A date as people read it in the current language: "8 de noviembre de 2026", "8 November 2026", "8/11/2026". */
 export function formatDate(date: Date, options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' }): string {

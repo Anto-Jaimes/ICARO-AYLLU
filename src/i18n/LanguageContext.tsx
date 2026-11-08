@@ -4,12 +4,31 @@ import { Lang, LANG_KEY, readSavedLang, setCurrentLang, TextParams, translate } 
 export type { Lang, TextParams } from './translate';
 export { tr } from './translate';
 
-export const LANGUAGES: { id: Lang; name: string; htmlLang: string }[] = [
-  { id: 'es', name: 'Español', htmlLang: 'es-PE' },
-  { id: 'en', name: 'English', htmlLang: 'en' },
-  { id: 'qu', name: 'Runasimi (quechua)', htmlLang: 'qu' },
-  { id: 'ay', name: 'Aymar aru (aimara)', htmlLang: 'ay' }
+export interface LanguageOption {
+  id: Lang;
+  name: string;
+  nativeName: string;
+  short: string;
+  htmlLang: string;
+  region: string;
+}
+
+/**
+ * Every language the team has started. The app offers the four agreed ones (Spanish, Southern Quechua,
+ * Aymara, English): they are translated on every screen. Quechua Central and Asháninka are still partial,
+ * so offering them would leave half of each screen in Spanish.
+ */
+export const ALL_LANGUAGES: LanguageOption[] = [
+  { id: 'es', name: 'Español', nativeName: 'Español', short: 'ES', htmlLang: 'es-PE', region: 'Perú' },
+  { id: 'qu', name: 'Quechua Sureño', nativeName: 'Urin Runasimi', short: 'QUS', htmlLang: 'qu', region: 'Cusco, Ayacucho, Puno, Apurímac' },
+  { id: 'qu-cen', name: 'Quechua Central', nativeName: 'Chawpi Runashimi', short: 'QUC', htmlLang: 'qu-PE', region: 'Áncash, Wanka, Huánuco, Pasco' },
+  { id: 'ay', name: 'Aimara', nativeName: 'Aymar aru', short: 'AY', htmlLang: 'ay', region: 'Puno, Moquegua, Tacna' },
+  { id: 'cni', name: 'Asháninka', nativeName: 'Asháninka', short: 'CNI', htmlLang: 'cni', region: 'Selva Central, Junín, Ucayali' },
+  { id: 'en', name: 'English', nativeName: 'English', short: 'EN', htmlLang: 'en', region: 'International' }
 ];
+
+const OFFERED: Lang[] = ['es', 'qu', 'ay', 'en'];
+export const LANGUAGES: LanguageOption[] = ALL_LANGUAGES.filter((option) => OFFERED.includes(option.id));
 
 export type Translate = (spanish: string, params?: TextParams) => string;
 

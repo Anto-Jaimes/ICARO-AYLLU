@@ -24,18 +24,23 @@ export const AudioGuideButton: React.FC<AudioGuideButtonProps> = ({ className = 
     if (mode === 'emergency') {
       return t('Modo emergencia activado. En esta pantalla puedes ver a los vecinos que necesitan ayuda urgente y los grupos de apoyo. Para llamar a los Bomberos marca el ciento dieciséis. Para la Policía, el ciento cinco. O toca el botón rojo S.O.S.');
     }
+
     if (isAlertsOpen) {
       return t('Alertas oficiales del Perú. Aquí verás los sismos del Instituto Geofísico del Perú y los avisos de lluvias o huaicos del Senamhi.');
     }
+
     if (isNewsOpen) {
       return t('Noticias de tu barrio. Aquí los vecinos comparten fotos y avisos de lo que pasa en tu zona.');
     }
+
     if (tab === 'services') {
       return t('Oficios de tu barrio. Aquí encuentras gasfitería, electricidad, cerrajería y más, recomendados por tus propios vecinos. Toca un servicio para ver cómo contactarlo.');
     }
+
     if (tab === 'favors') {
       return t('Donaciones entre vecinos. Aquí los vecinos regalan lo que ya no usan, como ropa, muebles o útiles, y las familias u organizaciones piden lo que necesitan. Toca una donación para coordinar.');
     }
+
     if (tab === 'map') {
       return t('Mapa de tu zona. Los círculos de colores muestran los oficios, las donaciones y los puntos de emergencia cerca de ti.');
     }
@@ -54,7 +59,7 @@ export const AudioGuideButton: React.FC<AudioGuideButtonProps> = ({ className = 
     }
     wasStopped.current = false;
     setIsSpeaking(true);
-    speak(spokenText())
+    speak(spokenText(), lang)
       .catch(() => {
         if (wasStopped.current) return;
         // English is read with an English voice; Spanish, Quechua and Aymara with a Spanish one.

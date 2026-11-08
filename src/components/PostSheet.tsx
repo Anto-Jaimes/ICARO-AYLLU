@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BadgeCheck, Copy, Flag, MessageCircle, Phone, ThumbsUp } from 'lucide-react';
+import { BadgeCheck, Copy, Flag, MessageCircle, Phone, ThumbsUp, Volume2, VolumeX } from 'lucide-react';
 import { ANONYMOUS_REVIEWER, useApp } from '../context/AppContext';
 import { formatRelativeTime } from '../utils/time';
 import { findCategory } from '../data/categories';
@@ -7,15 +7,16 @@ import { calculateWalkingEstimate } from '../services/geoService';
 import { CommunityItem } from '../types';
 import { buildWhatsAppLink, describeDistance } from '../utils/geo';
 import { BottomSheet } from './BottomSheet';
-import { recommendationText } from './PostRow';
 import { postPhotoUrl } from '../services/postPhotos';
 import { flagPost } from '../services/postsService';
-import { useT } from '../i18n/LanguageContext';
+import { useLanguage, useT } from '../i18n/LanguageContext';
+import { speak, stopSpeaking } from '../utils/audioGuide';
 
 const EMERGENCY_TYPES = ['emergency_need', 'emergency_resource', 'support_group'];
 
 export const PostSheet: React.FC = () => {
   const { selectedItem, closeItem, toggleVistoBueno, addReview, updateItemStatus, userLocation, hasLocation, showNotice, canWrite, openAccess } = useApp();
+  const { lang } = useLanguage();
   const t = useT();
 
   // Keeps showing the post while the sheet slides away.
@@ -29,6 +30,7 @@ export const PostSheet: React.FC = () => {
   const [hasFlagged, setHasFlagged] = useState(false);
   const [comment, setComment] = useState('');
   const [reviewerName, setReviewerName] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const itemId = selectedItem?.id;
 
@@ -37,6 +39,8 @@ export const PostSheet: React.FC = () => {
     setIsConfirmingResolved(false);
     setComment('');
     setWalkingMinutes(null);
+    setIsSpeaking(false);
+    stopSpeaking();
     if (!selectedItem || !hasLocation) return;
 
     let isCurrent = true;
@@ -46,6 +50,7 @@ export const PostSheet: React.FC = () => {
       });
     return () => {
       isCurrent = false;
+      stopSpeaking();
     };
     // Keyed by id: a live vote must not reset what the neighbour is typing.
   }, [itemId]);
@@ -78,6 +83,17 @@ export const PostSheet: React.FC = () => {
     }
   };
   const distance = walkingMinutes !== null ? t('a {minutes} min a pie', { minutes: walkingMinutes }) : describeDistance(item.distanceMeters);
+
+  const toggleSpeakPost = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+      setIsSpeaking(false);
+      return;
+    }
+    setIsSpeaking(true);
+    const toSpeak = `${item.title}. ${item.description ? item.description : ''}. ${item.authorName ? `${t('Publicó')}: ${item.authorName}.` : ''} ${item.neighborhood ? item.neighborhood : ''}`;
+    speak(toSpeak, lang).finally(() => setIsSpeaking(false));
+  };
 
   const whatsappUrl = item.authorPhone
     ? buildWhatsAppLink(item.authorPhone, t('Hola {name}, te escribo por "{title}" que vi en AYLLU.', { name: item.authorName, title: item.title }))
@@ -138,9 +154,22 @@ export const PostSheet: React.FC = () => {
         </ul>
       )}
       <div className="px-4 pb-4 space-y-4">
-        <p className="text-secondary text-ink-2">
-          {[t(category.label), distance, item.neighborhood].filter(Boolean).join(', ')}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-secondary text-ink-2">
+            {[t(category.label), distance, item.neighborhood].filter(Boolean).join(', ')}
+          </p>
+          <button
+            type="button"
+            onClick={toggleSpeakPost}
+            aria-label={isSpeaking ? t('Detener la lectura') : t('Escuchar en voz alta')}
+            title={isSpeaking ? t('Detener la lectura') : t('Escuchar en voz alta')}
+            className={`p-2 rounded-lg text-ink-2 hover:text-ink shrink-0 transition-colors ${
+              isSpeaking ? 'bg-anil text-white shadow-xs' : 'bg-sunken hover:bg-neutral-200'
+            }`}
+          >
+            {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        </div>
 
         {item.description && <p>{item.description}</p>}
 
