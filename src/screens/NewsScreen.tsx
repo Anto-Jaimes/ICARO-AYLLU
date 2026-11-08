@@ -11,9 +11,11 @@ import { useFlagReport } from '../hooks/useFlagReport';
 import { useReports } from '../hooks/useReports';
 import { mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
 import { formatRelativeTime } from '../utils/time';
+import { useT } from '../i18n/LanguageContext';
 
 export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = ({ report, onChanged }) => {
   const { openNewsDetail } = useApp();
+  const t = useT();
   const kind = REPORT_KINDS.find((option) => option.id === report.kind) ?? REPORT_KINDS[5];
   const Icon = kind.icon;
   const flag = useFlagReport(report.id, onChanged);
@@ -23,9 +25,9 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
     <article className="py-3">
       <div className="flex items-center gap-2 px-4">
         <Icon className="w-5 h-5 text-anil shrink-0" aria-hidden="true" />
-        <h3 className="text-row font-bold">{reportTitle(report.kind)}</h3>
+        <h3 className="text-row font-bold">{t(reportTitle(report.kind))}</h3>
         {report.status === 'review' && (
-          <span className="px-2 py-0.5 rounded bg-sunken text-meta font-bold">En revisión</span>
+          <span className="px-2 py-0.5 rounded bg-sunken text-meta font-bold">{t('En revisión')}</span>
         )}
       </div>
 
@@ -51,7 +53,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
           className="mt-1 min-h-12 inline-flex items-center gap-2 text-secondary font-bold text-anil"
         >
           <MessageCircle className="w-5 h-5" aria-hidden="true" />
-          {comments === 0 ? 'Comentarios' : comments === 1 ? '1 comentario' : `${comments} comentarios`}
+          {comments === 0 ? t('Comentarios') : comments === 1 ? `1 ${t('comentario')}` : `${comments} ${t('comentarios')}`}
         </button>
         {!report.is_mine && (
           <button
@@ -61,7 +63,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
             className="mt-1 min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-2 disabled:opacity-60"
           >
             <Flag className="w-4 h-4" aria-hidden="true" />
-            {report.has_flagged ? 'Ya la denunciaste' : 'Denunciar'}
+            {report.has_flagged ? t('Ya la denunciaste') : t('Denunciar')}
           </button>
         )}
       </div>
@@ -72,6 +74,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
 export const NewsScreen: React.FC = () => {
   const { setIsNewsOpen, openReport } = useApp();
   const { feed } = useHazards();
+  const t = useT();
   const [place, setPlace] = useState<PlaceValue>(EMPTY_PLACE);
 
   const close = () => setIsNewsOpen(false);
@@ -98,18 +101,18 @@ export const NewsScreen: React.FC = () => {
 
       <div className="page">
       <div className="px-4 pt-3">
-        <PlacePicker idPrefix="news-place" anyLabel="Todos" value={place} onChange={setPlace} />
+        <PlacePicker idPrefix="news-place" anyLabel={t('Todos')} value={place} onChange={setPlace} />
       </div>
 
       {reports.length === 0 ? (
         isLoading ? (
-          <LoadingRow text="Buscando noticias..." />
+          <LoadingRow text={t('Buscando noticias...')} />
         ) : (
           <EmptyState
             icon={Newspaper}
-            title="Todavía no hay noticias aquí"
-            line="Avisa a tus vecinos si pasa algo en tu zona."
-            action={<button type="button" className="btn btn-primary" onClick={() => openReport('otro')}>Avisar a mis vecinos</button>}
+            title={t('Todavía no hay noticias aquí')}
+            line={t('Avisa a tus vecinos si pasa algo en tu zona.')}
+            action={<button type="button" className="btn btn-primary" onClick={() => openReport('otro')}>{t('Avisar a tus vecinos')}</button>}
           />
         )
       ) : (

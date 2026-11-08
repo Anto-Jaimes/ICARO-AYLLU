@@ -73,6 +73,7 @@ const PublishButton: React.FC = () => {
 const Shell: React.FC = () => {
   const { mode, setMode, tab, setTab, homeTab, isAlertsOpen, setIsAlertsOpen, isNewsOpen, isMuralOpen, setIsMuralOpen, isBatterySaver, setIsBatterySaver } = useApp();
   const { verdict } = useHazards();
+  const t = useT();
   const isEmergency = mode === 'emergency';
   const [isExitOpen, setIsExitOpen] = useState(false);
 
@@ -136,9 +137,9 @@ const Shell: React.FC = () => {
       <MenuSheet />
       <TutorialSheet />
 
-      <BottomSheet open={isExitOpen} onClose={() => setIsExitOpen(false)} title="¿Salir del modo emergencia?">
+      <BottomSheet open={isExitOpen} onClose={() => setIsExitOpen(false)} title={t('¿Salir del modo emergencia?')}>
         <div className="px-4 space-y-2" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <p className="pb-2 text-secondary">Volverás a ver los servicios y favores de tu barrio.</p>
+          <p className="pb-2 text-secondary">{t('Volverás a ver los servicios y favores de tu barrio.')}</p>
           <button
             type="button"
             className="btn btn-primary"
@@ -147,10 +148,10 @@ const Shell: React.FC = () => {
               setMode('normal');
             }}
           >
-            Sí, salir
+            {t('Sí, salir')}
           </button>
           <button type="button" className="btn btn-secondary" onClick={() => setIsExitOpen(false)}>
-            Seguir en emergencia
+            {t('Seguir en emergencia')}
           </button>
         </div>
       </BottomSheet>

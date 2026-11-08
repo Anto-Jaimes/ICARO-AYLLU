@@ -7,6 +7,7 @@ import { normalizePhone } from '../utils/geo';
 import { loadContact, saveContact } from '../utils/storage';
 import { MAX_POST_PHOTOS, uploadPostPhoto } from '../services/postPhotos';
 import { BottomSheet } from './BottomSheet';
+import { useT } from '../i18n/LanguageContext';
 
 const PRICE_BY_TYPE: Record<string, string> = { service: 'Conversar con el vecino' };
 
@@ -22,6 +23,7 @@ const OFFER_HINTS: Record<string, string> = {
 
 export const PublishSheet: React.FC = () => {
   const { isPublishOpen, closePublish, publishPreset, mode, addItem, userLocation, hasLocation, openReport } = useApp();
+  const t = useT();
   const isEmergency = mode === 'emergency';
   const groups = isEmergency ? EMERGENCY_PUBLISH_GROUPS : NORMAL_PUBLISH_GROUPS;
 
@@ -117,7 +119,7 @@ export const PublishSheet: React.FC = () => {
 
   const footer = choice ? (
     <button type="submit" form="publish-form" disabled={isUploading} className={`btn ${isEmergency ? 'btn-danger' : 'btn-primary'}`}>
-      {isUploading ? 'Subiendo fotos...' : isEmergency ? 'Reportar' : 'Publicar'}
+      {isUploading ? t('Subiendo fotos...') : isEmergency ? t('Reportar') : t('Publicar')}
     </button>
   ) : undefined;
 
@@ -125,13 +127,13 @@ export const PublishSheet: React.FC = () => {
     <BottomSheet
       open={isPublishOpen}
       onClose={closePublish}
-      title={choice ? 'Revisa y publica' : '¿Qué quieres publicar?'}
+      title={choice ? t('Revisa y publica') : t('¿Qué quieres publicar?')}
       footer={footer}
     >
       {!choice ? (
         <div className="px-4 pb-6 space-y-5" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
           <section>
-            <h3 className="pb-2 text-section font-bold">Avisar lo que pasa</h3>
+            <h3 className="pb-2 text-section font-bold">{t('Avisar lo que pasa')}</h3>
             <div className="grid grid-cols-2 gap-2">
               {REPORT_KINDS.map((kind) => {
                 const Icon = kind.icon;
@@ -143,7 +145,7 @@ export const PublishSheet: React.FC = () => {
                     className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-line"
                   >
                     <Icon className="w-6 h-6 text-rojo" aria-hidden="true" />
-                    <span className="text-secondary font-bold">{kind.label}</span>
+                    <span className="text-secondary font-bold">{t(kind.label)}</span>
                   </button>
                 );
               })}
@@ -152,7 +154,7 @@ export const PublishSheet: React.FC = () => {
 
           {groups.map((group) => (
             <section key={group.heading}>
-              <h3 className="pb-2 text-section font-bold">{group.heading}</h3>
+              <h3 className="pb-2 text-section font-bold">{t(group.heading)}</h3>
               <div className="grid grid-cols-2 gap-2">
                 {group.tiles.map((tile: PublishTile) => {
                   const Icon = tile.icon;
@@ -164,7 +166,7 @@ export const PublishSheet: React.FC = () => {
                       className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-line"
                     >
                       <Icon className="w-6 h-6 text-anil" aria-hidden="true" />
-                      <span className="text-secondary font-bold">{tile.label}</span>
+                      <span className="text-secondary font-bold">{t(tile.label)}</span>
                     </button>
                   );
                 })}
@@ -176,7 +178,7 @@ export const PublishSheet: React.FC = () => {
         <form id="publish-form" onSubmit={publish} className="px-4 pb-4 space-y-3">
           <div>
             <label htmlFor="publish-title" className="block pb-1 text-secondary font-bold">
-              {isService ? 'Nombre de tu negocio o servicio' : 'Título'}
+              {isService ? t('Nombre de tu negocio o servicio') : t('Título')}
             </label>
             <input
               id="publish-title"
@@ -191,7 +193,7 @@ export const PublishSheet: React.FC = () => {
 
           <div>
             <label htmlFor="publish-details" className="block pb-1 text-secondary font-bold">
-              {isService ? '¿Qué ofreces?' : 'Detalles (opcional)'}
+              {isService ? t('¿Qué ofreces?') : t('Detalles (opcional)')}
             </label>
             <textarea
               id="publish-details"
@@ -207,7 +209,7 @@ export const PublishSheet: React.FC = () => {
           {isService && (
             <div className="grid grid-cols-2 gap-2">
               <div className="min-w-0">
-                <label htmlFor="publish-price" className="block pb-1 text-secondary font-bold">Precio</label>
+                <label htmlFor="publish-price" className="block pb-1 text-secondary font-bold">{t('Precio')}</label>
                 <input
                   id="publish-price"
                   maxLength={120}
@@ -218,13 +220,13 @@ export const PublishSheet: React.FC = () => {
                 />
               </div>
               <div className="min-w-0">
-                <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">¿Dónde queda?</label>
+                <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">{t('¿Dónde queda?')}</label>
                 <input
                   id="publish-address"
                   maxLength={200}
                   value={address}
                   onChange={(event) => setAddress(event.target.value)}
-                  placeholder="Calle y referencia"
+                  placeholder={t('Calle y referencia')}
                   className="field"
                 />
               </div>
@@ -233,7 +235,7 @@ export const PublishSheet: React.FC = () => {
 
           {allowsPhotos && (
             <div>
-              <p className="pb-1 text-secondary font-bold">Fotos ({photos.length} de {MAX_POST_PHOTOS})</p>
+              <p className="pb-1 text-secondary font-bold">{t('Fotos')} ({photos.length} de {MAX_POST_PHOTOS})</p>
               <div className="flex flex-wrap gap-2">
                 {photos.map((photo, index) => (
                   <div key={`${photo.name}-${index}`} className="relative">
@@ -265,7 +267,7 @@ export const PublishSheet: React.FC = () => {
                   </label>
                 )}
               </div>
-              <p className="pt-1 text-meta text-ink-2">Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.</p>
+              <p className="pt-1 text-meta text-ink-2">{t('Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.')}</p>
             </div>
           )}
 
@@ -273,7 +275,7 @@ export const PublishSheet: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-2">
             <div className="min-w-0">
-              <label htmlFor="publish-name" className="block pb-1 text-secondary font-bold">Tu nombre</label>
+              <label htmlFor="publish-name" className="block pb-1 text-secondary font-bold">{t('Tu nombre')}</label>
               <input
                 id="publish-name"
                 autoComplete="name"
@@ -284,7 +286,7 @@ export const PublishSheet: React.FC = () => {
               />
             </div>
             <div className="min-w-0">
-              <label htmlFor="publish-phone" className="block pb-1 text-secondary font-bold">Teléfono</label>
+              <label htmlFor="publish-phone" className="block pb-1 text-secondary font-bold">{t('Teléfono')}</label>
               <input
                 id="publish-phone"
                 type="tel"
@@ -299,17 +301,17 @@ export const PublishSheet: React.FC = () => {
 
           {needsPlace ? (
             <div>
-              <label htmlFor="publish-place" className="block pb-1 text-secondary font-bold">¿Dónde estás?</label>
+              <label htmlFor="publish-place" className="block pb-1 text-secondary font-bold">{t('¿Dónde estás?')}</label>
               <input
                 id="publish-place"
                 required
                 maxLength={160}
                 value={place}
                 onChange={(event) => setPlace(event.target.value)}
-                placeholder="Calle o referencia"
+                placeholder={t('Calle o referencia')}
                 className="field"
               />
-              <p className="pt-1 text-meta text-ink-2">No tenemos tu ubicación. Escribe una referencia.</p>
+              <p className="pt-1 text-meta text-ink-2">{t('No tenemos tu ubicación. Escribe una referencia.')}</p>
             </div>
           ) : (
             <p className="flex items-center gap-2 text-secondary text-ink-2">

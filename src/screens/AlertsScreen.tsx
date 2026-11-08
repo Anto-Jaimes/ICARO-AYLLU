@@ -16,6 +16,7 @@ import {
   NoticeLevel
 } from '../services/hazardService';
 import { formatDayRange, formatRelativeTime } from '../utils/time';
+import { useT } from '../i18n/LanguageContext';
 
 const LEVEL_NAMES: Record<number, NoticeLevel> = { 2: 'amarillo', 3: 'naranja', 4: 'rojo' };
 const ZONE_TITLES: Record<HazardZone['kind'], string> = {
@@ -33,6 +34,7 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
 export const AlertsScreen: React.FC = () => {
   const { setIsAlertsOpen, hasLocation, userLocation } = useApp();
   const { feed: ownFeed, savedAt: ownSavedAt } = useHazards();
+  const t = useT();
   // null follows the neighbour; an id is a department they chose to look at.
   const [departmentId, setDepartmentId] = useState<string | null>(null);
   const [otherFeed, setOtherFeed] = useState<HazardFeed | null>(null);
@@ -69,14 +71,14 @@ export const AlertsScreen: React.FC = () => {
 
       <div className="page">
       <div className="px-4 pt-3 lg:max-w-sm">
-        <label htmlFor="alerts-department" className="block pb-1 text-secondary font-bold">Departamento</label>
+        <label htmlFor="alerts-department" className="block pb-1 text-secondary font-bold">{t('Departamento')}</label>
         <select
           id="alerts-department"
           value={departmentId ?? ''}
           onChange={(event) => setDepartmentId(event.target.value || null)}
           className="field"
         >
-          <option value="">{hasLocation ? 'Mi ubicación' : 'Lima'}</option>
+          <option value="">{hasLocation ? t('Mi ubicación') : 'Lima'}</option>
           {PERU_DEPARTMENTS.map((department) => (
             <option key={department.id} value={department.id}>{department.name}</option>
           ))}
@@ -85,23 +87,23 @@ export const AlertsScreen: React.FC = () => {
 
       {!departmentId && ownSavedAt && (
         <p role="status" className="mx-4 mt-3 p-3 rounded-lg bg-offline text-white text-secondary">
-          Sin internet. Datos guardados {formatRelativeTime(ownSavedAt).toLowerCase()}.
+          {t('Sin internet')}. {t('Datos guardados')} {formatRelativeTime(ownSavedAt).toLowerCase()}.
         </p>
       )}
 
       {!feed ? (
         <p className="px-4 pt-6 text-secondary text-ink-2">
-          {departmentId ? 'Consultando alertas...' : 'Conéctate a internet para ver las alertas.'}
+          {departmentId ? t('Consultando alertas...') : t('Conéctate a internet para ver las alertas.')}
         </p>
       ) : (
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
           {feed.zones_here.length > 0 && (
-            <Section title="Qué hacer">
+            <Section title={t('Qué hacer')}>
               <ul className="list-plain">
                 {feed.zones_here.map((zone) => (
                   <li key={zone.kind} className="px-4 py-3">
                     <p className="flex flex-wrap items-center gap-2 text-row font-bold">
-                      {ZONE_TITLES[zone.kind]}
+                      {t(ZONE_TITLES[zone.kind])}
                       <LevelTag level={LEVEL_NAMES[zone.level]} />
                     </p>
                     {zone.recommendation && <p className="mt-2">{zone.recommendation}</p>}
@@ -145,7 +147,7 @@ export const AlertsScreen: React.FC = () => {
           </Section>
 
           {feed.notices.length > 0 && (
-            <Section title="Avisos de SENAMHI">
+            <Section title={t('Avisos de SENAMHI')}>
               <ul className="list-plain">
                 {feed.notices.map((notice) => (
                   <li key={notice.id}>
@@ -171,7 +173,7 @@ export const AlertsScreen: React.FC = () => {
               <ul className="list-plain">
                 {feed.quakes.slice(0, 5).map((quake) => (
                   <li key={quake.id} className="px-4 py-3">
-                    <p className="text-row font-semibold">Magnitud {quake.magnitude}</p>
+                    <p className="text-row font-semibold">{t('Magnitud')} {quake.magnitude}</p>
                     <p className="text-secondary">{quake.detail}</p>
                     <p className="text-meta text-ink-2">{formatRelativeTime(quake.occurred_at)}</p>
                   </li>
@@ -184,7 +186,7 @@ export const AlertsScreen: React.FC = () => {
             </p>
           </Section>
 
-          <Section title="Pronóstico">
+          <Section title={t('Pronóstico')}>
             <ForecastStrip days={forecast} />
           </Section>
 

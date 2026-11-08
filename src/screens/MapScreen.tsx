@@ -18,6 +18,7 @@ import {
 } from '../services/myPlaces';
 import { calculateDistanceMeters } from '../utils/geo';
 import { PostType } from '../types';
+import { useT } from '../i18n/LanguageContext';
 
 interface Layer {
   id: string;
@@ -273,6 +274,7 @@ function describeWay(straightMeters: number | null, routes: RouteSummary | null,
 const MAP_BUTTON = 'grid place-items-center w-12 h-12 rounded-lg bg-surface text-ink border border-line shadow-sm active:bg-sunken';
 
 const MapScreen: React.FC = () => {
+  const t = useT();
   const {
     items, mode, userLocation, hasLocation, locationStatus, isOnline, openItem, requestCurrentGPS, setTab, homeTab, showNotice
   } = useApp();
@@ -836,7 +838,7 @@ const MapScreen: React.FC = () => {
                         className="w-4 h-4 rounded-full border-2"
                         style={{ background: isVisible ? layer.color : 'transparent', borderColor: layer.color }}
                       />
-                      {layer.label}
+                      {t(layer.label)}
                     </button>
                   );
                 })}

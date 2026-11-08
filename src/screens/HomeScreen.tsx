@@ -101,7 +101,7 @@ const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
           openServices({ query: query.trim() });
         }}
       >
-        <label htmlFor="home-search" className="sr-only">Buscar un servicio</label>
+        <label htmlFor="home-search" className="sr-only">{t('Buscar un servicio')}</label>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-2" aria-hidden="true" />
           <input
@@ -116,19 +116,19 @@ const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
         </div>
       </form>
 
-      <div className="chip-row pt-2" role="group" aria-label="Buscar por tipo de servicio">
+      <div className="chip-row pt-2" role="group" aria-label={t('Buscar por tipo de servicio')}>
         {SERVICE_CATEGORIES.map((category) => (
           <button key={category.id} type="button" className="chip" onClick={() => openServices({ category: category.id })}>
-            {category.label}
+            {t(category.label)}
           </button>
         ))}
       </div>
 
       {nearby.length === 0 ? (
         isLoadingItems ? (
-          <LoadingRow text="Buscando servicios..." />
+          <LoadingRow text={t('Buscando servicios...')} />
         ) : (
-          <EmptyState icon={Store} title="Todavía no hay servicios cerca" line="Toca Publicar para ofrecer el tuyo." />
+          <EmptyState icon={Store} title={t('Todavía no hay servicios cerca')} line={t('Toca Publicar para ofrecer el tuyo.')} />
         )
       ) : (
         <>

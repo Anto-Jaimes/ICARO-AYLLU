@@ -5,6 +5,7 @@ import { FAVOR_CATEGORIES } from '../data/categories';
 import { EmptyState, LoadingRow } from '../components/EmptyState';
 import { PostRow } from '../components/PostRow';
 import { TopBar } from '../components/TopBar';
+import { useT } from '../i18n/LanguageContext';
 
 type Side = 'favor_offer' | 'favor_request';
 
@@ -15,6 +16,7 @@ const SIDES: { type: Side; label: string }[] = [
 
 export const FavorsScreen: React.FC = () => {
   const { items, hasLocation, isLoadingItems, openPublish } = useApp();
+  const t = useT();
   const [side, setSide] = useState<Side>('favor_offer');
   const [category, setCategory] = useState<string | null>(null);
 
@@ -37,7 +39,7 @@ export const FavorsScreen: React.FC = () => {
       <TopBar title="Favores" />
       <div className="page">
       <p className="px-4 pt-3 text-secondary text-ink-2">
-        Presta, regala o pide una mano, sin dinero. Coordinan por WhatsApp o llamada.
+        {t('Presta, regala o pide una mano, sin dinero. Coordinan por WhatsApp o llamada.')}
       </p>
 
       <div className="grid grid-cols-2 gap-2 px-4 pt-3 lg:max-w-md">
@@ -47,7 +49,7 @@ export const FavorsScreen: React.FC = () => {
           onClick={() => openPublish({ type: 'favor_request', category: 'ayuda_temporal', title: 'Necesito una mano' })}
         >
           <HandHelping className="w-5 h-5" aria-hidden="true" />
-          Pedir un favor
+          {t('Pedir un favor')}
         </button>
         <button
           type="button"
@@ -55,11 +57,11 @@ export const FavorsScreen: React.FC = () => {
           onClick={() => openPublish({ type: 'favor_offer', category: 'ayuda_temporal', title: 'Puedo dar una mano' })}
         >
           <HandHeart className="w-5 h-5" aria-hidden="true" />
-          Ofrecer o prestar
+          {t('Ofrecer o prestar')}
         </button>
       </div>
 
-      <div className="px-4 pt-3 lg:max-w-md" role="group" aria-label="Qué quieres ver">
+      <div className="px-4 pt-3 lg:max-w-md" role="group" aria-label={t('Qué quieres ver')}>
         <div className="grid grid-cols-2 gap-1 p-1 rounded-lg bg-sunken">
           {SIDES.map((option) => (
             <button
@@ -71,13 +73,13 @@ export const FavorsScreen: React.FC = () => {
                 side === option.type ? 'bg-anil text-white' : 'text-ink'
               }`}
             >
-              {option.label} ({counts[option.type]})
+              {t(option.label)} ({counts[option.type]})
             </button>
           ))}
         </div>
       </div>
 
-      <div className="chip-row pt-2" role="group" aria-label="Filtrar favores">
+      <div className="chip-row pt-2" role="group" aria-label={t('Filtrar favores')}>
         {FAVOR_CATEGORIES.map((option) => (
           <button
             key={option.id}
@@ -87,19 +89,19 @@ export const FavorsScreen: React.FC = () => {
             onClick={() => setCategory(category === option.id ? null : option.id)}
           >
             {category === option.id && <Check className="w-4 h-4" aria-hidden="true" />}
-            {option.label}
+            {t(option.label)}
           </button>
         ))}
       </div>
 
       {favors.length === 0 ? (
         isLoadingItems ? (
-          <LoadingRow text="Buscando favores..." />
+          <LoadingRow text={t('Buscando favores...')} />
         ) : (
           <EmptyState
             icon={HandHeart}
-            title="Nadie ha publicado aquí todavía"
-            line={side === 'favor_offer' ? 'Toca Publicar para prestar o regalar algo.' : 'Toca Publicar para pedir una mano.'}
+            title={t('Nadie ha publicado aquí todavía')}
+            line={side === 'favor_offer' ? t('Toca Publicar para prestar o regalar algo.') : t('Toca Publicar para pedir una mano.')}
           />
         )
       ) : (
