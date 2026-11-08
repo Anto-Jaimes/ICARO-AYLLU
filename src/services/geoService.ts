@@ -1,8 +1,37 @@
 /**
- * Service for reverse geocoding and pedestrian routing.
- * Uses OpenStreetMap Nominatim and OSRM (Open Source Routing Machine) Walking profile.
+ * Service for place search, reverse geocoding and routing.
+ * Uses OpenStreetMap Nominatim and OSRM (Open Source Routing Machine) servers.
  * Completely free, no API key required, with in-memory caching.
  */
+import type { MapPoint } from './myPlaces';
+
+// Nominatim's usage policy allows one request per second from the whole app.
+const NOMINATIM_GAP_MS = 1100;
+let nextNominatimAt = 0;
+
+function waitForNominatim(signal?: AbortSignal): Promise<void> {
+  const now = Date.now();
+  const startAt = Math.max(now, nextNominatimAt);
+  nextNominatimAt = startAt + NOMINATIM_GAP_MS;
+  if (startAt === now) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, startAt - now);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    }, { once: true });
+  });
+}
+
+/** The caller's signal plus a time limit, without AbortSignal.any (missing in older Android WebViews). */
+function withTimeout(signal: AbortSignal | undefined, ms: number): AbortSignal {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(new DOMException('Timeout', 'TimeoutError')), ms);
+  controller.signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
+  if (signal?.aborted) controller.abort(signal.reason);
+  else signal?.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+  return controller.signal;
+}
 
 const geocodeCache = new Map<string, string>();
 const walkingRouteCache = new Map<string, { durationMinutes: number; distanceMeters: number }>();
@@ -23,6 +52,7 @@ export async function reverseGeocode(lat: number, lon: number): Promise<string> 
   }
 
   try {
+    await waitForNominatim();
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=es`;
     const response = await fetch(url, {
       headers: {
@@ -74,7 +104,7 @@ export async function calculateWalkingEstimate(
 
   try {
     // OSRM coordinates order: {longitude},{latitude}
-    const url = `https://router.project-osrm.org/route/v1/foot/${originLng},${originLat};${destLng},${destLat}?overview=false`;
+    const url = `${ROUTERS.foot}/${originLng},${originLat};${destLng},${destLat}?overview=false`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -117,4 +147,187 @@ function formatWalkingText(minutes: number, distanceMeters: number): string {
   if (minutes <= 1) return `A 1 min a pie (${distanceMeters}m)`;
   if (distanceMeters < 1000) return `A ${minutes} min a pie (${distanceMeters}m)`;
   return `A ${minutes} min a pie (${(distanceMeters / 1000).toFixed(1)} km)`;
+}
+
+/** A place found by the search box. */
+export interface PlaceResult extends MapPoint {
+  id: string;
+  name: string;
+  address: string;
+}
+
+export const MIN_SEARCH_LENGTH = 3;
+const MAX_RESULTS = 5;
+const searchCache = new Map<string, PlaceResult[]>();
+
+type NominatimAddress = Record<string, string | undefined>;
+
+interface NominatimPlace {
+  place_id?: number;
+  lat?: string;
+  lon?: string;
+  name?: string;
+  display_name?: string;
+  address?: NominatimAddress;
+}
+
+const streetOf = (address: NominatimAddress) =>
+  address.road ? `${address.road}${address.house_number ? ` ${address.house_number}` : ''}` : '';
+
+// "Parque Kennedy" + "Surquillo Viejo, Miraflores, Lima": enough to tell two places apart.
+function shortAddress(address: NominatimAddress, name: string): string {
+  const candidates = [
+    streetOf(address),
+    address.neighbourhood || address.quarter,
+    address.suburb || address.city_district,
+    address.city || address.town || address.village || address.county,
+    address.state
+  ];
+  const seen = new Set([name.toLowerCase()]);
+  const picked: string[] = [];
+  for (const part of candidates) {
+    if (!part || seen.has(part.toLowerCase())) continue;
+    seen.add(part.toLowerCase());
+    picked.push(part);
+    if (picked.length === 3) break;
+  }
+  return picked.join(', ');
+}
+
+function toPlaceResult(raw: NominatimPlace): PlaceResult | null {
+  const lat = Number(raw.lat);
+  const lng = Number(raw.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const address = raw.address ?? {};
+  const name = raw.name?.trim() || streetOf(address) || raw.display_name?.split(',')[0]?.trim() || 'Lugar sin nombre';
+  return { id: String(raw.place_id ?? `${lat},${lng}`), name, address: shortAddress(address, name), lat, lng };
+}
+
+/**
+ * Up to five places in Peru that match the text, nearest area first. Throws when there is no answer,
+ * so the search box can tell "nothing found" from "could not search".
+ */
+export async function searchPlaces(query: string, near: MapPoint | null, signal?: AbortSignal): Promise<PlaceResult[]> {
+  const text = query.trim().replace(/\s+/g, ' ');
+  const cacheKey = `${text.toLowerCase()}|${near ? `${near.lat.toFixed(1)},${near.lng.toFixed(1)}` : ''}`;
+  const cached = searchCache.get(cacheKey);
+  if (cached) return cached;
+
+  const params = new URLSearchParams({
+    format: 'jsonv2',
+    q: text,
+    countrycodes: 'pe',
+    'accept-language': 'es',
+    limit: String(MAX_RESULTS),
+    addressdetails: '1'
+  });
+  // Prefers the neighbour's area without hiding the rest of Peru.
+  if (near) params.set('viewbox', [near.lng - 0.5, near.lat + 0.5, near.lng + 0.5, near.lat - 0.5].join(','));
+
+  await waitForNominatim(signal);
+  // A page cannot set User-Agent; the Referer the browser sends identifies the app, as the policy asks.
+  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+    headers: { Accept: 'application/json' },
+    signal: withTimeout(signal, 10_000)
+  });
+  if (!response.ok) throw new Error(`Nominatim responded with status ${response.status}`);
+
+  const data: unknown = await response.json();
+  const results = (Array.isArray(data) ? (data as NominatimPlace[]) : [])
+    .map(toPlaceResult)
+    .filter((place): place is PlaceResult => place !== null)
+    .slice(0, MAX_RESULTS);
+  searchCache.set(cacheKey, results);
+  return results;
+}
+
+/** A street or place name for a point picked on the map, or null when there is none. */
+export async function describePoint(lat: number, lng: number): Promise<string | null> {
+  const name = await reverseGeocode(lat, lng);
+  return name === 'Tu ubicación' ? null : name;
+}
+
+export type TravelMode = 'foot' | 'car';
+
+export interface Route {
+  mode: TravelMode;
+  distanceMeters: number;
+  minutes: number;
+  /** [lng, lat] pairs, ready for a GeoJSON line. */
+  line: [number, number][];
+}
+
+// The public OSRM demo server answers every profile with car routes (a 4.8 km "walk" in 6 minutes),
+// so walking uses the FOSSGIS foot server, which runs the same OSRM software.
+const ROUTERS: Record<TravelMode, string> = {
+  foot: 'https://routing.openstreetmap.de/routed-foot/route/v1/foot',
+  car: 'https://router.project-osrm.org/route/v1/driving'
+};
+
+const routeCache = new Map<string, Route>();
+
+/** The route along the streets, or null when the server cannot be reached or finds none. */
+export async function fetchRoute(mode: TravelMode, from: MapPoint, to: MapPoint, signal?: AbortSignal): Promise<Route | null> {
+  const cacheKey = `${mode}:${from.lat.toFixed(4)},${from.lng.toFixed(4)}>${to.lat.toFixed(4)},${to.lng.toFixed(4)}`;
+  const cached = routeCache.get(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${ROUTERS[mode]}/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
+    const response = await fetch(url, { signal: withTimeout(signal, 10_000) });
+    if (!response.ok) return null;
+    const data = await response.json();
+    const route = data?.code === 'Ok' ? data.routes?.[0] : null;
+    const line = route?.geometry?.coordinates;
+    if (!Array.isArray(line) || line.length < 2) return null;
+
+    const result: Route = {
+      mode,
+      distanceMeters: Math.round(route.distance),
+      minutes: Math.max(1, Math.round(route.duration / 60)),
+      line
+    };
+    routeCache.set(cacheKey, result);
+    return result;
+  } catch {
+    return null;
+  }
+}
+
+const WALKING_METERS_PER_MINUTE = 75; // 4.5 km/h, the same pace as the walking router
+const STREET_DETOUR = 1.25; // streets are longer than a straight line
+const MAX_WALK_TO_SHOW_MIN = 180;
+
+/** Minutes on foot along a path of this length. */
+export const walkingMinutesAlong = (pathMeters: number) =>
+  Math.max(1, Math.round(pathMeters / WALKING_METERS_PER_MINUTE));
+
+/** Minutes on foot guessed from a straight-line distance, for when no route is available. */
+export const estimateWalkingMinutes = (straightMeters: number) => walkingMinutesAlong(straightMeters * STREET_DETOUR);
+
+/** Walking time is worth showing only when walking is a real option. */
+export const isWalkable = (minutes: number) => minutes <= MAX_WALK_TO_SHOW_MIN;
+
+/** "850 m", "1,2 km", "320 km". */
+export function formatMeters(meters: number): string {
+  if (meters < 1000) return `${Math.max(10, Math.round(meters / 10) * 10)} m`;
+  if (meters < 100_000) return `${(meters / 1000).toFixed(1).replace('.', ',')} km`;
+  return `${Math.round(meters / 1000)} km`;
+}
+
+/** "1 minuto", "15 minutos", "1 hora y 10 minutos". */
+export function formatMinutes(minutes: number): string {
+  const total = Math.max(1, Math.round(minutes));
+  const unit = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+  if (total < 60) return unit(total, 'minuto', 'minutos');
+  const rest = total % 60;
+  const hours = unit(Math.floor(total / 60), 'hora', 'horas');
+  return rest ? `${hours} y ${unit(rest, 'minuto', 'minutos')}` : hours;
+}
+
+/** "unos 15 minutos", "cerca de 1 hora y 10 minutos": every time here is an estimate. */
+export function aboutMinutes(minutes: number): string {
+  const total = Math.max(1, Math.round(minutes));
+  if (total === 1) return '1 minuto';
+  return `${total < 60 ? 'unos' : 'cerca de'} ${formatMinutes(total)}`;
 }

@@ -406,6 +406,55 @@
   .maplibregl-map {
     font-family: var(--font-sans);
   }
+
+  /* Home and saved places: shaped badges, so they never read as a neighbour's post. */
+  .map-spot {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .map-spot-badge {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 3px solid #ffffff;
+    border-radius: 10px;
+    background: var(--color-anil);
+    color: #ffffff;
+    box-shadow: 0 1px 4px #12182680;
+  }
+
+  .map-spot-place .map-spot-badge {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--color-anil);
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--color-anil);
+  }
+
+  .map-spot-place svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* The search box has its own clear button; the browser's would make two. */
+  .map-search-input::-webkit-search-cancel-button,
+  .map-search-input::-webkit-search-decoration {
+    appearance: none;
+    display: none;
+  }
+
+  /* The tip of the pin marks the exact centre of the map. */
+  .map-crosshair {
+    transform: translate(-50%, -92%);
+    filter: drop-shadow(0 1px 2px #12182680);
+  }
 }
 
 @keyframes sheet-in {
