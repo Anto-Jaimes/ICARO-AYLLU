@@ -26,7 +26,21 @@ import {
   subscribeToPostChanges
 } from '../services/postsService';
 import { tapFeedback } from '../lib/native';
-import type { ReportKind } from '../services/reportsService';
+import { supabase } from '../lib/supabase';
+import type { Report, ReportKind } from '../services/reportsService';
+import type { Session } from '@supabase/supabase-js';
+
+const IS_NATIVE = Capacitor.isNativePlatform();
+/** Set once the web visitor chose at the door (enter with the code, or only look). */
+const WEB_DOOR_KEY = 'ayllu_web_door';
+
+/**
+ * On the web, only a session made with the code and the app's key may write. It is recognised by the
+ * internal address web-login gives the user, not by being "not anonymous": the moderators' panel lives
+ * on the same site and its session must not count as a neighbour.
+ */
+export const isWebMemberSession = (session: Session | null) =>
+  Boolean(session?.user.email?.endsWith('@usuarios.ayllu.invalid'));
 
 export type Tab = 'home' | 'services' | 'favors' | 'map' | 'neighbors' | 'resources' | 'groups';
 export type LocationStatus = 'locating' | 'ready' | 'denied' | 'unavailable';
@@ -64,6 +78,10 @@ interface AppContextType {
   isNewsOpen: boolean;
   setIsNewsOpen: (open: boolean) => void;
   reportKind: ReportKind | null;
+  /** The news open in detail (photo, place, comments), or null. */
+  newsDetail: Report | null;
+  openNewsDetail: (report: Report) => void;
+  closeNewsDetail: () => void;
   openReport: (kind: ReportKind) => void;
   closeReport: () => void;
   /** Changes after publishing, so every news list reloads. */
@@ -102,6 +120,15 @@ interface AppContextType {
   addReview: (itemId: string, comment: string, reviewerName: string) => void;
   addItem: (item: Omit<CommunityItem, 'id' | 'createdAt' | 'vistosBuenos' | 'reviews'>) => void;
   updateItemStatus: (id: string, status: CommunityItem['status']) => void;
+  /** The app always; the web only after entering with the user code and the app's key. */
+  canWrite: boolean;
+  isWebMember: boolean;
+  isAccessOpen: boolean;
+  /** Why the door opened (for example, "to publish"), or null at the first visit. */
+  accessReason: string | null;
+  openAccess: (reason?: string) => void;
+  /** Closes the door; "viewer" remembers that this visitor chose to only look. */
+  closeAccess: (choice?: 'viewer' | 'member') => void;
   notice: string | null;
   showNotice: (message: string) => void;
   clearNotice: () => void;
@@ -119,6 +146,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isAlertsOpen, setIsAlertsOpen] = useState<boolean>(false);
   const [isNewsOpen, setIsNewsOpen] = useState<boolean>(false);
   const [reportKind, setReportKind] = useState<ReportKind | null>(null);
+  const [newsDetail, setNewsDetail] = useState<Report | null>(null);
+  const openNewsDetail = useCallback((report: Report) => setNewsDetail(report), []);
+  const closeNewsDetail = useCallback(() => setNewsDetail(null), []);
   const [reportsVersion, setReportsVersion] = useState<number>(0);
   const [servicesFilter, setServicesFilter] = useState<ServicesFilter>({});
 
@@ -140,9 +170,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isMuralOpen, setIsMuralOpen] = useState<boolean>(false);
   const [isBatterySaver, setIsBatterySaver] = useState<boolean>(false);
+  // On the web's first visit the door comes first; the tutorial follows the choice.
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(() => {
-    return !localStorage.getItem('icaro_ayllu_tutorial_seen');
+    return !localStorage.getItem('icaro_ayllu_tutorial_seen') && (IS_NATIVE || Boolean(localStorage.getItem(WEB_DOOR_KEY)));
   });
+  const [isWebMember, setIsWebMember] = useState<boolean>(false);
+  const [isAccessOpen, setIsAccessOpen] = useState<boolean>(false);
+  const [accessReason, setAccessReason] = useState<string | null>(null);
+  const canWrite = IS_NATIVE || isWebMember;
+
+  useEffect(() => {
+    if (IS_NATIVE) return;
+    supabase.auth.getSession().then(({ data }) => {
+      const isMember = isWebMemberSession(data.session);
+      setIsWebMember(isMember);
+      if (!isMember && !localStorage.getItem(WEB_DOOR_KEY)) setIsAccessOpen(true);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setIsWebMember(isWebMemberSession(session)));
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  const openAccess = useCallback((reason?: string) => {
+    setAccessReason(reason ?? null);
+    setIsAccessOpen(true);
+  }, []);
+
+  const closeAccess = useCallback((choice?: 'viewer' | 'member') => {
+    setIsAccessOpen(false);
+    setAccessReason(null);
+    if (!choice || localStorage.getItem(WEB_DOOR_KEY)) return;
+    try {
+      localStorage.setItem(WEB_DOOR_KEY, choice);
+    } catch {
+      // the door shows again next visit, which is harmless
+    }
+    if (!localStorage.getItem('icaro_ayllu_tutorial_seen')) setIsTutorialOpen(true);
+  }, []);
 
   const latestFetch = useRef(0);
   const isFlushingQueue = useRef(false);
@@ -163,12 +226,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [setTab]);
 
   const openPublish = useCallback((preset?: PublishPreset) => {
+    if (!canWrite) {
+      openAccess('Para publicar necesitas entrar con tu código de usuario.');
+      return;
+    }
     setPublishPreset(preset ?? null);
     setIsPublishOpen(true);
-  }, []);
+  }, [canWrite, openAccess]);
   const closePublish = useCallback(() => setIsPublishOpen(false), []);
 
-  const openReport = useCallback((kind: ReportKind) => setReportKind(kind), []);
+  const openReport = useCallback((kind: ReportKind) => {
+    if (!canWrite) {
+      openAccess('Para avisar a tus vecinos necesitas entrar con tu código de usuario.');
+      return;
+    }
+    setReportKind(kind);
+  }, [canWrite, openAccess]);
   const closeReport = useCallback(() => setReportKind(null), []);
   const refreshReports = useCallback(() => setReportsVersion((version) => version + 1), []);
 
@@ -340,6 +413,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // The database enforces both rules too; checking here gives the neighbour a clear reason.
   const canRecommend = (item: CommunityItem | undefined): item is CommunityItem => {
     if (!item) return false;
+    if (!canWrite) {
+      openAccess('Para recomendar o comentar necesitas entrar con tu código de usuario.');
+      return false;
+    }
     if (item.isMine) {
       setNotice('No puedes recomendar tu propia publicación.');
       return false;
@@ -437,6 +514,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const updateItemStatus = (id: string, status: CommunityItem['status']) => {
     const previousStatus = items.find((item) => item.id === id)?.status;
     if (!previousStatus) return;
+    if (!canWrite) {
+      openAccess('Para cambiar tu publicación necesitas entrar con tu código de usuario.');
+      return;
+    }
 
     if (!navigator.onLine) {
       setNotice('Necesitas internet para avisar a tus vecinos.');
@@ -484,6 +565,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         isNewsOpen,
         setIsNewsOpen,
         reportKind,
+        newsDetail,
+        openNewsDetail,
+        closeNewsDetail,
         openReport,
         closeReport,
         reportsVersion,
@@ -519,6 +603,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addReview,
         addItem,
         updateItemStatus,
+        canWrite,
+        isWebMember,
+        isAccessOpen,
+        accessReason,
+        openAccess,
+        closeAccess,
         notice,
         showNotice,
         clearNotice

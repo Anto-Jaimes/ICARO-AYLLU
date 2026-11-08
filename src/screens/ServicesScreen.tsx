@@ -7,6 +7,7 @@ import { EmptyState, LoadingRow } from '../components/EmptyState';
 import { PostRow } from '../components/PostRow';
 import { TopBar } from '../components/TopBar';
 import { UNLIMITED_RADIUS_M } from '../utils/geo';
+import { useT } from '../i18n/LanguageContext';
 
 const DISTANCES = [
   { meters: 500, label: 'A 500 m', detail: 'Caminando, muy cerca' },
@@ -17,6 +18,7 @@ const DISTANCES = [
 
 export const ServicesScreen: React.FC = () => {
   const { items, hasLocation, servicesFilter, isLoadingItems } = useApp();
+  const t = useT();
   const [category, setCategory] = useState<string | null>(servicesFilter.category ?? null);
   const [query, setQuery] = useState(servicesFilter.query ?? '');
   const [radius, setRadius] = useState(3000);
@@ -46,7 +48,7 @@ export const ServicesScreen: React.FC = () => {
 
       <div className="page">
       <div className="px-4 pt-3 relative lg:max-w-xl">
-        <label htmlFor="services-search" className="sr-only">Buscar un servicio</label>
+        <label htmlFor="services-search" className="sr-only">{t('Buscar un servicio')}</label>
         <Search className="absolute left-8 top-[30px] w-5 h-5 text-ink-2" aria-hidden="true" />
         <input
           id="services-search"
@@ -54,15 +56,15 @@ export const ServicesScreen: React.FC = () => {
           enterKeyHint="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="¿Qué necesitas?"
+          placeholder={t('¿Qué necesitas?')}
           className="field pl-12"
         />
       </div>
 
-      <div className="chip-row pt-2" role="group" aria-label="Filtrar servicios">
+      <div className="chip-row pt-2" role="group" aria-label={t('Filtrar servicios')}>
         {hasLocation && (
           <button type="button" className="chip" onClick={() => setIsDistanceOpen(true)}>
-            {currentDistance.label}
+            {t(currentDistance.label)}
             <ChevronDown className="w-4 h-4" aria-hidden="true" />
           </button>
         )}
@@ -75,23 +77,23 @@ export const ServicesScreen: React.FC = () => {
             onClick={() => setCategory(category === option.id ? null : option.id)}
           >
             {category === option.id && <Check className="w-4 h-4" aria-hidden="true" />}
-            {option.label}
+            {t(option.label)}
           </button>
         ))}
       </div>
 
       {services.length === 0 ? (
         isLoadingItems ? (
-          <LoadingRow text="Buscando servicios..." />
+          <LoadingRow text={t('Buscando servicios...')} />
         ) : (
           <EmptyState
             icon={Store}
-            title="Todavía no hay servicios cerca"
-            line={canWiden ? 'Prueba buscando más lejos.' : 'Toca Publicar para ofrecer el tuyo.'}
+            title={t('Todavía no hay servicios cerca')}
+            line={canWiden ? t('Prueba buscando más lejos.') : t('Toca Publicar para ofrecer el tuyo.')}
             action={
               canWiden && (
                 <button type="button" className="btn btn-primary" onClick={() => setRadius(UNLIMITED_RADIUS_M)}>
-                  Ver más lejos
+                  {t('Ver más lejos')}
                 </button>
               )
             }
@@ -107,7 +109,7 @@ export const ServicesScreen: React.FC = () => {
 
       </div>
 
-      <BottomSheet open={isDistanceOpen} onClose={() => setIsDistanceOpen(false)} title="¿Qué tan lejos?">
+      <BottomSheet open={isDistanceOpen} onClose={() => setIsDistanceOpen(false)} title={t('¿Qué tan lejos?')}>
         <ul className="list-plain pb-4">
           {DISTANCES.map((distance) => (
             <li key={distance.meters}>
@@ -121,8 +123,8 @@ export const ServicesScreen: React.FC = () => {
                 }}
               >
                 <span className="flex-1">
-                  <span className="block text-row font-semibold">{distance.label}</span>
-                  <span className="block text-secondary text-ink-2">{distance.detail}</span>
+                  <span className="block text-row font-semibold">{t(distance.label)}</span>
+                  <span className="block text-secondary text-ink-2">{t(distance.detail)}</span>
                 </span>
                 {radius === distance.meters && <Check className="w-6 h-6 text-anil" aria-hidden="true" />}
               </button>

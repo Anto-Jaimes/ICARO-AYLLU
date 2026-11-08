@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { Backpack, BatteryLow, CircleHelp, HandHeart, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { Backpack, BatteryLow, CircleHelp, HandHeart, LogIn, LogOut, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { BottomSheet } from './BottomSheet';
 import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
 import { UserCodeSection } from './UserCodeSection';
+import { WebKeySection } from './WebKeySection';
+import { signOutOfWeb } from '../services/webLoginService';
+import { useT } from '../i18n/LanguageContext';
+import { LanguagePicker } from './LanguagePicker';
 
 interface Slide {
   icon: LucideIcon;
@@ -35,6 +40,7 @@ const SLIDES: Slide[] = [
 ];
 
 export const TutorialSheet: React.FC = () => {
+  const t = useT();
   const { isTutorialOpen, setIsTutorialOpen } = useApp();
   const [slide, setSlide] = useState(0);
 
@@ -51,34 +57,71 @@ export const TutorialSheet: React.FC = () => {
     <BottomSheet
       open={isTutorialOpen}
       onClose={finish}
-      title="Cómo se usa"
+      title={t("Cómo se usa")}
       footer={
         <button type="button" className="btn btn-primary" onClick={() => (isLast ? finish() : setSlide(slide + 1))}>
-          {isLast ? 'Empezar' : 'Siguiente'}
+          {isLast ? t('Empezar') : t('Siguiente')}
         </button>
       }
     >
       <div className="px-4 pb-4">
         <Icon className="w-10 h-10 text-anil" aria-hidden="true" />
-        <h3 className="mt-3 text-section font-bold">{title}</h3>
-        <p className="mt-1">{text}</p>
-        <p className="mt-3 text-meta text-ink-2">Paso {slide + 1} de {SLIDES.length}</p>
+        <h3 className="mt-3 text-section font-bold">{t(title)}</h3>
+        <p className="mt-1">{t(text)}</p>
+        <p className="mt-3 text-meta text-ink-2">{t('Paso')} {slide + 1} {t('de')} {SLIDES.length}</p>
       </div>
     </BottomSheet>
   );
 };
 
 export const MenuSheet: React.FC = () => {
-  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver } = useApp();
+  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, canWrite, isWebMember, openAccess, showNotice } = useApp();
   const [isBackpackOpen, setIsBackpackOpen] = useState(false);
+  const isNative = Capacitor.isNativePlatform();
+  const t = useT();
+
+  const leaveWeb = async () => {
+    setIsMenuOpen(false);
+    await signOutOfWeb();
+    showNotice('Saliste de la web en esta computadora. Tu celular sigue igual.');
+  };
 
   return (
     <>
       <EmergencyBackpackSheet open={isBackpackOpen} onClose={() => setIsBackpackOpen(false)} />
       <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title="Ayuda">
         <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <UserCodeSection isVisible={isMenuOpen} />
+          {/* A code comes only from the app: on the web it shows once entered with it, never creates one. */}
+          {canWrite && <UserCodeSection isVisible={isMenuOpen} />}
+          {isNative && <WebKeySection isVisible={isMenuOpen} />}
+          <LanguagePicker />
           <ul className="list-plain">
+            {!isNative && (
+              <li>
+                <button
+                  type="button"
+                  className="row"
+                  onClick={() => {
+                    if (isWebMember) {
+                      leaveWeb();
+                    } else {
+                      setIsMenuOpen(false);
+                      openAccess();
+                    }
+                  }}
+                >
+                  {isWebMember
+                    ? <LogOut className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                    : <LogIn className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
+                  <span className="flex-1">
+                    <span className="block text-row font-semibold">{t(isWebMember ? 'Salir de la web en esta computadora' : 'Entrar con mi código')}</span>
+                    <span className="block text-secondary text-ink-2">
+                      {t(isWebMember ? 'Tu celular sigue con tu cuenta' : 'Para publicar, comentar y llamar')}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            )}
             <li>
               <button
                 type="button"
@@ -89,7 +132,7 @@ export const MenuSheet: React.FC = () => {
                 }}
               >
                 <CircleHelp className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-                <span className="flex-1 text-row font-semibold">Cómo se usa</span>
+                <span className="flex-1 text-row font-semibold">{t('Cómo se usa')}</span>
               </button>
             </li>
             <li>
@@ -102,7 +145,7 @@ export const MenuSheet: React.FC = () => {
                 }}
               >
                 <Printer className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
-                <span className="flex-1 text-row font-semibold">Imprimir mural comunal</span>
+                <span className="flex-1 text-row font-semibold">{t('Imprimir mural comunal')}</span>
               </button>
             </li>
             <li>
@@ -116,8 +159,8 @@ export const MenuSheet: React.FC = () => {
               >
                 <BatteryLow className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
                 <span className="flex-1">
-                  <span className="block text-row font-semibold">Modo apagón</span>
-                  <span className="block text-secondary text-ink-2">Pantalla negra para cuidar la batería</span>
+                  <span className="block text-row font-semibold">{t('Modo apagón')}</span>
+                  <span className="block text-secondary text-ink-2">{t('Pantalla negra para cuidar la batería')}</span>
                 </span>
               </button>
             </li>
@@ -132,8 +175,8 @@ export const MenuSheet: React.FC = () => {
               >
                 <Backpack className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
                 <span className="flex-1">
-                  <span className="block text-row font-semibold">Mochila de emergencia</span>
-                  <span className="block text-secondary text-ink-2">Revisa qué te falta antes de un sismo</span>
+                  <span className="block text-row font-semibold">{t('Mochila de emergencia')}</span>
+                  <span className="block text-secondary text-ink-2">{t('Revisa qué te falta antes de un sismo')}</span>
                 </span>
               </button>
             </li>
@@ -141,14 +184,14 @@ export const MenuSheet: React.FC = () => {
           <section className="px-4 pt-4 border-t border-line">
             <h3 className="flex items-center gap-2 text-row font-bold">
               <HandHeart className="w-5 h-5 text-anil" aria-hidden="true" />
-              Qué es el ayllu
+              {t('Qué es el ayllu')}
             </h3>
             <p className="mt-1 text-secondary text-ink-2">
-              Es la comunidad andina que se ayuda entre sí. Esta app conecta a los vecinos de tu barrio.
+              {t('Es la comunidad andina que se ayuda entre sí. Esta app conecta a los vecinos de tu barrio.')}
             </p>
-            <h3 className="mt-4 text-row font-bold">De dónde vienen las alertas</h3>
+            <h3 className="mt-4 text-row font-bold">{t('De dónde vienen las alertas')}</h3>
             <p className="mt-1 text-secondary text-ink-2">
-              Sismos del IGP. Huaicos, lluvias y avisos de SENAMHI. Son datos oficiales del Perú. Ante una emergencia, sigue a las autoridades.
+              {t('Sismos del IGP. Huaicos, lluvias y avisos de SENAMHI. Son datos oficiales del Perú. Ante una emergencia, sigue a las autoridades.')}
             </p>
           </section>
         </div>

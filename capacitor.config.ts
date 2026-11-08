@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'pe.icaroayllu.app',
+  appId: 'pe.ayllu.comunidad',
   appName: 'AYLLU',
   webDir: 'dist'
 };

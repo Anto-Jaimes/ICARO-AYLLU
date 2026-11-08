@@ -3,7 +3,8 @@ import { CircleCheck, CircleHelp, CloudOff, MapPin, TriangleAlert, type LucideIc
 import { useApp } from '../context/AppContext';
 import { SafetyTone, useHazards } from '../context/HazardContext';
 import { LevelGlyph } from './LevelTag';
-import { HelpButton } from './TopBar';
+import { HelpButton, TopBarLanguageSelector } from './TopBar';
+import { useT } from '../i18n/LanguageContext';
 
 interface ToneStyle {
   field: string;
@@ -30,6 +31,7 @@ const LEVEL_NAMES: Partial<Record<SafetyTone, string>> = {
 /** The hillside: a colour field that gives one verdict and ends on terraces. */
 export const SafetyBlock: React.FC = () => {
   const { userLocation, hasLocation, requestCurrentGPS, setIsAlertsOpen } = useApp();
+  const t = useT();
   const { verdict, feed } = useHazards();
   const tone = TONE_STYLES[verdict.tone];
   const Icon = tone.icon;
@@ -51,6 +53,7 @@ export const SafetyBlock: React.FC = () => {
           <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
           <span className="truncate text-secondary font-medium">{place}</span>
         </button>
+        <TopBarLanguageSelector />
         <HelpButton />
       </div>
 
@@ -69,7 +72,7 @@ export const SafetyBlock: React.FC = () => {
         )}
 
         <h1 id="verdict-title" className="mt-1 text-sign font-bold lg:text-[2.5rem] lg:leading-[3rem]">
-          {verdict.title}
+          {t(verdict.title)}
         </h1>
         <p className="mt-1 text-secondary">{verdict.line}</p>
         </div>
@@ -79,7 +82,7 @@ export const SafetyBlock: React.FC = () => {
           onClick={() => (verdict.action === 'locate' ? requestCurrentGPS() : setIsAlertsOpen(true))}
           className={`mt-1 min-h-12 shrink-0 text-secondary font-bold underline underline-offset-4 lg:mt-0 lg:px-5 lg:no-underline lg:rounded-lg lg:border-2 lg:border-current ${tone.link}`}
         >
-          {verdict.actionLabel}
+          {t(verdict.actionLabel)}
         </button>
       </div>
 

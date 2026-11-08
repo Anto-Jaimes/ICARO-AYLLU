@@ -1,15 +1,20 @@
+import { Capacitor } from '@capacitor/core';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { AppProvider, useApp } from './context/AppContext';
+import { LanguageProvider, useT } from './i18n/LanguageContext';
 import { HazardProvider, SafetyTone, useHazards } from './context/HazardContext';
 import { BottomNav } from './components/BottomNav';
 import { BottomSheet } from './components/BottomSheet';
+import { EmergencySuggestion } from './components/EmergencySuggestion';
 import { MenuSheet, TutorialSheet } from './components/HelpSheets';
 import { NoticeToast } from './components/NoticeToast';
 import { PostSheet } from './components/PostSheet';
 import { PublishSheet } from './components/PublishSheet';
 import { ReportSheet } from './components/ReportSheet';
 import { SosSheet } from './components/SosSheet';
+import { WebAccessSheet } from './components/WebAccessSheet';
+import { NewsDetailSheet } from './components/NewsDetailSheet';
 import { EmergencyBar } from './components/TopBar';
 import { PrintableMuralModal } from './components/PrintableMuralModal';
 import { BatterySaverScreen } from './screens/BatterySaverScreen';
@@ -47,6 +52,7 @@ const OfflineStrip: React.FC = () => {
 
 const PublishButton: React.FC = () => {
   const { mode, openPublish, isOnline } = useApp();
+  const t = useT();
   const isEmergency = mode === 'emergency';
 
   return (
@@ -59,7 +65,7 @@ const PublishButton: React.FC = () => {
       style={{ bottom: `calc(var(--nav-height) + var(--safe-bottom) + ${isOnline ? 16 : 64}px)` }}
     >
       <Plus className="w-6 h-6" aria-hidden="true" />
-      {isEmergency ? 'Reportar' : 'Publicar'}
+      {t(isEmergency ? 'Reportar' : 'Publicar')}
     </button>
   );
 };
@@ -67,6 +73,7 @@ const PublishButton: React.FC = () => {
 const Shell: React.FC = () => {
   const { mode, setMode, tab, setTab, homeTab, isAlertsOpen, setIsAlertsOpen, isNewsOpen, isMuralOpen, setIsMuralOpen, isBatterySaver, setIsBatterySaver } = useApp();
   const { verdict } = useHazards();
+  const t = useT();
   const isEmergency = mode === 'emergency';
   const [isExitOpen, setIsExitOpen] = useState(false);
 
@@ -124,12 +131,15 @@ const Shell: React.FC = () => {
       <PublishSheet />
       <ReportSheet />
       <SosSheet />
+      <EmergencySuggestion />
+      <NewsDetailSheet />
+      {!Capacitor.isNativePlatform() && <WebAccessSheet />}
       <MenuSheet />
       <TutorialSheet />
 
-      <BottomSheet open={isExitOpen} onClose={() => setIsExitOpen(false)} title="¿Salir del modo emergencia?">
+      <BottomSheet open={isExitOpen} onClose={() => setIsExitOpen(false)} title={t('¿Salir del modo emergencia?')}>
         <div className="px-4 space-y-2" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <p className="pb-2 text-secondary">Volverás a ver los servicios y favores de tu barrio.</p>
+          <p className="pb-2 text-secondary">{t('Volverás a ver los servicios y favores de tu barrio.')}</p>
           <button
             type="button"
             className="btn btn-primary"
@@ -138,10 +148,10 @@ const Shell: React.FC = () => {
               setMode('normal');
             }}
           >
-            Sí, salir
+            {t('Sí, salir')}
           </button>
           <button type="button" className="btn btn-secondary" onClick={() => setIsExitOpen(false)}>
-            Seguir en emergencia
+            {t('Seguir en emergencia')}
           </button>
         </div>
       </BottomSheet>
@@ -154,11 +164,13 @@ const Shell: React.FC = () => {
 
 export function App() {
   return (
+    <LanguageProvider>
     <AppProvider>
       <HazardProvider>
         <Shell />
       </HazardProvider>
     </AppProvider>
+    </LanguageProvider>
   );
 }
 

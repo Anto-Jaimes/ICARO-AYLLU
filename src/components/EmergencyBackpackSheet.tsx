@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useT } from '../i18n/LanguageContext';
 import { Check } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 
@@ -32,6 +33,7 @@ function loadChecked(): string[] {
 }
 
 export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ open, onClose }) => {
+  const t = useT();
   const [checkedIds, setCheckedIds] = useState<string[]>(loadChecked);
 
   useEffect(() => {
@@ -48,18 +50,18 @@ export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ 
 
   const ready = ALL_ITEMS.filter((item) => checkedIds.includes(item.id)).length;
   const summary = ready === ALL_ITEMS.length
-    ? 'Tu mochila está completa.'
+    ? t('Tu mochila está completa.')
     : `Tienes ${ready} de ${ALL_ITEMS.length} cosas. Te faltan ${ALL_ITEMS.length - ready}.`;
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Mochila de emergencia">
+    <BottomSheet open={open} onClose={onClose} title={t("Mochila de emergencia")}>
       <div className="pb-6">
-        <p className="px-4 text-secondary text-ink-2">Prepárala antes de un sismo o huaico, y tenla cerca de la puerta. Marca lo que ya tienes.</p>
+        <p className="px-4 text-secondary text-ink-2">{t('Prepárala antes de un sismo o huaico, y tenla cerca de la puerta. Marca lo que ya tienes.')}</p>
         <p className="px-4 pt-3 text-row font-bold" aria-live="polite">{summary}</p>
         <div
           className="mx-4 mt-2 h-3 rounded-full bg-sunken overflow-hidden"
           role="progressbar"
-          aria-label="Mochila lista"
+          aria-label={t("Mochila lista")}
           aria-valuemin={0}
           aria-valuemax={ALL_ITEMS.length}
           aria-valuenow={ready}
@@ -79,7 +81,7 @@ export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ 
                   >
                     {isChecked && <Check className="w-5 h-5" />}
                   </span>
-                  <span className="flex-1 text-row">{item.label}</span>
+                  <span className="flex-1 text-row">{t(item.label)}</span>
                 </button>
               </li>
             );

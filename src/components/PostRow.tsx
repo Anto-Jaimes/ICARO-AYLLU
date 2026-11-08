@@ -4,6 +4,8 @@ import { useApp } from '../context/AppContext';
 import { findCategory } from '../data/categories';
 import { CommunityItem } from '../types';
 import { describeDistance } from '../utils/geo';
+import { postPhotoUrl } from '../services/postPhotos';
+import { useT } from '../i18n/LanguageContext';
 
 export function recommendationText(count: number): string {
   if (count === 0) return 'Aún sin recomendaciones';
@@ -15,26 +17,38 @@ export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: bool
   showRecommendations = true
 }) => {
   const { openItem } = useApp();
+  const t = useT();
   const category = findCategory(item.category);
   const Icon = category.icon;
   const distance = describeDistance(item.distanceMeters);
 
+  const recText = item.vistosBuenos === 1
+    ? t('Recomendado por 1 vecino')
+    : `${t('Recomendado por')} ${item.vistosBuenos} ${t('vecinos')}`;
+
   return (
     <button type="button" className="row" onClick={() => openItem(item.id)}>
-      <span className="grid place-items-center shrink-0 w-11 h-11 rounded-lg bg-sunken text-anil">
-        <Icon className="w-6 h-6" aria-hidden="true" />
-      </span>
+      {item.photos?.length ? (
+        <img src={postPhotoUrl(item.photos[0])} alt="" loading="lazy" className="shrink-0 w-14 h-14 rounded-lg object-cover bg-sunken" />
+      ) : (
+        <span className="grid place-items-center shrink-0 w-11 h-11 rounded-lg bg-sunken text-anil">
+          <Icon className="w-6 h-6" aria-hidden="true" />
+        </span>
+      )}
 
       <span className="flex-1 min-w-0">
         <span className="block text-row font-semibold line-clamp-2">{item.title}</span>
         {showRecommendations && item.vistosBuenos > 0 && (
           <span className="flex items-center gap-1.5 text-secondary font-medium text-anil">
             <ThumbsUp className="w-4 h-4 shrink-0" aria-hidden="true" />
-            {recommendationText(item.vistosBuenos)}
+            {recText}
           </span>
         )}
+        {item.type === 'favor_request' && item.status === 'resolved' && (
+          <span className="block text-secondary font-bold text-verde">{t('Ya lo ayudaron')}</span>
+        )}
         <span className="block text-secondary text-ink-2 truncate">
-          {[category.label, distance].filter(Boolean).join(', ')}
+          {[t(category.label), distance].filter(Boolean).join(', ')}
         </span>
       </span>
 

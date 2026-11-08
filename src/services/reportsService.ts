@@ -35,6 +35,10 @@ export interface Report {
   created_at: string;
   is_mine: boolean;
   has_flagged: boolean;
+  /** Where it happened, rounded to about 100 m. Absent in feeds from before it was returned. */
+  lat?: number | null;
+  lng?: number | null;
+  comment_count?: number;
 }
 
 export interface ReportPlace {
@@ -137,4 +141,44 @@ export function subscribeToReports(onChange: () => void): () => void {
   return () => {
     supabase.removeChannel(channel);
   };
+}
+
+export interface ReportComment {
+  id: string;
+  author_id: string | null;
+  author_name: string;
+  body: string;
+  created_at: string;
+}
+
+export async function fetchComments(reportId: string): Promise<ReportComment[]> {
+  const { data, error } = await supabase
+    .from('report_comments')
+    .select('id, author_id, author_name, body, created_at')
+    .eq('report_id', reportId)
+    .order('created_at', { ascending: true })
+    .limit(200);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export type CommentResult = 'ok' | 'no_code' | 'invalid' | 'not_found' | 'too_many';
+
+export const COMMENT_PROBLEMS: Record<Exclude<CommentResult, 'ok'>, string> = {
+  no_code: 'Para comentar necesitas entrar con tu código de usuario.',
+  invalid: 'Escribe tu comentario, de hasta 500 letras.',
+  not_found: 'Esta noticia ya no está publicada.',
+  too_many: 'Ya comentaste mucho en la última hora. Vuelve a intentar más tarde.'
+};
+
+export async function addComment(reportId: string, authorName: string, body: string): Promise<CommentResult> {
+  await ensureSession();
+  const { data, error } = await supabase.rpc('add_report_comment', { p_report_id: reportId, p_author_name: authorName, p_body: body });
+  if (error) throw error;
+  return data as CommentResult;
+}
+
+export async function deleteComment(commentId: string): Promise<void> {
+  const { error } = await supabase.from('report_comments').delete().eq('id', commentId);
+  if (error) throw error;
 }
