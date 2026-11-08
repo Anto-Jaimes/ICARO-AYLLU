@@ -38,5 +38,11 @@ export const ALERTS_PLUS: Entries = {
   "Plus Code & Silbato Vecinal": ["Plus Code and neighbourhood whistle", "Plus Code, llaqta pituwanpas", "Plus Code, marka pitumpi"],
   "Tu ubicación exacta sin internet y alarma disuasiva": ["Your exact location without internet, and a warning alarm", "Mana internetwan chiqap maypi kasqayki, manchachiq alarmapas", "Jan internetampi kawkinkitas chiqpacha, axsarayir alarmampi"],
   "Ubicación exacta sin internet, SMS de rescate y alarma disuasiva": ["Exact location without internet, rescue SMS and a warning alarm", "Mana internetwan chiqap maypi kasqan, qispichinapaq SMS, manchachiq alarmapas", "Jan internetampi kawkinkis chiqpacha, qhispiyañ SMS, axsarayir alarmampi"],
-  "Oficios de tu barrio": ["Trades in your neighbourhood", "Llaqtaykipa llamk'aykunan", "Markaman luräwinaka"]
+  "Oficios de tu barrio": ["Trades in your neighbourhood", "Llaqtaykipa llamk'aykunan", "Markaman luräwinaka"],
+
+  // Auxilio sheet: rescue by SMS or WhatsApp, and the family contact
+  "SMS de Rescate (Sin saldo)": ["Rescue SMS (no credit needed)", "Qispichiy SMS (mana saldoyuq)", "Qhispiyasiñ SMS (jan saldompi)"],
+  "Auxilio por WhatsApp": ["Help via WhatsApp", "WhatsAppwan yanapay mañakuy", "WhatsApp tuqi yanap mayiña"],
+  "Contacto de auxilio guardado": ["Emergency contact saved", "Yanapaq contacto waqaychasqa", "Yanapir contacto imatawa"],
+  "Configurar": ["Set up", "Allichay", "Wakicht'aña"]
 };
