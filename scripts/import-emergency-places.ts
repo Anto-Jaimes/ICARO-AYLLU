@@ -20,7 +20,8 @@ for (const file of ['.env', '.env.local', '.env.relay']) if (existsSync(file)) p
 const db = createClient(process.env.VITE_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
 
 const MAIN_SERVER = 'https://overpass-api.de/api/interpreter';
-const SPARE_SERVER = 'https://overpass.private.coffee/api/interpreter';
+// overpass.private.coffee stopped answering (2026-11-08); mail.ru's mirror answers, slowly.
+const SPARE_SERVER = 'https://maps.mail.ru/osm/tools/overpass/api/interpreter';
 const SIZE = 1.5;
 const AT_ONCE = 2;
 // Each run reads one group, and only that group is refreshed or cleaned.
@@ -68,8 +69,8 @@ function firstPhone(tags: Record<string, string>): string | null {
 async function readSquare(south: number, west: number): Promise<OsmElement[]> {
   const box = `${south},${west},${south + SIZE},${west + SIZE}`;
   const query = `[out:json][timeout:110];nwr[amenity~"^(${KINDS.join('|')})$"](${box});out center tags;`;
-  // The main server is slow but works; the spare is tried only after it fails several times.
-  const servers = [MAIN_SERVER, MAIN_SERVER, MAIN_SERVER, SPARE_SERVER, MAIN_SERVER];
+  // Both public servers get busy and limit how often one computer asks: they take turns.
+  const servers = [MAIN_SERVER, SPARE_SERVER, MAIN_SERVER, SPARE_SERVER, MAIN_SERVER];
   for (const [attempt, url] of servers.entries()) {
     try {
       const response = await fetch(url, {
