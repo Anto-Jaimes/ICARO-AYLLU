@@ -22,14 +22,26 @@ export interface TriageVictim {
 
 const STORAGE_KEY = 'ayllu_triage_victims_v1';
 
-export const TRIAGE_CONFIG: Record<TriageTag, { label: string; priority: string; color: string; bg: string; border: string; text: string }> = {
+export const TRIAGE_CONFIG: Record<
+  TriageTag,
+  {
+    label: string;
+    priority: string;
+    color: string;
+    bg: string;
+    border: string;
+    text: string;
+    nativeColor: { qu: string; 'qu-cen': string; ay: string; cni: string; es: string };
+  }
+> = {
   ROJO: {
     label: 'Prioridad I - Inmediato',
     priority: 'Atención y evacuación urgente vital',
     color: '#dc2626',
     bg: 'bg-red-950/40',
     border: 'border-red-600',
-    text: 'text-red-400'
+    text: 'text-red-400',
+    nativeColor: { es: 'Rojo', qu: 'Puka', 'qu-cen': 'Puka', ay: 'Wila', cni: 'Katsinkari Puka' }
   },
   AMARILLO: {
     label: 'Prioridad II - Retardado',
@@ -37,7 +49,8 @@ export const TRIAGE_CONFIG: Record<TriageTag, { label: string; priority: string;
     color: '#d97706',
     bg: 'bg-amber-950/40',
     border: 'border-amber-500',
-    text: 'text-amber-400'
+    text: 'text-amber-400',
+    nativeColor: { es: 'Amarillo', qu: "Q'ellu", 'qu-cen': "Q'ellu / Qarwa", ay: "Q'illu", cni: 'Kiteri' }
   },
   VERDE: {
     label: 'Prioridad III - Leve',
@@ -45,7 +58,8 @@ export const TRIAGE_CONFIG: Record<TriageTag, { label: string; priority: string;
     color: '#16a34a',
     bg: 'bg-emerald-950/40',
     border: 'border-emerald-600',
-    text: 'text-emerald-400'
+    text: 'text-emerald-400',
+    nativeColor: { es: 'Verde', qu: "Q'omer", 'qu-cen': "Q'omer / Tsiqya", ay: "Ch'uxña", cni: 'Chekatsirori' }
   },
   NEGRO: {
     label: 'Prioridad 0 - Fallecido / Agónico',
@@ -53,7 +67,8 @@ export const TRIAGE_CONFIG: Record<TriageTag, { label: string; priority: string;
     color: '#525252',
     bg: 'bg-neutral-900',
     border: 'border-neutral-600',
-    text: 'text-neutral-400'
+    text: 'text-neutral-400',
+    nativeColor: { es: 'Negro', qu: 'Yana', 'qu-cen': 'Yana', ay: "Ch'iyara", cni: 'Kisaari' }
   }
 };
 
@@ -66,126 +81,109 @@ export function getTriageVictims(): TriageVictim[] {
   }
 }
 
-export function saveTriageVictim(victim: TriageVictim): TriageVictim[] {
+export function saveTriageVictim(victim: TriageVictim): void {
   const current = getTriageVictims();
-  const existingIdx = current.findIndex((v) => v.id === victim.id);
-  let updated: TriageVictim[];
-  if (existingIdx >= 0) {
-    updated = [...current];
-    updated[existingIdx] = victim;
-  } else {
-    updated = [victim, ...current];
-  }
+  const updated = [victim, ...current.filter((v) => v.id !== victim.id)];
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  } catch (e) {
-    console.error('Failed to save triage victim', e);
+  } catch (err) {
+    console.warn('Error saving triage victim', err);
   }
-  return updated;
 }
 
-export function updateVictimStatus(id: string, status: TriageVictim['status']): TriageVictim[] {
+export function updateVictimStatus(id: string, status: TriageVictim['status']): void {
   const current = getTriageVictims();
   const updated = current.map((v) => (v.id === id ? { ...v, status } : v));
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  } catch (e) {
-    console.error('Failed to update victim status', e);
+  } catch (err) {
+    console.warn('Error updating triage victim status', err);
   }
-  return updated;
 }
 
-export function deleteTriageVictim(id: string): TriageVictim[] {
+export function deleteTriageVictim(id: string): void {
   const current = getTriageVictims();
   const updated = current.filter((v) => v.id !== id);
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  } catch (e) {
-    console.error('Failed to delete victim', e);
+  } catch (err) {
+    console.warn('Error deleting triage victim', err);
   }
-  return updated;
 }
 
-/**
- * START Algorithm Rule:
- * 1. Can walk? -> VERDE
- * 2. Breathing? No -> Open airway -> Still no? -> NEGRO
- * 3. Breathing? > 30/min or rapid? -> ROJO
- * 4. Perfusion: Radial pulse absent? -> ROJO
- * 5. Mental Status: Doesn't obey simple commands? -> ROJO
- * 6. Otherwise -> AMARILLO
- */
-export function calculateStartTag(answers: {
-  canWalk: boolean;
-  breathing: 'normal' | 'rapida' | 'nula';
-  pulse: 'radial_presente' | 'radial_ausente';
-  mentalState: 'obedece' | 'confuso_inconsciente';
-}): TriageTag {
-  if (answers.canWalk) return 'VERDE';
-  if (answers.breathing === 'nula') return 'NEGRO';
-  if (answers.breathing === 'rapida') return 'ROJO';
-  if (answers.pulse === 'radial_ausente') return 'ROJO';
-  if (answers.mentalState === 'confuso_inconsciente') return 'ROJO';
+/** Algoritmo START oficial */
+export function calculateStartTag(
+  canWalk: boolean,
+  breathing: 'normal' | 'rapida' | 'nula',
+  pulse: 'radial_presente' | 'radial_ausente',
+  mentalState: 'obedece' | 'confuso_inconsciente'
+): TriageTag {
+  // 1. ¿Camina?
+  if (canWalk) {
+    return 'VERDE';
+  }
+  // 2. Respiración
+  if (breathing === 'nula') {
+    return 'NEGRO';
+  }
+  if (breathing === 'rapida') {
+    return 'ROJO';
+  }
+  // 3. Circulación (Pulso radial / Relleno capilar)
+  if (pulse === 'radial_ausente') {
+    return 'ROJO';
+  }
+  // 4. Estado mental
+  if (mentalState === 'confuso_inconsciente') {
+    return 'ROJO';
+  }
+  // Si no camina pero respira normal, pulso presente y obedece órdenes simples:
   return 'AMARILLO';
 }
 
-/**
- * Builds compact tactical JSON/string payload for QR code scanning by CGBVP Bomberos 116 / SAMU 106
- */
-export function buildTacticalQRPayload(victims: TriageVictim[], centerCoords?: [number, number]): string {
-  const counts = {
-    R: victims.filter((v) => v.tag === 'ROJO' && v.status !== 'evacuado').length,
-    A: victims.filter((v) => v.tag === 'AMARILLO' && v.status !== 'evacuado').length,
-    V: victims.filter((v) => v.tag === 'VERDE' && v.status !== 'evacuado').length,
-    N: victims.filter((v) => v.tag === 'NEGRO').length
-  };
+/** Payload ultra-compacto para código QR compatible con Bomberos 116 y SAMU */
+export function buildTacticalQRPayload(victims: TriageVictim[]): string {
+  const counts = { ROJO: 0, AMARILLO: 0, VERDE: 0, NEGRO: 0 };
+  victims.forEach((v) => {
+    counts[v.tag]++;
+  });
 
-  // Compact payload to fit easily in standard QR versions:
-  const compactVictims = victims.slice(0, 10).map((v) => ({
-    t: v.tag[0], // R, A, V, N
-    id: v.identifier.slice(0, 30),
-    loc: v.locationNote.slice(0, 30),
-    inj: v.injuries.slice(0, 40),
-    c: v.coords ? [Number(v.coords[0].toFixed(5)), Number(v.coords[1].toFixed(5))] : undefined
-  }));
+  const summary = `AYLLU-START|T:${victims.length}|R:${counts.ROJO}|A:${counts.AMARILLO}|V:${counts.VERDE}|N:${counts.NEGRO}`;
+  const victimLines = victims.slice(0, 15).map((v, i) => {
+    const lat = v.coords ? v.coords[0].toFixed(5) : '0';
+    const lng = v.coords ? v.coords[1].toFixed(5) : '0';
+    return `${i + 1}:${v.tag[0]}|${v.identifier.slice(0, 15)}|${v.locationNote.slice(0, 20)}|${lat},${lng}|${v.status[0]}`;
+  });
 
-  const payload = {
-    src: 'ICARO-AYLLU-START',
-    ts: new Date().toISOString().slice(0, 19),
-    gps: centerCoords ? [Number(centerCoords[0].toFixed(5)), Number(centerCoords[1].toFixed(5))] : undefined,
-    summary: counts,
-    vics: compactVictims
-  };
-
-  return JSON.stringify(payload);
+  return `${summary}\n${victimLines.join('\n')}`;
 }
 
-/**
- * Generates GeoJSON FeatureCollection ready for download and import into QGIS, Google Earth, ATAK
- */
+/** Exportación GeoJSON para brigadas de rescate con GPS o sistemas GIS */
 export function generateTriageGeoJSON(victims: TriageVictim[]): string {
-  const features = victims.map((v) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: v.coords ? [v.coords[1], v.coords[0]] : [0, 0]
-    },
-    properties: {
-      id: v.id,
-      tag: v.tag,
-      priority: TRIAGE_CONFIG[v.tag].label,
-      identifier: v.identifier,
-      location: v.locationNote,
-      injuries: v.injuries,
-      status: v.status,
-      timestamp: v.createdAt
-    }
-  }));
+  const features = victims
+    .filter((v) => v.coords)
+    .map((v) => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [v.coords![1], v.coords![0]]
+      },
+      properties: {
+        id: v.id,
+        tag: v.tag,
+        identifier: v.identifier,
+        locationNote: v.locationNote,
+        injuries: v.injuries,
+        status: v.status,
+        createdAt: v.createdAt
+      }
+    }));
 
   return JSON.stringify(
     {
       type: 'FeatureCollection',
-      name: 'PADRON_TRIAGE_EMERGENCIA_AYLLU',
+      name: 'AYLLU_Triage_START_Export',
+      crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
       features
     },
     null,

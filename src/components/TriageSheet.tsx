@@ -30,6 +30,7 @@ import {
 } from '../utils/triageStorage';
 import { tapFeedback } from '../lib/native';
 import { useApp } from '../context/AppContext';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface TriageSheetProps {
   open: boolean;
@@ -38,6 +39,7 @@ interface TriageSheetProps {
 
 export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
   const { userLocation } = useApp();
+  const { lang, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'padron' | 'evaluar' | 'qr'>('padron');
   const [victims, setVictims] = useState<TriageVictim[]>([]);
   
@@ -67,19 +69,19 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
   }, [open]);
 
   // Dynamic calculated START tag
-  const calculatedTag: TriageTag = calculateStartTag({
+  const calculatedTag: TriageTag = calculateStartTag(
     canWalk,
     breathing,
     pulse,
     mentalState
-  });
+  );
 
   const tagConfig = TRIAGE_CONFIG[calculatedTag];
 
   // Generate QR when viewing QR tab or when victims change
   useEffect(() => {
     if (activeTab === 'qr') {
-      const payload = buildTacticalQRPayload(victims, [userLocation.lat, userLocation.lng]);
+      const payload = buildTacticalQRPayload(victims);
       QRCode.toDataURL(payload, {
         width: 300,
         margin: 2,
@@ -110,8 +112,8 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
       status: 'esperando'
     };
 
-    const updated = saveTriageVictim(newVictim);
-    setVictims(updated);
+    saveTriageVictim(newVictim);
+    setVictims(getTriageVictims());
 
     // Reset form
     setIdentifier('');
@@ -127,14 +129,14 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
 
   const handleStatusChange = (id: string, status: TriageVictim['status']) => {
     tapFeedback();
-    const updated = updateVictimStatus(id, status);
-    setVictims(updated);
+    updateVictimStatus(id, status);
+    setVictims(getTriageVictims());
   };
 
   const handleDelete = (id: string) => {
     tapFeedback();
-    const updated = deleteTriageVictim(id);
-    setVictims(updated);
+    deleteTriageVictim(id);
+    setVictims(getTriageVictims());
   };
 
   const handleDownloadGeoJSON = () => {
@@ -226,21 +228,37 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
           <div className="flex flex-col gap-3">
             {/* Metric counters */}
             <div className="grid grid-cols-4 gap-2">
-              <div className="bg-red-950/20 border border-red-500/40 rounded-xl p-2.5 text-center">
+              <div className="bg-red-950/20 border border-red-500/40 rounded-xl p-2 text-center">
                 <span className="block text-2xl font-black text-red-600 dark:text-red-400">{counts.rojo}</span>
-                <span className="block text-[11px] font-bold text-red-700 dark:text-red-300">ROJO (Inmediato)</span>
+                <span className="block text-[11px] font-bold text-red-700 dark:text-red-300">
+                  {lang !== 'es' && TRIAGE_CONFIG.ROJO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
+                    ? `${TRIAGE_CONFIG.ROJO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Rojo)`
+                    : 'ROJO'}
+                </span>
               </div>
-              <div className="bg-amber-950/20 border border-amber-500/40 rounded-xl p-2.5 text-center">
+              <div className="bg-amber-950/20 border border-amber-500/40 rounded-xl p-2 text-center">
                 <span className="block text-2xl font-black text-amber-600 dark:text-amber-400">{counts.amarillo}</span>
-                <span className="block text-[11px] font-bold text-amber-700 dark:text-amber-300">AMARILLO (Grave)</span>
+                <span className="block text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                  {lang !== 'es' && TRIAGE_CONFIG.AMARILLO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
+                    ? `${TRIAGE_CONFIG.AMARILLO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Amarillo)`
+                    : 'AMARILLO'}
+                </span>
               </div>
-              <div className="bg-emerald-950/20 border border-emerald-500/40 rounded-xl p-2.5 text-center">
+              <div className="bg-emerald-950/20 border border-emerald-500/40 rounded-xl p-2 text-center">
                 <span className="block text-2xl font-black text-emerald-600 dark:text-emerald-400">{counts.verde}</span>
-                <span className="block text-[11px] font-bold text-emerald-700 dark:text-emerald-300">VERDE (Leve)</span>
+                <span className="block text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                  {lang !== 'es' && TRIAGE_CONFIG.VERDE.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
+                    ? `${TRIAGE_CONFIG.VERDE.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Verde)`
+                    : 'VERDE'}
+                </span>
               </div>
-              <div className="bg-neutral-900/10 dark:bg-neutral-900 border border-neutral-400 dark:border-neutral-700 rounded-xl p-2.5 text-center">
+              <div className="bg-neutral-900/10 dark:bg-neutral-900 border border-neutral-400 dark:border-neutral-700 rounded-xl p-2 text-center">
                 <span className="block text-2xl font-black text-neutral-700 dark:text-neutral-300">{counts.negro}</span>
-                <span className="block text-[11px] font-bold text-neutral-600 dark:text-neutral-400">NEGRO (Fallecido)</span>
+                <span className="block text-[11px] font-bold text-neutral-600 dark:text-neutral-400">
+                  {lang !== 'es' && TRIAGE_CONFIG.NEGRO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']
+                    ? `${TRIAGE_CONFIG.NEGRO.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']} (Negro)`
+                    : 'NEGRO'}
+                </span>
               </div>
             </div>
 
@@ -271,10 +289,15 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span
-                            className="px-2 py-0.5 rounded text-xs font-black uppercase text-white tracking-wider"
+                            className="px-2 py-0.5 rounded text-xs font-black uppercase text-white tracking-wider flex items-center gap-1"
                             style={{ backgroundColor: cfg.color }}
                           >
-                            {v.tag}
+                            <span>{v.tag}</span>
+                            {lang !== 'es' && cfg.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni'] && (
+                              <span className="opacity-90 text-[10px] lowercase font-semibold">
+                                ({cfg.nativeColor[lang as 'qu' | 'qu-cen' | 'ay' | 'cni']})
+                              </span>
+                            )}
                           </span>
                           <span className="text-sm font-bold text-ink">{v.identifier}</span>
                         </div>

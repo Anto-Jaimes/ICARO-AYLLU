@@ -2,27 +2,29 @@ import React, { ReactNode } from 'react';
 import { ArrowLeft, CircleHelp } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { AudioGuideButton } from './AudioGuideButton';
-import { useLanguage, useT } from '../i18n/LanguageContext';
+import { LANGUAGES, useLanguage, useT } from '../i18n/LanguageContext';
 
 export const TopBarLanguageSelector: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { lang, setLang } = useLanguage();
   return (
     <div
-      className={`inline-flex items-center rounded-md bg-sunken p-0.5 border border-line text-xs font-bold shrink-0 ${className}`}
+      className={`inline-flex items-center rounded-md bg-sunken p-0.5 border border-line text-xs font-bold shrink-0 max-w-[210px] overflow-x-auto ${className}`}
+      style={{ scrollbarWidth: 'none' }}
       role="group"
       aria-label="Idioma"
     >
-      {(['es', 'qu', 'ay', 'en'] as const).map((l) => (
+      {LANGUAGES.map((opt) => (
         <button
-          key={l}
+          key={opt.id}
           type="button"
-          onClick={() => setLang(l)}
-          className={`px-1.5 py-0.5 rounded text-[11px] font-bold uppercase transition-colors ${
-            lang === l ? 'bg-anil text-white shadow-xs' : 'text-ink-2 hover:text-ink'
+          onClick={() => setLang(opt.id)}
+          title={`${opt.nativeName} (${opt.name})`}
+          className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase transition-colors shrink-0 ${
+            lang === opt.id ? 'bg-anil text-white shadow-xs' : 'text-ink-2 hover:text-ink'
           }`}
-          aria-pressed={lang === l}
+          aria-pressed={lang === opt.id}
         >
-          {l}
+          {opt.short}
         </button>
       ))}
     </div>

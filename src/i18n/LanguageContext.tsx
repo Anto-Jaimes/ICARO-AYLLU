@@ -1,14 +1,25 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { STRINGS } from './strings';
+import { STRINGS, type TranslatedLang } from './strings';
 
-/** The four languages of the app: Spanish, English, Quechua and Aymara. */
-export type Lang = 'es' | 'en' | 'qu' | 'ay';
+/** The languages of the app: Spanish, Quechua Sureño, Quechua Central, Aymara, Asháninka and English. */
+export type Lang = 'es' | 'qu' | 'qu-cen' | 'ay' | 'cni' | 'en';
 
-export const LANGUAGES: { id: Lang; name: string; htmlLang: string }[] = [
-  { id: 'es', name: 'Español', htmlLang: 'es-PE' },
-  { id: 'en', name: 'English', htmlLang: 'en' },
-  { id: 'qu', name: 'Runasimi (quechua)', htmlLang: 'qu' },
-  { id: 'ay', name: 'Aymar aru (aimara)', htmlLang: 'ay' }
+export interface LanguageOption {
+  id: Lang;
+  name: string;
+  nativeName: string;
+  short: string;
+  htmlLang: string;
+  region: string;
+}
+
+export const LANGUAGES: LanguageOption[] = [
+  { id: 'es', name: 'Español', nativeName: 'Español', short: 'ES', htmlLang: 'es-PE', region: 'Perú' },
+  { id: 'qu', name: 'Quechua Sureño', nativeName: 'Urin Runasimi', short: 'QUS', htmlLang: 'qu', region: 'Cusco, Ayacucho, Puno, Apurímac' },
+  { id: 'qu-cen', name: 'Quechua Central', nativeName: 'Chawpi Runashimi', short: 'QUC', htmlLang: 'qu-PE', region: 'Áncash, Wanka, Huánuco, Pasco' },
+  { id: 'ay', name: 'Aimara', nativeName: 'Aymar aru', short: 'AY', htmlLang: 'ay', region: 'Puno, Moquegua, Tacna' },
+  { id: 'cni', name: 'Asháninka', nativeName: 'Asháninka', short: 'CNI', htmlLang: 'cni', region: 'Selva Central, Junín, Ucayali' },
+  { id: 'en', name: 'English', nativeName: 'English', short: 'EN', htmlLang: 'en', region: 'International' }
 ];
 
 const KEY = 'ayllu_lang';
@@ -48,7 +59,15 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }, []);
 
-  const t = useCallback((spanish: string) => (!spanish || lang === 'es' ? spanish : STRINGS[lang][spanish] ?? STRINGS[lang][spanish.trim()] ?? spanish), [lang]);
+  const t = useCallback(
+    (spanish: string) => {
+      if (!spanish || lang === 'es') return spanish;
+      const dict = STRINGS[lang as TranslatedLang];
+      return dict?.[spanish] ?? dict?.[spanish.trim()] ?? spanish;
+    },
+    [lang]
+  );
+
   const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

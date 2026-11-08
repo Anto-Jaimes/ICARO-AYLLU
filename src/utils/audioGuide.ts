@@ -1,44 +1,76 @@
 /**
- * Reads a screen aloud for people who cannot read it well. On the phone it uses the voice
- * installed on Android, which works without internet: the app's WebView has no voice of its own.
- * On the web it uses the browser's voices.
+ * Reads a screen or message aloud for people who cannot read it well.
+ * Supports Peruvian Spanish, Quechua Sureño, Quechua Central, Aimara, Asháninka and English.
+ * On Android it uses the voice installed on Android (with fallback to Peruvian Spanish),
+ * which works without internet.
+ * On web it uses the browser's speechSynthesis.
  */
 import { Capacitor } from '@capacitor/core';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import type { Lang } from '../i18n/LanguageContext';
 
-const SPANISH = ['es-PE', 'es-US', 'es-419', 'es-MX', 'es-ES'];
+const VOICE_PREFERENCES: Record<Lang, string[]> = {
+  es: ['es-PE', 'es-419', 'es-US', 'es-MX', 'es-ES'],
+  qu: ['qu-PE', 'qu', 'es-PE', 'es-419'],
+  'qu-cen': ['qu-PE', 'qu', 'es-PE', 'es-419'],
+  ay: ['ay-PE', 'ay-BO', 'ay', 'es-PE', 'es-419'],
+  cni: ['cni-PE', 'cni', 'es-PE', 'es-419'],
+  en: ['en-US', 'en-GB', 'en']
+};
 
 export function canSpeak(): boolean {
   return Capacitor.isNativePlatform() || 'speechSynthesis' in window;
 }
 
-async function pickSpanish(): Promise<string | null> {
-  for (const lang of SPANISH) {
-    try {
-      if ((await TextToSpeech.isLanguageSupported({ lang })).supported) return lang;
-    } catch {
-      // try the next one
+async function pickVoice(lang: Lang = 'es'): Promise<string> {
+  const candidates = VOICE_PREFERENCES[lang] ?? VOICE_PREFERENCES.es;
+  if (Capacitor.isNativePlatform()) {
+    for (const c of candidates) {
+      try {
+        if ((await TextToSpeech.isLanguageSupported({ lang: c })).supported) return c;
+      } catch {
+        // try next
+      }
+    }
+    return 'es-PE';
+  }
+
+  // In the browser
+  if ('speechSynthesis' in window) {
+    const voices = window.speechSynthesis.getVoices();
+    for (const c of candidates) {
+      const match = voices.find((v) => v.lang.toLowerCase().startsWith(c.toLowerCase()));
+      if (match) return match.lang;
     }
   }
-  // Browsers list their voices late; they still find a Spanish one from the language alone.
-  return Capacitor.isNativePlatform() ? null : 'es-ES';
+  return candidates[0] ?? 'es-PE';
 }
 
-/** Resolves when the reading ends. Rejects when the phone has no Spanish voice or it is stopped. */
-export async function speak(text: string): Promise<void> {
+/** Resolves when the reading ends. Rejects when speech fails. */
+export async function speak(text: string, lang: Lang = 'es'): Promise<void> {
+  if (!text) return;
+  const targetVoice = await pickVoice(lang);
+  // Slightly calmer pace for indigenous languages so syllables and glottal/aspirated sounds are heard clearly
+  const rate = lang === 'en' ? 0.95 : lang === 'es' ? 0.92 : 0.88;
+
   if (Capacitor.isNativePlatform()) {
-    const lang = await pickSpanish();
-    if (!lang) throw new Error('Sin voz en español');
-    await TextToSpeech.speak({ text, lang, rate: 0.92, pitch: 1, volume: 1, category: 'playback' });
+    await TextToSpeech.speak({
+      text,
+      lang: targetVoice,
+      rate,
+      pitch: 1,
+      volume: 1,
+      category: 'playback'
+    });
     return;
   }
 
-  // In the browser: its own voices. Waits for the end, so the button does not go back to "listen" while it still talks.
-  if (!('speechSynthesis' in window)) throw new Error('Sin voz en español');
+  if (!('speechSynthesis' in window)) throw new Error('Sin síntesis de voz disponible');
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'es-PE';
-  utterance.rate = 0.92;
+  utterance.lang = targetVoice;
+  utterance.rate = rate;
+
   await new Promise<void>((resolve, reject) => {
     utterance.onend = () => resolve();
     utterance.onerror = (event) => reject(new Error(event.error));
