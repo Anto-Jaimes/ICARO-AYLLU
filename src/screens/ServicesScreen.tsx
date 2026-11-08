@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Check, ChevronDown, Search, Store } from 'lucide-react';
+import { Check, ChevronDown, Flame, Pill, Search, Store } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SERVICE_CATEGORIES } from '../data/categories';
 import { BottomSheet } from '../components/BottomSheet';
@@ -7,6 +7,8 @@ import { EmptyState, LoadingRow } from '../components/EmptyState';
 import { PostRow } from '../components/PostRow';
 import { TopBar } from '../components/TopBar';
 import { UNLIMITED_RADIUS_M } from '../utils/geo';
+import { PharmacySheet } from '../components/PharmacySheet';
+import { GasFacilitoSheet } from '../components/GasFacilitoSheet';
 import { useT } from '../i18n/LanguageContext';
 
 const DISTANCES = [
@@ -23,6 +25,8 @@ export const ServicesScreen: React.FC = () => {
   const [query, setQuery] = useState(servicesFilter.query ?? '');
   const [radius, setRadius] = useState(3000);
   const [isDistanceOpen, setIsDistanceOpen] = useState(false);
+  const [isPharmacyOpen, setIsPharmacyOpen] = useState(false);
+  const [isGasOpen, setIsGasOpen] = useState(false);
 
   useEffect(() => {
     setCategory(servicesFilter.category ?? null);
@@ -82,6 +86,43 @@ export const ServicesScreen: React.FC = () => {
         ))}
       </div>
 
+      {/* Botones de Precios y Servicios Oficiales de Proximidad */}
+      <div className="flex gap-2 px-4 pt-2">
+        <button
+          type="button"
+          onClick={() => setIsGasOpen(true)}
+          className="flex-1 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-between text-left hover:bg-amber-500/20 active:scale-98 transition-all"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Flame className="w-4 h-4 shrink-0 text-amber-500" />
+            <div className="min-w-0">
+              <span className="block text-secondary font-bold truncate">{t('Gas GLP 10kg')}</span>
+              <span className="block text-[11px] text-ink-2 truncate">{t('Facilito OSINERGMIN')}</span>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 uppercase shrink-0">
+            {t('Ver')}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsPharmacyOpen(true)}
+          className="flex-1 p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 flex items-center justify-between text-left hover:bg-teal-500/20 active:scale-98 transition-all"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Pill className="w-4 h-4 shrink-0 text-teal-500" />
+            <div className="min-w-0">
+              <span className="block text-secondary font-bold truncate">{t('Boticas 24h')}</span>
+              <span className="block text-[11px] text-ink-2 truncate">{t('DIGEMID Turno')}</span>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal-500/20 uppercase shrink-0">
+            {t('Ver')}
+          </span>
+        </button>
+      </div>
+
       {services.length === 0 ? (
         isLoadingItems ? (
           <LoadingRow text={t('Buscando servicios...')} />
@@ -132,6 +173,12 @@ export const ServicesScreen: React.FC = () => {
           ))}
         </ul>
       </BottomSheet>
+
+      {/* Sheet de Farmacias de Turno y DIGEMID */}
+      <PharmacySheet open={isPharmacyOpen} onClose={() => setIsPharmacyOpen(false)} />
+
+      {/* Sheet de Balón de Gas OSINERGMIN */}
+      <GasFacilitoSheet open={isGasOpen} onClose={() => setIsGasOpen(false)} />
     </div>
   );
 };

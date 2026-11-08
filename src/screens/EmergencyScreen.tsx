@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, Boxes, HandHeart, HeartPulse, Phone, ShieldAlert, ShieldCheck, TrafficCone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
+import { Activity, Boxes, Flame, HandHeart, HeartPulse, Phone, Pill, ShieldAlert, ShieldCheck, TrafficCone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { EmptyState, LoadingRow } from '../components/EmptyState';
@@ -11,6 +11,8 @@ import { TriageSheet } from '../components/TriageSheet';
 import { SafePlacesSheet } from '../components/SafePlacesSheet';
 import { SutranAlertsSheet } from '../components/SutranAlertsSheet';
 import { TacticalPanicSheet } from '../components/TacticalPanicSheet';
+import { PharmacySheet } from '../components/PharmacySheet';
+import { GasFacilitoSheet } from '../components/GasFacilitoSheet';
 import { useT } from '../i18n/LanguageContext';
 
 interface EmergencyView {
@@ -70,6 +72,8 @@ export const EmergencyScreen: React.FC = () => {
   const [isRubbleOpen, setIsRubbleOpen] = useState(false);
   const [isTriageOpen, setIsTriageOpen] = useState(false);
   const [isSafePlacesOpen, setIsSafePlacesOpen] = useState(false);
+  const [isPharmacyOpen, setIsPharmacyOpen] = useState(false);
+  const [isGasOpen, setIsGasOpen] = useState(false);
   const [isSutranOpen, setIsSutranOpen] = useState(false);
   const [isPanicOpen, setIsPanicOpen] = useState(false);
   const view = VIEWS[tab] ?? VIEWS.neighbors!;
@@ -230,6 +234,60 @@ export const EmergencyScreen: React.FC = () => {
         </button>
       </div>
 
+      {/* Banner de Farmacias de Turno y DIGEMID */}
+      <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-teal-950 to-cyan-950 text-white rounded-2xl shadow-sm border border-teal-900/60 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-teal-950/80 text-teal-400 flex items-center justify-center shrink-0 border border-teal-800/60 shadow-inner">
+            <Pill className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+              {t('Farmacias de Turno')}
+              <span className="text-[10px] bg-teal-900/80 text-teal-300 px-1.5 py-0.5 rounded border border-teal-700/60 font-bold uppercase">
+                DIGEMID
+              </span>
+            </span>
+            <span className="block text-caption text-slate-300 truncate">
+              {t('Boticas 24h y precios regulados de medicinas básicas')}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsPharmacyOpen(true)}
+          className="px-3.5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
+        >
+          {t('Abrir')}
+        </button>
+      </div>
+
+      {/* Banner de Facilito Gas GLP (OSINERGMIN) */}
+      <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-orange-950 to-amber-950 text-white rounded-2xl shadow-sm border border-amber-900/60 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-amber-950/80 text-amber-400 flex items-center justify-center shrink-0 border border-amber-800/60 shadow-inner">
+            <Flame className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+              {t('Facilito Balón de Gas')}
+              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
+                OSINERGMIN
+              </span>
+            </span>
+            <span className="block text-caption text-slate-300 truncate">
+              {t('Precios del balón de 10kg y distribuidores formales')}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsGasOpen(true)}
+          className="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
+        >
+          {t('Abrir')}
+        </button>
+      </div>
+
       <p className="px-4 pt-3 text-secondary font-bold">{t(verdict.title)}</p>
       <h2 className="px-4 pt-3 pb-1 text-section font-bold">{t(view.heading)}</h2>
 
@@ -281,6 +339,18 @@ export const EmergencyScreen: React.FC = () => {
       <SutranAlertsSheet
         open={isSutranOpen}
         onClose={() => setIsSutranOpen(false)}
+      />
+
+      {/* Sheet de Farmacias de Turno & DIGEMID */}
+      <PharmacySheet
+        open={isPharmacyOpen}
+        onClose={() => setIsPharmacyOpen(false)}
+      />
+
+      {/* Sheet de Balón de Gas OSINERGMIN */}
+      <GasFacilitoSheet
+        open={isGasOpen}
+        onClose={() => setIsGasOpen(false)}
       />
     </div>
   );

@@ -31,6 +31,7 @@ import { useBackHandler } from '../hooks/useBackHandler';
 import { useT } from '../i18n/LanguageContext';
 import { tapFeedback } from '../lib/native';
 import { placeLabel } from '../services/geoService';
+import { emergencyRadio, RadioStatus } from '../services/emergencyRadioService';
 
 interface BatterySaverScreenProps {
   onExit: () => void;
@@ -56,6 +57,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
 
   // Sound / Siren states
   const [isSounding, setIsSounding] = useState<boolean>(false);
+  const [radioStatus, setRadioStatus] = useState<RadioStatus>(emergencyRadio.getStatus());
   const [isWhistleActive, setIsWhistleActive] = useState<boolean>(false);
   const whistleTimerRef = useRef<number | null>(null);
   const whistleCtxRef = useRef<AudioContext | null>(null);
@@ -72,6 +74,10 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
 
   // Stored Medical Profile for Always-on display
   const [medicalProfile, setMedicalProfile] = useState<MedicalProfile | null>(null);
+
+  useEffect(() => {
+    return emergencyRadio.subscribe(setRadioStatus);
+  }, []);
 
   // Native Android back button handlers
   useBackHandler(true, onExit);
@@ -597,6 +603,41 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
           </a>
 
         </div>
+
+          {/* Official Emergency Radio Stream */}
+          <button
+            type="button"
+            onClick={() => {
+              tapFeedback();
+              emergencyRadio.toggle();
+            }}
+            className={`min-h-[70px] p-3 rounded-2xl border flex flex-col justify-between text-left transition cursor-pointer ${
+              radioStatus === 'playing'
+                ? 'bg-rose-900/60 border-rose-500 text-white shadow-lg'
+                : radioStatus === 'buffering'
+                ? 'bg-amber-950/60 border-amber-500 text-amber-200 animate-pulse'
+                : 'bg-neutral-900 border-neutral-800 text-neutral-200'
+            }`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <Radio className={`w-5 h-5 ${radioStatus === 'playing' ? 'text-rose-400 animate-pulse' : 'text-neutral-400'}`} />
+              <span className={`text-meta uppercase px-1.5 py-0.5 rounded font-bold ${
+                radioStatus === 'playing'
+                  ? 'bg-rose-500 text-white'
+                  : radioStatus === 'buffering'
+                  ? 'bg-amber-500 text-black'
+                  : 'bg-black/40 text-neutral-400'
+              }`}>
+                {radioStatus === 'playing' ? t('EN VIVO') : radioStatus === 'buffering' ? t('CONECTANDO') : '103.9 FM'}
+              </span>
+            </div>
+            <div>
+              <span className="font-bold text-meta block leading-tight">{t('Radio Nacional INDECI')}</span>
+              <span className="text-meta text-neutral-400">
+                {radioStatus === 'playing' ? t('Cadena nacional oficial') : t('Toca para sintonizar')}
+              </span>
+            </div>
+          </button>
 
         {/* 4. COMPASS & OFFLINE RESCUE CALLS */}
         <div className="pt-2 border-t border-neutral-900">
