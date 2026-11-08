@@ -151,11 +151,15 @@ function placeCard(spot: Box | null, height: number): { top: number; left: numbe
   const bottom = spot.top + spot.height;
   const right = spot.left + spot.width;
   const centered = clamp(spot.left + spot.width / 2 - width / 2, EDGE, vw - width - EDGE);
-  if (vw >= 1024 && spot.width < vw * 0.3 && right + GAP + width + EDGE <= vw) {
-    return { top: clamp(spot.top + spot.height / 2 - height / 2, EDGE, vh - height - EDGE), left: right + GAP, width };
-  }
+  const sideTop = clamp(spot.top + spot.height / 2 - height / 2, EDGE, vh - height - EDGE);
+  const fitsRight = vw >= 1024 && right + GAP + width + EDGE <= vw;
+  const fitsLeft = vw >= 1024 && spot.left - GAP - width >= EDGE;
+  if (fitsRight && spot.width < vw * 0.3) return { top: sideTop, left: right + GAP, width };
   if (vh - bottom >= height + GAP + EDGE) return { top: bottom + GAP, left: centered, width };
   if (spot.top >= height + GAP + EDGE) return { top: spot.top - GAP - height, left: centered, width };
+  // A large spot on a short screen: beside it on a computer, before covering it.
+  if (fitsRight) return { top: sideTop, left: right + GAP, width };
+  if (fitsLeft) return { top: sideTop, left: spot.left - GAP - width, width };
   return { top: vh - height - EDGE, left: centered, width };
 }
 

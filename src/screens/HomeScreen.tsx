@@ -149,26 +149,15 @@ export const HomeScreen: React.FC = () => {
     <div className="app-nav-offset">
       <SafetyBlock />
 
-      {/* Botón táctico de 1-toque: Plus Code y Silbato */}
-      <div data-tour="auxilio" className="mx-4 mt-2 p-3 bg-surface border border-border rounded-2xl flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-2.5 min-w-0 pr-2">
-          <div className="w-10 h-10 rounded-xl bg-status-danger/10 text-status-danger flex items-center justify-center shrink-0 border border-status-danger/20">
-            <ShieldAlert className="w-5 h-5" />
-          </div>
-          <div className="min-w-0">
-            <span className="block text-secondary font-bold text-ink">
-              {t('Plus Code & Silbato Vecinal')}
-            </span>
-            <span className="block text-meta text-ink-secondary truncate">
-              {t('Tu ubicación exacta sin internet y alarma disuasiva')}
-            </span>
-          </div>
-        </div>
+      {/* Un solo toque: abre el Auxilio (ubicación exacta sin internet, SMS de rescate y alarma). */}
+      <div className="page mt-3 mb-2 px-4">
         <button
           type="button"
+          data-tour="auxilio"
           onClick={() => setIsPanicOpen(true)}
-          className="min-h-12 px-4 bg-status-danger hover:bg-status-danger-press text-white text-secondary font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
+          className="btn btn-danger lg:w-auto lg:px-10"
         >
+          <ShieldAlert className="w-6 h-6 shrink-0" aria-hidden="true" />
           {t('Auxilio')}
         </button>
       </div>

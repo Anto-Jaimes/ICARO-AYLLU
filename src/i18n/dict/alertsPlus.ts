@@ -36,7 +36,6 @@ export const ALERTS_PLUS: Entries = {
   "Hospitales, postas RENAES, tambos MIDIS y agua potable": ["Hospitals, RENAES health posts, MIDIS tambos and drinking water", "Hampina wasikuna, RENAES postakuna, MIDIS tambokuna, upyana yakupas", "Qullañ utanaka, RENAES postanaka, MIDIS tambonaka, umañ umampi"],
   "Agua / Salud / Tambos": ["Water / Health / Tambos", "Yaku / Hampi / Tambokuna", "Uma / Qullaña / Tambonaka"],
   "Plus Code & Silbato Vecinal": ["Plus Code and neighbourhood whistle", "Plus Code, llaqta pituwanpas", "Plus Code, marka pitumpi"],
-  "Tu ubicación exacta sin internet y alarma disuasiva": ["Your exact location without internet, and a warning alarm", "Mana internetwan chiqap maypi kasqayki, manchachiq alarmapas", "Jan internetampi kawkinkitas chiqpacha, axsarayir alarmampi"],
   "Ubicación exacta sin internet, SMS de rescate y alarma disuasiva": ["Exact location without internet, rescue SMS and a warning alarm", "Mana internetwan chiqap maypi kasqan, qispichinapaq SMS, manchachiq alarmapas", "Jan internetampi kawkinkis chiqpacha, qhispiyañ SMS, axsarayir alarmampi"],
   "Oficios de tu barrio": ["Trades in your neighbourhood", "Llaqtaykipa llamk'aykunan", "Markaman luräwinaka"],
 
