@@ -22,20 +22,22 @@ const KIND: Record<string, string> = {
 /** News that neighbours flagged or the phone's detector could not clear. */
 export const ReportsTab: React.FC<{ onCount: (count: number) => void }> = ({ onCount }) => {
   const [reports, setReports] = useState<ReviewReport[] | null>(null);
+  const [view, setView] = useState<'review' | 'published'>('review');
   const [problem, setProblem] = useState<string | null>(null);
 
   const load = async () => {
     const { data, error } = await db.from('reports')
       .select('id, kind, description, author_name, media_path, media_type, department, province, district, flags, created_at')
-      .eq('status', 'review').order('created_at', { ascending: false }).limit(50);
+      .eq('status', view).order('created_at', { ascending: false }).limit(50);
     if (error) setProblem('No se pudieron cargar las noticias.');
     setReports((data ?? []) as ReviewReport[]);
-    onCount(data?.length ?? 0);
+    if (view === 'review') onCount(data?.length ?? 0);
   };
 
   useEffect(() => {
+    setReports(null);
     load();
-  }, []);
+  }, [view]);
 
   const decide = async (report: ReviewReport, action: 'publish' | 'remove') => {
     setProblem(null);
@@ -57,12 +59,25 @@ export const ReportsTab: React.FC<{ onCount: (count: number) => void }> = ({ onC
 
   return (
     <section aria-labelledby="reports-title" className="space-y-3">
-      <h2 id="reports-title" className="text-section font-bold">Noticias en revisión</h2>
+      <h2 id="reports-title" className="text-section font-bold">{view === 'review' ? 'Noticias en revisión' : 'Noticias publicadas'}</h2>
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Qué noticias ver">
+        {([['review', 'En revisión'], ['published', 'Publicadas']] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={view === id}
+            onClick={() => setView(id)}
+            className={`min-h-12 px-4 rounded-lg text-secondary font-bold ${view === id ? 'bg-anil text-white' : 'bg-sunken text-ink'}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <p className="text-secondary text-ink-2">
         Llegan aquí cuando tres vecinos las denuncian o cuando el detector del celular no pudo revisar la foto o el video.
       </p>
       <ErrorLine message={problem} />
-      {reports.length === 0 && <EmptyLine text="No hay noticias por revisar." />}
+      {reports.length === 0 && <EmptyLine text={view === 'review' ? 'No hay noticias por revisar.' : 'No hay noticias publicadas.'} />}
       <ul className="list-plain">
         {reports.map((report) => {
           const media = report.media_path ? db.storage.from('reports').getPublicUrl(report.media_path).data.publicUrl : null;
@@ -78,7 +93,9 @@ export const ReportsTab: React.FC<{ onCount: (count: number) => void }> = ({ onC
                   Denuncias de vecinos: {report.flags}. Enviada por {report.author_name} el {formatDate(report.created_at)}
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2">
-                  <button type="button" className="btn btn-primary w-auto min-h-12" onClick={() => decide(report, 'publish')}>Publicar</button>
+                  {view === 'review' && (
+                    <button type="button" className="btn btn-primary w-auto min-h-12" onClick={() => decide(report, 'publish')}>Publicar</button>
+                  )}
                   <button type="button" className="btn btn-danger w-auto min-h-12" onClick={() => decide(report, 'remove')}>Quitar y borrar archivo</button>
                 </div>
               </div>

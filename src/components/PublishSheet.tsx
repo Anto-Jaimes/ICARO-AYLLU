@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ImagePlus, MapPin, X } from 'lucide-react';
 import { PublishPreset, useApp } from '../context/AppContext';
-import { EMERGENCY_PUBLISH_GROUPS, NORMAL_PUBLISH_GROUPS, PublishTile } from '../data/categories';
+import { DONATION_CATEGORIES, EMERGENCY_PUBLISH_GROUPS, NORMAL_PUBLISH_GROUPS, PublishTile } from '../data/categories';
 import { REPORT_KINDS, ReportKind } from '../services/reportsService';
 import { normalizePhone } from '../utils/geo';
 import { loadContact, saveContact } from '../utils/storage';
@@ -38,7 +38,11 @@ export const PublishSheet: React.FC = () => {
   const [photos, setPhotos] = useState<File[]>([]);
   const [problem, setProblem] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [audience, setAudience] = useState<'vecinos' | 'organizacion'>('vecinos');
   const isService = choice?.type === 'service';
+  const isGiving = choice?.type === 'favor_offer';
+  const isAsking = choice?.type === 'favor_request';
+  const isDonation = isGiving || isAsking;
   const allowsPhotos = choice?.type === 'service' || choice?.type === 'favor_offer' || choice?.type === 'favor_request';
 
   // A business writes its own name: the tile's words are only a suggestion.
@@ -64,6 +68,7 @@ export const PublishSheet: React.FC = () => {
     setAddress('');
     setPhotos([]);
     setProblem(null);
+    setAudience('vecinos');
     if (publishPreset) choose(publishPreset);
     else setChoice(null);
   }, [isPublishOpen, publishPreset]);
@@ -108,8 +113,9 @@ export const PublishSheet: React.FC = () => {
       authorPhone: normalizePhone(phone),
       neighborhood: needsPlace ? place.trim() : userLocation.name,
       coordinates: [userLocation.lat, userLocation.lng],
-      address: isService && address.trim() ? address.trim() : undefined,
-      priceInfo: isService && price.trim() ? price.trim() : PRICE_BY_TYPE[choice.type],
+      address: (isService || isDonation) && address.trim() ? address.trim() : undefined,
+      priceInfo: isService && price.trim() ? price.trim() : isGiving ? 'Gratis' : PRICE_BY_TYPE[choice.type],
+      audience: isDonation ? audience : undefined,
       photos: photoPaths,
       urgencyLevel: choice.type === 'emergency_need' ? 'alta' : undefined,
       status: 'active'
@@ -176,9 +182,24 @@ export const PublishSheet: React.FC = () => {
         </div>
       ) : (
         <form id="publish-form" onSubmit={publish} className="px-4 pb-4 space-y-3">
+          {isDonation && (
+            <div className="chip-row -mx-4" role="group" aria-label={t('Qué tipo de cosa')}>
+              {DONATION_CATEGORIES.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className="chip"
+                  aria-pressed={choice.category === option.id}
+                  onClick={() => setChoice({ ...choice, category: option.id })}
+                >
+                  {t(option.label)}
+                </button>
+              ))}
+            </div>
+          )}
           <div>
             <label htmlFor="publish-title" className="block pb-1 text-secondary font-bold">
-              {isService ? t('Nombre de tu negocio o servicio') : t('Título')}
+              {isService ? t('Nombre de tu negocio o servicio') : isGiving ? t('¿Qué regalas?') : isAsking ? t('¿Qué se necesita?') : t('Título')}
             </label>
             <input
               id="publish-title"
@@ -186,25 +207,68 @@ export const PublishSheet: React.FC = () => {
               maxLength={160}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder={isService ? choice.title || 'Ej.: Pollería Don Lucho' : undefined}
+              placeholder={isService ? choice.title || 'Ej.: Pollería Don Lucho' : isGiving ? t('Ej.: Casaca de niño talla 8') : undefined}
               className="field"
             />
           </div>
 
           <div>
             <label htmlFor="publish-details" className="block pb-1 text-secondary font-bold">
-              {isService ? t('¿Qué ofreces?') : t('Detalles (opcional)')}
+              {isService ? t('¿Qué ofreces?') : isDonation ? t('Descripción') : t('Detalles (opcional)')}
             </label>
             <textarea
               id="publish-details"
-              rows={isService ? 3 : 2}
+              rows={isService || isDonation ? 3 : 2}
               maxLength={2000}
               value={details}
               onChange={(event) => setDetails(event.target.value)}
-              placeholder={isService ? OFFER_HINTS[choice.category] ?? 'Qué haces, horario, cómo te contactan...' : undefined}
+              placeholder={
+                isService
+                  ? OFFER_HINTS[choice.category] ?? 'Qué haces, horario, cómo te contactan...'
+                  : isGiving
+                    ? t('Estado, talla, cantidad, cuándo se puede recoger...')
+                    : isAsking
+                      ? t('Para qué es, para cuántas personas, hasta cuándo...')
+                      : undefined
+              }
               className="field"
             />
           </div>
+
+          {isDonation && (
+            <>
+              <div>
+                <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">
+                  {isGiving ? t('¿Dónde se recoge?') : t('¿Dónde se entrega?')}
+                </label>
+                <input
+                  id="publish-address"
+                  maxLength={200}
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  placeholder={t('Calle y referencia')}
+                  className="field"
+                />
+              </div>
+              <fieldset>
+                <legend className="pb-1 text-secondary font-bold">{isGiving ? t('¿Para quién?') : t('¿Quién lo pide?')}</legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['vecinos', 'organizacion'] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={audience === option}
+                      onClick={() => setAudience(option)}
+                      className={`min-h-12 px-3 rounded-lg text-secondary font-bold ${audience === option ? 'bg-anil text-white' : 'bg-sunken text-ink'}`}
+                    >
+                      {option === 'vecinos' ? (isGiving ? t('Cualquier vecino') : t('Un vecino')) : t('Una organización')}
+                    </button>
+                  ))}
+                </div>
+                <p className="pt-1 text-meta text-ink-2">{t('Organización: comedor, olla común, albergue, parroquia...')}</p>
+              </fieldset>
+            </>
+          )}
 
           {isService && (
             <div className="grid grid-cols-2 gap-2">
@@ -267,7 +331,11 @@ export const PublishSheet: React.FC = () => {
                   </label>
                 )}
               </div>
-              <p className="pt-1 text-meta text-ink-2">{t('Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.')}</p>
+              <p className="pt-1 text-meta text-ink-2">
+                {isDonation
+                  ? t('Muestra cómo está lo que regalas o lo que se necesita. Se achican para gastar pocos datos.')
+                  : t('Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.')}
+              </p>
             </div>
           )}
 

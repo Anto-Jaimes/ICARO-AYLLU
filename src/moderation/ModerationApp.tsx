@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { BlockedTab, LogTab } from './BlockedTab';
 import { CallsTab } from './CallsTab';
+import { CommentsTab } from './CommentsTab';
 import { ComplaintsTab } from './ComplaintsTab';
+import { PostsTab } from './PostsTab';
 import { ReportsTab } from './ReportsTab';
 import { db, ErrorLine } from './shared';
 
 type Stage = 'checking' | 'signed_out' | 'not_moderator' | 'must_change' | 'ready';
-type Tab = 'reports' | 'calls' | 'complaints' | 'blocked' | 'log';
+type Tab = 'reports' | 'posts' | 'comments' | 'calls' | 'complaints' | 'blocked' | 'log';
 
 const MIN_PASSWORD = 10;
 
@@ -85,6 +87,7 @@ export const ModerationApp: React.FC = () => {
   const [tab, setTab] = useState<Tab>('reports');
   const [reviewCount, setReviewCount] = useState<number | null>(null);
   const [complaintCount, setComplaintCount] = useState<number | null>(null);
+  const [postFlagCount, setPostFlagCount] = useState<number | null>(null);
 
   const evaluate = async (current: Session | null) => {
     setSession(current);
@@ -103,6 +106,15 @@ export const ModerationApp: React.FC = () => {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  // Reported services and donations show in their tab's name from the start, not only once opened.
+  useEffect(() => {
+    if (stage !== 'ready') return;
+    db.rpc('moderation_posts', { p_limit: 300 }).then(({ data }) => {
+      const posts = (data ?? []) as { flags: number; status: string }[];
+      setPostFlagCount(posts.filter((post) => post.flags > 0 && post.status !== 'removed').length);
+    });
+  }, [stage]);
+
   const signOut = () => db.auth.signOut();
 
   if (stage === 'checking') return <p role="status" className="p-6 text-secondary text-ink-2">Cargando...</p>;
@@ -119,6 +131,8 @@ export const ModerationApp: React.FC = () => {
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'reports', label: `Noticias${reviewCount ? ` (${reviewCount})` : ''}` },
+    { id: 'posts', label: `Servicios y donaciones${postFlagCount ? ` (${postFlagCount})` : ''}` },
+    { id: 'comments', label: 'Comentarios' },
     { id: 'calls', label: 'Llamadas' },
     { id: 'complaints', label: `Denuncias${complaintCount ? ` (${complaintCount})` : ''}` },
     { id: 'blocked', label: 'Bloqueados' },
@@ -150,6 +164,8 @@ export const ModerationApp: React.FC = () => {
       </header>
       <main className="page px-4 py-6">
         {tab === 'reports' && <ReportsTab onCount={setReviewCount} />}
+        {tab === 'posts' && <PostsTab onCount={setPostFlagCount} />}
+        {tab === 'comments' && <CommentsTab />}
         {tab === 'calls' && <CallsTab />}
         {tab === 'complaints' && <ComplaintsTab onCount={setComplaintCount} />}
         {tab === 'blocked' && <BlockedTab />}

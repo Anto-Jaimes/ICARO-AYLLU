@@ -45,7 +45,15 @@ export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: bool
           </span>
         )}
         {item.type === 'favor_request' && item.status === 'resolved' && (
-          <span className="block text-secondary font-bold text-verde">{t('Ya lo ayudaron')}</span>
+          <span className="block text-secondary font-bold text-verde">{t('Ya los ayudaron')}</span>
+        )}
+        {item.type === 'favor_offer' && item.status === 'resolved' && (
+          <span className="block text-secondary font-bold text-verde">{t('Ya se entregó')}</span>
+        )}
+        {(item.type === 'favor_offer' || item.type === 'favor_request') && item.audience === 'organizacion' && item.status !== 'resolved' && (
+          <span className="block text-secondary font-medium text-anil">
+            {item.type === 'favor_offer' ? t('Para organizaciones') : t('Pide una organización')}
+          </span>
         )}
         <span className="block text-secondary text-ink-2 truncate">
           {[t(category.label), distance].filter(Boolean).join(', ')}

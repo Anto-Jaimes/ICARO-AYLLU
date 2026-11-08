@@ -42,6 +42,7 @@ interface PostRow {
   has_user_voted: boolean;
   reviews: ReviewRow[];
   photos: string[] | null;
+  audience: CommunityItem['audience'] | null;
 }
 
 function toReview(row: ReviewRow): Review {
@@ -72,6 +73,7 @@ function toCommunityItem(row: PostRow): CommunityItem {
     reviews: row.reviews.map(toReview),
     priceInfo: row.price_info ?? undefined,
     photos: row.photos ?? [],
+    audience: row.audience ?? undefined,
     urgencyLevel: row.urgency_level ?? undefined,
     status: row.status,
     createdAt: formatRelativeTime(row.created_at)
@@ -145,7 +147,8 @@ export async function createPost(item: CommunityItem): Promise<void> {
       lng: item.coordinates[1],
       price_info: item.priceInfo ?? null,
       urgency_level: item.urgencyLevel ?? null,
-      photos: item.photos ?? []
+      photos: item.photos ?? [],
+      audience: item.audience ?? null
     },
     { onConflict: 'id', ignoreDuplicates: true }
   );
@@ -215,4 +218,14 @@ export function subscribeToPostChanges(onChange: () => void): () => void {
     clearTimeout(timer);
     supabase.removeChannel(channel);
   };
+}
+
+export type FlagPostResult = 'ok' | 'no_code' | 'not_found' | 'own';
+
+/** Reports a service or donation to the moderators. Needs the user code, like every other write. */
+export async function flagPost(postId: string): Promise<FlagPostResult> {
+  await ensureSession();
+  const { data, error } = await supabase.rpc('flag_post', { p_post_id: postId });
+  if (error) throw error;
+  return data as FlagPostResult;
 }

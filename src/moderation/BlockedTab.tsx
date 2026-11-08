@@ -69,6 +69,9 @@ interface LogEntry {
 const ACTIONS: Record<string, string> = {
   report_publish: 'publicó una noticia',
   report_remove: 'quitó una noticia',
+  post_removed: 'quitó un servicio o donación',
+  post_restored: 'restauró un servicio o donación',
+  comment_removed: 'borró un comentario',
   call_mark: 'marcó una llamada con denuncia',
   call_unmark: 'quitó la marca de denuncia de una llamada',
   phone_block: 'bloqueó un número',

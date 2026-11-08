@@ -62,6 +62,8 @@ export interface CommunityItem {
   priceInfo?: string; // ej: "Tarifa vecinal accesible" o "Gratis / Solidario"
   /** Paths in the post-photos bucket, up to 4. */
   photos?: string[];
+  /** Donations: given to any neighbour, or meant for an organisation (comedor, olla común, albergue). */
+  audience?: 'vecinos' | 'organizacion';
   urgencyLevel?: 'baja' | 'media' | 'alta' | 'critica'; // para emergencias
   status: 'active' | 'in_progress' | 'resolved';
   createdAt: string;

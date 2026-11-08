@@ -1,6 +1,13 @@
 import {
+  Apple,
   Baby,
+  Book,
   BookOpen,
+  Gift,
+  Pencil,
+  Puzzle,
+  Refrigerator,
+  Sofa,
   ShoppingBasket,
   CakeSlice,
   Car,
@@ -61,7 +68,21 @@ export const SERVICE_CATEGORIES: Category[] = [
   { id: 'otro_servicio', label: 'Otro servicio', icon: Ellipsis }
 ];
 
-export const FAVOR_CATEGORIES: Category[] = [
+/** What neighbours give away. Favours from before (lending tools, rides) still display with LEGACY_FAVOR_CATEGORIES. */
+export const DONATION_CATEGORIES: Category[] = [
+  { id: 'ropa', label: 'Ropa y zapatos', icon: Shirt },
+  { id: 'alimentos', label: 'Alimentos', icon: Apple },
+  { id: 'muebles', label: 'Muebles', icon: Sofa },
+  { id: 'electrodomesticos', label: 'Electrodomésticos', icon: Refrigerator },
+  { id: 'utiles', label: 'Útiles escolares', icon: Pencil },
+  { id: 'juguetes', label: 'Juguetes', icon: Puzzle },
+  { id: 'libros', label: 'Libros', icon: Book },
+  { id: 'bebes', label: 'Para bebés', icon: Baby },
+  { id: 'herramientas', label: 'Herramientas', icon: Hammer },
+  { id: 'otros_donacion', label: 'Otras cosas', icon: Gift }
+];
+
+const LEGACY_FAVOR_CATEGORIES: Category[] = [
   { id: 'herramientas', label: 'Herramientas', icon: Hammer },
   { id: 'salud', label: 'Muletas y salud', icon: HeartPulse },
   { id: 'donacion', label: 'Donaciones', icon: Package },
@@ -81,7 +102,7 @@ export const EMERGENCY_CATEGORIES: Category[] = [
   { id: 'rescate_movilidad', label: 'Traslado', icon: Car }
 ];
 
-const ALL_CATEGORIES = [...SERVICE_CATEGORIES, ...FAVOR_CATEGORIES, ...EMERGENCY_CATEGORIES];
+const ALL_CATEGORIES = [...SERVICE_CATEGORIES, ...DONATION_CATEGORIES, ...LEGACY_FAVOR_CATEGORIES, ...EMERGENCY_CATEGORIES];
 
 const FALLBACK: Category = { id: 'otros', label: 'Otros', icon: Users };
 
@@ -112,7 +133,7 @@ const tile = (type: PostType, category: Category, label: string, title: string):
 
 const byId = (list: Category[], id: string) => list.find((category) => category.id === id) ?? FALLBACK;
 const service = (id: string) => byId(SERVICE_CATEGORIES, id);
-const favor = (id: string) => byId(FAVOR_CATEGORIES, id);
+const donation = (id: string) => byId(DONATION_CATEGORIES, id);
 const emergency = (id: string) => byId(EMERGENCY_CATEGORIES, id);
 
 export const NORMAL_PUBLISH_GROUPS: PublishGroup[] = [
@@ -151,25 +172,25 @@ export const NORMAL_PUBLISH_GROUPS: PublishGroup[] = [
     ]
   },
   {
-    heading: 'Presto o regalo',
+    heading: 'Dono o regalo',
     tiles: [
-      tile('favor_offer', favor('herramientas'), 'Herramientas', 'Presto herramientas'),
-      tile('favor_offer', favor('salud'), 'Muletas y salud', 'Presto muletas'),
-      tile('favor_offer', favor('donacion'), 'Regalo cosas', 'Regalo cosas que ya no uso'),
-      tile('favor_offer', favor('habilidades'), 'Enseño algo', 'Enseño lo que sé'),
-      tile('favor_offer', favor('movilidad'), 'Llevo vecinos', 'Tengo sitio en mi carro'),
-      tile('favor_offer', favor('mandados'), 'Hago mandados', 'Puedo hacer compras o mandados'),
-      tile('favor_offer', favor('ayuda_temporal'), 'Doy una mano', 'Puedo dar una mano')
+      tile('favor_offer', donation('ropa'), 'Ropa y zapatos', ''),
+      tile('favor_offer', donation('alimentos'), 'Alimentos', ''),
+      tile('favor_offer', donation('muebles'), 'Muebles', ''),
+      tile('favor_offer', donation('electrodomesticos'), 'Electrodomésticos', ''),
+      tile('favor_offer', donation('utiles'), 'Útiles escolares', ''),
+      tile('favor_offer', donation('juguetes'), 'Juguetes', ''),
+      tile('favor_offer', donation('bebes'), 'Para bebés', ''),
+      tile('favor_offer', donation('otros_donacion'), 'Otras cosas', '')
     ]
   },
   {
-    heading: 'Necesito un favor',
+    heading: 'Pido una donación',
     tiles: [
-      tile('favor_request', favor('herramientas'), 'Una herramienta', 'Necesito una herramienta'),
-      tile('favor_request', favor('ayuda_temporal'), 'Una mano', 'Necesito una mano'),
-      tile('favor_request', favor('movilidad'), 'Transporte', 'Necesito que me lleven'),
-      tile('favor_request', favor('mandados'), 'Un mandado', 'Necesito que me compren algo'),
-      tile('favor_request', favor('cuidado'), 'Cuidar a alguien', 'Necesito que cuiden a mi hijo o a un mayor')
+      tile('favor_request', donation('alimentos'), 'Alimentos', 'Necesitamos alimentos'),
+      tile('favor_request', donation('ropa'), 'Ropa y frazadas', 'Necesitamos ropa y frazadas'),
+      tile('favor_request', donation('utiles'), 'Útiles escolares', 'Necesitamos útiles escolares'),
+      tile('favor_request', donation('otros_donacion'), 'Otra cosa', '')
     ]
   }
 ];

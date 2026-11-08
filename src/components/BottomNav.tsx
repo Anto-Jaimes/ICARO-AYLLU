@@ -1,5 +1,5 @@
 import React from 'react';
-import { Boxes, HandHeart, Home, Map, Plus, Siren, Store, UsersRound, type LucideIcon } from 'lucide-react';
+import { Boxes, Gift, HandHeart, Home, Map, Plus, Siren, Store, UsersRound, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { useT } from '../i18n/LanguageContext';
 import { tapFeedback } from '../lib/native';
@@ -13,7 +13,7 @@ interface NavItem {
 const NORMAL_ITEMS: NavItem[] = [
   { tab: 'home', label: 'Inicio', icon: Home },
   { tab: 'services', label: 'Servicios', icon: Store },
-  { tab: 'favors', label: 'Favores', icon: HandHeart },
+  { tab: 'favors', label: 'Donaciones', icon: Gift },
   { tab: 'map', label: 'Mapa', icon: Map }
 ];
 

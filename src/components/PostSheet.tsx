@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BadgeCheck, Copy, MessageCircle, Phone, ThumbsUp } from 'lucide-react';
+import { BadgeCheck, Copy, Flag, MessageCircle, Phone, ThumbsUp } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { findCategory } from '../data/categories';
 import { calculateWalkingEstimate } from '../services/geoService';
@@ -8,6 +8,7 @@ import { buildWhatsAppLink, describeDistance } from '../utils/geo';
 import { BottomSheet } from './BottomSheet';
 import { recommendationText } from './PostRow';
 import { postPhotoUrl } from '../services/postPhotos';
+import { flagPost } from '../services/postsService';
 import { useT } from '../i18n/LanguageContext';
 
 const EMERGENCY_TYPES = ['emergency_need', 'emergency_resource', 'support_group'];
@@ -24,6 +25,7 @@ export const PostSheet: React.FC = () => {
   const [walking, setWalking] = useState<string | null>(null);
   const [isWriting, setIsWriting] = useState(false);
   const [isConfirmingResolved, setIsConfirmingResolved] = useState(false);
+  const [hasFlagged, setHasFlagged] = useState(false);
   const [comment, setComment] = useState('');
   const [reviewerName, setReviewerName] = useState('');
 
@@ -53,6 +55,27 @@ export const PostSheet: React.FC = () => {
   const isEmergency = EMERGENCY_TYPES.includes(item.type);
   const isNeed = item.type === 'emergency_need';
   const isService = item.type === 'service';
+  const isGiving = item.type === 'favor_offer';
+  const isDonation = isGiving || item.type === 'favor_request';
+  const audienceText = !isDonation
+    ? null
+    : isGiving
+      ? item.audience === 'organizacion' ? t('Para una organización (comedor, olla común, albergue)') : t('Para cualquier vecino')
+      : item.audience === 'organizacion' ? t('Lo pide una organización') : t('Lo pide un vecino');
+
+  const reportPost = async () => {
+    if (!canWrite) {
+      openAccess(t('Para denunciar una publicación necesitas entrar con tu código de usuario.'));
+      return;
+    }
+    try {
+      const result = await flagPost(item.id);
+      setHasFlagged(true);
+      showNotice(result === 'ok' ? t('Gracias. Lo revisaremos.') : t('No se pudo enviar. Vuelve a intentar.'));
+    } catch {
+      showNotice(t('No se pudo enviar. Vuelve a intentar.'));
+    }
+  };
   const distance = walking ?? describeDistance(item.distanceMeters);
 
   const whatsappUrl = item.authorPhone
@@ -164,6 +187,36 @@ export const PostSheet: React.FC = () => {
               </button>
             )}
           </div>
+        )}
+
+        {audienceText && <p className="text-secondary font-semibold">{audienceText}</p>}
+
+        {isDonation && item.status === 'resolved' && (
+          <p className="text-secondary font-bold text-verde">{isGiving ? t('Ya se entregó') : t('Ya los ayudaron')}</p>
+        )}
+
+        {isDonation && item.isMine && (
+          item.status === 'resolved' ? (
+            <button type="button" className="btn btn-secondary" onClick={() => updateItemStatus(item.id, 'active')}>
+              {t('Sigue disponible')}
+            </button>
+          ) : (
+            <button type="button" className="btn btn-primary" onClick={() => updateItemStatus(item.id, 'resolved')}>
+              {isGiving ? t('Ya lo entregué') : t('Ya nos ayudaron')}
+            </button>
+          )
+        )}
+
+        {!item.isMine && !isEmergency && (
+          <button
+            type="button"
+            disabled={hasFlagged}
+            onClick={reportPost}
+            className="min-h-12 inline-flex items-center gap-2 text-secondary font-medium text-ink-2 disabled:opacity-60"
+          >
+            <Flag className="w-4 h-4" aria-hidden="true" />
+            {hasFlagged ? t('Ya la denunciaste') : t('Denunciar')}
+          </button>
         )}
 
         {isService && item.authorPhone && (
