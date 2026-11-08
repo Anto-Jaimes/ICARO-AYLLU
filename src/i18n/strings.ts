@@ -48,6 +48,7 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
     "Leve": "Light",
     "Moderado": "Moderate",
     "Fuerte": "Strong",
+    "Publicación rápida en 3 toques: 1. Categoría → 2. Detalle opcional → 3. Publicar": "Fast 3-tap posting: 1. Category → 2. Optional details → 3. Post",
     "Comentar": "Comment",
     "Comentarios": "Comments",
     "comentario": "comment",
@@ -411,6 +412,7 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
     "Leve": "Pisilla",
     "Moderado": "Chawpi",
     "Fuerte": "Sinchi",
+    "Publicación rápida en 3 toques: 1. Categoría → 2. Detalle opcional → 3. Publicar": "Kimsa llapchiyllapi willakuy: 1. Kikin kaynin → 2. Willakuynin → 3. Chaskichiy",
     "Comentar": "Rimay",
     "Comentarios": "Rimaykuna",
     "comentario": "rimay",
@@ -774,6 +776,7 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
     "Leve": "Pishilla",
     "Moderado": "Chawpilla",
     "Fuerte": "Kallpasapa",
+    "Publicación rápida en 3 toques: 1. Categoría → 2. Detalle opcional → 3. Publicar": "Kima llamiyllachaw willakuy: 1. Kastan → 2. Willakuynin → 3. Qillqay",
     "Comentar": "Rimaykuy",
     "Comentarios": "Rimaykuna",
     "comentario": "rimay",
@@ -1102,6 +1105,7 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
   },
 
   ay: {
+    "Publicación rápida en 3 toques: 1. Categoría → 2. Detalle opcional → 3. Publicar": "Kimsa llamt'allampi yatiyaña: 1. Kasta → 2. Yatiyawipa → 3. Yatiyaña",
     "Rojo": "Wila",
     "Amarillo": "Q'illu",
     "Verde": "Ch'uxña",
@@ -1115,6 +1119,7 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
   },
 
   cni: {
+    "Publicación rápida en 3 toques: 1. Categoría → 2. Detalle opcional → 3. Publicar": "Maba nianki kamantakotantsi: 1. Paitapeari → 2. Kenketsarentsi → 3. Otantyaari",
     "Inicio": "Nampitsi",
     "Servicios": "Antavaitantsi",
     "Favores": "Amitakotaventa",
