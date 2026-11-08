@@ -468,6 +468,37 @@
     box-shadow: 0 0 0 2px #121826;
   }
 
+  /* The radar: a wave that leaves the neighbour's dot again and again. */
+  .map-me.is-radar {
+    background: var(--color-anil);
+    box-shadow: 0 0 0 2px var(--color-anil);
+  }
+
+  .map-me.is-radar::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 3px solid var(--color-anil);
+    animation: radar-wave 2s ease-out infinite;
+    pointer-events: none;
+  }
+
+  /* An open place to gather after an earthquake (park, pitch, assembly point). */
+  .map-safe {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 3px solid #ffffff;
+    border-radius: 12px;
+    background: var(--color-verde);
+    color: #ffffff;
+    box-shadow: 0 2px 6px #12182666;
+    cursor: pointer;
+  }
+
   .maplibregl-map {
     font-family: var(--font-sans);
   }
@@ -548,6 +579,17 @@
 
 @keyframes fade-only {
   from {
+    opacity: 0;
+  }
+}
+
+@keyframes radar-wave {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(6);
     opacity: 0;
   }
 }
@@ -640,7 +682,8 @@
   }
 
   .tour-spot::after,
-  .tour-hand {
+  .tour-hand,
+  .map-me.is-radar::after {
     animation: none;
   }
 

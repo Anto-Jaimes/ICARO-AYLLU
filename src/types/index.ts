@@ -78,4 +78,6 @@ export interface UserLocation {
   lat: number;
   lng: number;
   name: string;
+  /** How precise the phone says the fix is, in meters (rescue messages say it). */
+  accuracy?: number;
 }

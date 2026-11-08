@@ -6,6 +6,7 @@ import { LevelGlyph } from './LevelTag';
 import { HelpButton, TopBarLanguageSelector } from './TopBar';
 import { useT } from '../i18n/LanguageContext';
 import { LOCATED_FALLBACK } from '../services/geoService';
+import { referenceNear } from '../utils/exactLocation';
 
 interface ToneStyle {
   field: string;
@@ -39,7 +40,9 @@ export const SafetyBlock: React.FC = () => {
   const levelName = LEVEL_NAMES[verdict.tone];
   // Without a street name the location is called "Tu ubicación", kept in Spanish as data.
   const located = userLocation.name === LOCATED_FALLBACK ? t(LOCATED_FALLBACK) : userLocation.name;
-  const place = hasLocation ? located : feed?.department?.name ?? t('Perú');
+  // Near where the neighbour wrote their manzana y lote, that says better where they are than the street.
+  const reference = hasLocation ? referenceNear(userLocation.lat, userLocation.lng) : null;
+  const place = hasLocation ? (reference ? `${reference}, ${located}` : located) : feed?.department?.name ?? t('Perú');
 
   return (
     <section

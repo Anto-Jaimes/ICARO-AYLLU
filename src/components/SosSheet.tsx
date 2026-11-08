@@ -4,6 +4,7 @@ import {
   BellRing,
   Camera,
   ChevronRight,
+  ClipboardList,
   HandHeart,
   HeartPulse,
   MessageSquare,
@@ -29,6 +30,7 @@ import { MedicalIdSheet } from './MedicalIdSheet';
 import { NearbyHelp } from './NearbyHelp';
 import { SafetyCheckinSheet } from './SafetyCheckinSheet';
 import { RubbleRescueSheet } from './RubbleRescueSheet';
+import { TriageSheet } from './TriageSheet';
 
 const EMERGENCY_NUMBERS = [
   { label: 'Policía', number: '105' },
@@ -37,7 +39,7 @@ const EMERGENCY_NUMBERS = [
   { label: 'Defensa Civil', number: '115' }
 ];
 
-type Panel = 'alarm' | 'family' | 'medical' | 'firstAid' | 'freeCall' | 'acoustic' | 'rubble' | null;
+type Panel = 'alarm' | 'family' | 'medical' | 'firstAid' | 'freeCall' | 'acoustic' | 'rubble' | 'triage' | null;
 
 const ActionRow: React.FC<{ icon: LucideIcon; title: string; line?: string; onClick: () => void }> = ({ icon: Icon, title, line, onClick }) => {
   const t = useT();
@@ -129,6 +131,7 @@ export const SosSheet: React.FC = () => {
             <ActionRow icon={Waves} title="Radar por sonido" line="Pide o escucha socorro con el parlante y el micrófono, sin internet" onClick={() => openPanel('acoustic')} />
             <ActionRow icon={Activity} title="Rescate en escombros" line="Geófono de muro y auxilio manos libres por voz" onClick={() => openPanel('rubble')} />
             <ActionRow icon={ShieldPlus} title="Primeros auxilios" line="Pasos sencillos, sin internet" onClick={() => openPanel('firstAid')} />
+            <ActionRow icon={ClipboardList} title="Triaje de heridos" line="Clasifícalos por colores y comparte la lista con un código QR" onClick={() => openPanel('triage')} />
             <ActionRow icon={HeartPulse} title="Mi ficha médica" line="Tipo de sangre, alergias y a quién llamar" onClick={() => openPanel('medical')} />
             {!isEmergency && (
               <ActionRow icon={Siren} title="Activar modo emergencia" line="Coordina ayuda con tus vecinos" onClick={() => { close(); setMode('emergency'); }} />
@@ -155,6 +158,7 @@ export const SosSheet: React.FC = () => {
       <FirstAidSheet open={panel === 'firstAid'} onClose={() => setPanel(null)} />
       <MedicalIdSheet open={panel === 'medical'} onClose={() => setPanel(null)} />
       <RubbleRescueSheet open={panel === 'rubble'} onClose={() => setPanel(null)} />
+      <TriageSheet open={panel === 'triage'} onClose={() => setPanel(null)} />
     </>
   );
 };

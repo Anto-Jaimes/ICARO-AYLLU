@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LngLatBounds, Map as MapLibreMap, Marker, setWorkerUrl, type ExpressionSpecification, type StyleSpecification } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { CloudOff, LocateFixed, MapPin, Minus, Navigation2, Plus, RotateCcw, RotateCw } from 'lucide-react';
+import { CloudOff, LocateFixed, MapPin, Minus, Navigation2, Plus, Radar, RotateCcw, RotateCw, ShieldCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { EmptyState } from '../components/EmptyState';
 import { TopBarLanguageSelector } from '../components/TopBar';
 import { MapSearch } from '../components/MapSearch';
 import { MyPlacesPanel, PickBar, SpotCard, TripCard, type SpotKind } from '../components/MapPanel';
+import { RADAR_RADII, RadarPanel } from '../components/RadarPanel';
+import { nearbySafeZones, SAFE_ZONE_LABELS, savedSafeZones, type SafeZone } from '../services/safeZonesService';
 import { HomeSheet, PlacesSheet, SavePlaceSheet, type PlaceDraft } from '../components/MyPlacesSheets';
 import { useBackHandler } from '../hooks/useBackHandler';
 import {
@@ -109,6 +111,42 @@ function createPin(color: string, label: string, onOpen: () => void): HTMLButton
   pin.title = label;
   pin.setAttribute('aria-label', label);
   pin.style.setProperty('--pin-color', color);
+  pin.addEventListener('click', (event) => {
+    event.stopPropagation();
+    onOpen();
+  });
+  return pin;
+}
+
+const SAFE_COLOR = '#0b5a3c';
+const RADAR_SOURCE = 'radar';
+const RADAR_FILL = 'radar-fill';
+const RADAR_LINE = 'radar-line';
+
+/** A circle of the given radius around a point, as map coordinates (lng, lat). */
+function circleAround(lat: number, lng: number, meters: number, steps = 72): [number, number][] {
+  const dLat = meters / 111_320;
+  const dLng = meters / (111_320 * Math.cos((lat * Math.PI) / 180));
+  return Array.from({ length: steps + 1 }, (_, i) => {
+    const angle = (2 * Math.PI * i) / steps;
+    return [lng + dLng * Math.cos(angle), lat + dLat * Math.sin(angle)] as [number, number];
+  });
+}
+
+function removeRadar(map: MapLibreMap) {
+  for (const id of [RADAR_LINE, RADAR_FILL]) if (map.getLayer(id)) map.removeLayer(id);
+  if (map.getSource(RADAR_SOURCE)) map.removeSource(RADAR_SOURCE);
+}
+
+// Lucide's shield-check, as fixed markup: markers live outside React.
+const SHIELD_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>';
+
+function createSafePin(label: string, onOpen: () => void): HTMLButtonElement {
+  const pin = document.createElement('button');
+  pin.type = 'button';
+  pin.className = 'map-safe';
+  pin.setAttribute('aria-label', label);
+  pin.innerHTML = SHIELD_ICON;
   pin.addEventListener('click', (event) => {
     event.stopPropagation();
     onOpen();
@@ -297,6 +335,11 @@ const MapScreen: React.FC = () => {
   } = useApp();
   const layers = mode === 'emergency' ? EMERGENCY_LAYERS : NORMAL_LAYERS;
   const [hiddenLayers, setHiddenLayers] = useState<string[]>([]);
+  // The radar: a circle around the neighbour, and only what is inside it. Null when it is off.
+  const [radarRadius, setRadarRadius] = useState<number | null>(null);
+  const [showSafe, setShowSafe] = useState(false);
+  const [safeZones, setSafeZones] = useState<SafeZone[]>([]);
+  const safePinsRef = useRef<Marker[]>([]);
   const [isReady, setIsReady] = useState(false);
   const [isStyleReady, setIsStyleReady] = useState(false);
   const [bearing, setBearing] = useState(0);
@@ -380,8 +423,28 @@ const MapScreen: React.FC = () => {
 
   const visibleItems = useMemo(() => {
     const types = visibleLayers.flatMap((layer) => layer.types);
-    return items.filter((item) => types.includes(item.type) && item.status !== 'resolved');
-  }, [items, visibleLayers]);
+    const shown = items.filter((item) => types.includes(item.type) && item.status !== 'resolved');
+    if (radarRadius === null || !hasLocation) return shown;
+    return shown.filter((item) => calculateDistanceMeters(userLocation.lat, userLocation.lng, item.coordinates[0], item.coordinates[1]) <= radarRadius);
+  }, [items, visibleLayers, radarRadius, hasLocation, userLocation.lat, userLocation.lng]);
+
+  const radarFound = useMemo(() => {
+    if (radarRadius === null || !hasLocation) return null;
+    const nearest = visibleItems
+      .map((item) => {
+        const layer = visibleLayers.find((candidate) => candidate.types.includes(item.type));
+        return {
+          id: item.id,
+          title: item.title,
+          layerLabel: layer?.label ?? '',
+          color: layer?.color ?? '#1e3f8f',
+          distance: calculateDistanceMeters(userLocation.lat, userLocation.lng, item.coordinates[0], item.coordinates[1])
+        };
+      })
+      .sort((a, b) => a.distance - b.distance);
+    const counts = visibleLayers.map((layer) => ({ label: layer.label, count: nearest.filter((item) => item.layerLabel === layer.label).length }));
+    return { counts, nearest: nearest.slice(0, 5) };
+  }, [radarRadius, hasLocation, visibleItems, visibleLayers, userLocation.lat, userLocation.lng]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -404,6 +467,60 @@ const MapScreen: React.FC = () => {
     marker.setLngLat([userLocation.lng, userLocation.lat]);
     userMarkerRef.current = marker;
   }, [userLocation.lat, userLocation.lng, hasLocation, isReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !isStyleReady) return;
+    removeRadar(map);
+    userMarkerRef.current?.getElement().classList.toggle('is-radar', radarRadius !== null);
+    if (radarRadius === null || !hasLocation) return;
+    const ring = circleAround(userLocation.lat, userLocation.lng, radarRadius);
+    map.addSource(RADAR_SOURCE, { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [ring] } } });
+    map.addLayer({ id: RADAR_FILL, type: 'fill', source: RADAR_SOURCE, paint: { 'fill-color': '#1e3f8f', 'fill-opacity': 0.1 } });
+    map.addLayer({ id: RADAR_LINE, type: 'line', source: RADAR_SOURCE, paint: { 'line-color': '#1e3f8f', 'line-width': 2.5, 'line-opacity': 0.75 } });
+    const bounds = new LngLatBounds();
+    ring.forEach((point) => bounds.extend(point));
+    map.resize();
+    map.fitBounds(bounds, { padding: 48, duration: 600 });
+    return () => {
+      if (mapRef.current === map) removeRadar(map);
+    };
+  }, [radarRadius, hasLocation, userLocation.lat, userLocation.lng, isStyleReady]);
+
+  // Open places to gather after an earthquake, from the map, with the last answer kept for no signal.
+  useEffect(() => {
+    if (!showSafe || !hasLocation) return;
+    const saved = savedSafeZones(userLocation.lat, userLocation.lng);
+    if (saved) setSafeZones(saved);
+    if (!isOnline) {
+      if (!saved) showNotice(t('Sin internet no se pueden buscar zonas seguras.'));
+      return;
+    }
+    let isCurrent = true;
+    nearbySafeZones(userLocation.lat, userLocation.lng)
+      .then((zones) => {
+        if (!isCurrent) return;
+        setSafeZones(zones);
+        if (zones.length === 0) showNotice(t('El mapa no tiene parques ni puntos de reunión a menos de 1.5 km.'));
+      })
+      .catch(() => isCurrent && !saved && showNotice(t('No se pudieron buscar zonas seguras. Vuelve a intentar.')));
+    return () => {
+      isCurrent = false;
+    };
+  }, [showSafe, hasLocation, isOnline, userLocation.lat, userLocation.lng]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    safePinsRef.current.forEach((pin) => pin.remove());
+    safePinsRef.current = [];
+    if (!map || !isReady || !showSafe) return;
+    safePinsRef.current = safeZones.map((zone) => {
+      const label = zone.name ?? t(SAFE_ZONE_LABELS[zone.kind]);
+      return new Marker({ element: createSafePin(label, () => selectSpotRef.current({ kind: 'result', name: label, address: t(SAFE_ZONE_LABELS[zone.kind]), lat: zone.lat, lng: zone.lng })) })
+        .setLngLat([zone.lng, zone.lat])
+        .addTo(map);
+    });
+  }, [safeZones, showSafe, isReady]);
 
   // A neighbour far from every post would otherwise open an empty map.
   useEffect(() => {
@@ -719,6 +836,31 @@ const MapScreen: React.FC = () => {
   useBackHandler(trip !== null, clearTrip);
   useBackHandler(picking !== null, () => setPicking(null));
 
+  const toggleRadar = () => {
+    if (radarRadius !== null) {
+      setRadarRadius(null);
+      return;
+    }
+    if (!hasLocation) {
+      showNotice(t('Activa tu ubicación para usar el radar.'));
+      requestCurrentGPS();
+      return;
+    }
+    setSelected(null);
+    setRadarRadius(RADAR_RADII[1]);
+  };
+
+  const toggleSafe = () => {
+    if (!showSafe && !hasLocation) {
+      showNotice(t('Activa tu ubicación para ver las zonas seguras cerca de ti.'));
+      requestCurrentGPS();
+      return;
+    }
+    setShowSafe((on) => !on);
+  };
+
+  useBackHandler(radarRadius !== null && !selected && !trip, () => setRadarRadius(null));
+
   const toggleLayer = (id: string) => {
     setHiddenLayers((hidden) => (hidden.includes(id) ? hidden.filter((layer) => layer !== id) : [...hidden, id]));
   };
@@ -788,6 +930,18 @@ const MapScreen: React.FC = () => {
             const place = places.find((candidate) => candidate.id === selected.placeId);
             if (place) deletePlace(place);
           }}
+        />
+      );
+    }
+    if (radarRadius !== null && radarFound) {
+      return (
+        <RadarPanel
+          radius={radarRadius}
+          counts={radarFound.counts}
+          nearest={radarFound.nearest}
+          onRadius={setRadarRadius}
+          onOpen={openItem}
+          onClose={() => setRadarRadius(null)}
         />
       );
     }
@@ -868,6 +1022,24 @@ const MapScreen: React.FC = () => {
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  aria-pressed={radarRadius !== null}
+                  onClick={toggleRadar}
+                  className={`pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg border text-secondary font-bold shadow-sm ${radarRadius !== null ? 'bg-anil border-anil text-white' : 'bg-surface border-line'}`}
+                >
+                  <Radar className="w-5 h-5" aria-hidden="true" />
+                  {t('Radar')}
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={showSafe}
+                  onClick={toggleSafe}
+                  className={`pointer-events-auto inline-flex items-center gap-2 shrink-0 min-h-12 px-3 rounded-lg border text-secondary font-bold shadow-sm ${showSafe ? 'bg-verde border-verde text-white' : 'bg-surface border-line'}`}
+                >
+                  <ShieldCheck className="w-5 h-5" aria-hidden="true" />
+                  {t('Zonas seguras')}
+                </button>
               </div>
             </div>
 

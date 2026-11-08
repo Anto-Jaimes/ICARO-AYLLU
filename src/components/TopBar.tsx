@@ -84,11 +84,12 @@ export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
 
 /** The red frame of emergency mode: always says where you are and how to leave. */
 export const EmergencyBar: React.FC<{ onExit: () => void }> = ({ onExit }) => {
-  const { lang, t } = useLanguage();
+  const { t } = useLanguage();
   return (
     <header className="sticky top-0 z-20 bg-rojo text-white" style={{ paddingTop: 'var(--safe-top)' }}>
       <div className="page flex items-center h-14 pl-4 pr-2 gap-2">
-        <h1 className={`flex-1 min-w-0 font-bold ${titleSize(lang, t('Modo emergencia'), { wraps: true })}`}>{t('Modo emergencia')}</h1>
+        {/* Beside three buttons on a small phone it does not fit in one line: two lines rather than cut. */}
+        <h1 className="flex-1 min-w-0 font-bold text-row leading-tight line-clamp-2">{t('Modo emergencia')}</h1>
         <TopBarLanguageSelector className="bg-rojo-press border-white/20 text-white" />
         <AudioGuideButton className="text-white hover:bg-white/10" screenTitle={t('Modo emergencia')} />
         <button

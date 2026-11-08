@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useT } from '../i18n/LanguageContext';
 import { SAFE_OPENING, SOS_OPENING, smsLink } from '../utils/sosMessage';
 import { BottomSheet } from './BottomSheet';
+import { ExactReferenceField } from './ExactReferenceField';
 import { placeLabel } from '../services/geoService';
 
 interface SafetyCheckinSheetProps {
@@ -22,6 +23,7 @@ export const SafetyCheckinSheet: React.FC<SafetyCheckinSheetProps> = ({ open, on
         <p className="text-secondary text-ink-2">
           {t('Después de un sismo las llamadas se saturan. Un mensaje de texto llega aunque no tengas internet. Se abrirá tu app de mensajes para que elijas a quién enviarlo.')}
         </p>
+        <ExactReferenceField />
         <a href={smsLink(SAFE_OPENING, userLocation, hasLocation)} onClick={onClose} className="btn bg-verde text-white">
           <CircleCheck className="w-6 h-6" aria-hidden="true" />
           {t('Estoy a salvo')}

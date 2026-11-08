@@ -355,7 +355,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTab(newMode === 'emergency' ? EMERGENCY_HOME : NORMAL_HOME);
   }, [setTab]);
 
-  const applyPosition = useCallback((lat: number, lng: number) => {
+  const applyPosition = useCallback((lat: number, lng: number, accuracy?: number) => {
     if (!isInPeru(lat, lng)) {
       setLocationStatus('unavailable');
       setNotice(tr('Estás fuera del Perú. Elige un departamento en Alertas.'));
@@ -365,7 +365,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setHasLocation(true);
     setLocationStatus('ready');
     setUserLocation((current) => {
-      const next = { lat, lng, name: current.name === DEFAULT_USER_LOCATION.name ? LOCATED_NAME : current.name };
+      const next = { lat, lng, accuracy, name: current.name === DEFAULT_USER_LOCATION.name ? LOCATED_NAME : current.name };
       saveLastLocation(next);
       return next;
     });
@@ -389,7 +389,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     setLocationStatus('locating');
     const onFix = (position: GeolocationPosition) => {
-      applyPosition(position.coords.latitude, position.coords.longitude);
+      applyPosition(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
     };
     const onFail = (error: GeolocationPositionError) => {
       console.warn('Ubicación no disponible:', error.message);

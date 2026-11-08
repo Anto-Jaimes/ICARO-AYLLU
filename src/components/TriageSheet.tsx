@@ -573,12 +573,12 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
         {activeTab === 'qr' && (
           <div className="flex flex-col items-center gap-4 text-center">
             <div className="p-3 bg-amber-950/20 border border-amber-600/40 rounded-xl text-left w-full">
-              <span className="block text-xs font-bold text-amber-500 flex items-center gap-1.5">
-                <ShieldAlert className="w-4 h-4" />
-                Entrega Táctica a Bomberos 116 / SAMU 106
+              <span className="text-secondary font-bold text-ink flex items-center gap-1.5">
+                <ShieldAlert className="w-5 h-5 text-naranja" aria-hidden="true" />
+                {t('Para quien llegue a ayudar')}
               </span>
-              <p className="text-[11px] text-ink-secondary mt-1">
-                Muestra este código al oficial de triaje o jefe de brigada. Permite cargar el censo completo de heridos con coordenadas exactas sin señal móvil ni internet.
+              <p className="text-secondary text-ink-secondary mt-1">
+                {t('Muestra este código a los bomberos o al personal de salud: cualquier celular lo lee con la cámara, sin internet, y ve la lista de heridos con su ubicación.')}
               </p>
             </div>
 

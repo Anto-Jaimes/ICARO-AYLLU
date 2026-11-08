@@ -31,6 +31,7 @@ import { useBackHandler } from '../hooks/useBackHandler';
 import { useT } from '../i18n/LanguageContext';
 import { tapFeedback } from '../lib/native';
 import { placeLabel } from '../services/geoService';
+import { locationSentence } from '../utils/exactLocation';
 
 interface BatterySaverScreenProps {
   onExit: () => void;
@@ -43,7 +44,7 @@ interface BatteryInfo extends EventTarget {
 }
 
 export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }) => {
-  const { userLocation } = useApp();
+  const { userLocation, hasLocation } = useApp();
   const t = useT();
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [isCharging, setIsCharging] = useState<boolean>(false);
@@ -314,7 +315,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
   const smsBody = encodeURIComponent(
     t('S.O.S. AUXILIO URGENTE.') +
       (batteryLevel !== null ? ` ${t('Bateria: {level}%.', { level: batteryLevel })}` : '') +
-      ` ${t('Mi ubicacion es: {place} (Lat: {lat}, Lng: {lng}).', { place: placeLabel(userLocation.name), lat: userLocation.lat.toFixed(4), lng: userLocation.lng.toFixed(4) })}` +
+      ` ${locationSentence(userLocation, hasLocation)}` +
       (medicalProfile?.bloodType ? ` ${t('Sangre: {blood}.', { blood: medicalProfile.bloodType })}` : '')
   );
   const smsUrl = `sms:?body=${smsBody}`;
