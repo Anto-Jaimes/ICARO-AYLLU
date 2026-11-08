@@ -12,7 +12,11 @@ import {
   VolumeX, 
   Zap, 
   Check,
-  BellRing
+  BellRing,
+  Share2,
+  Save,
+  Radio,
+  Edit3
 } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { getLocalPlusCode } from '../utils/plusCodes';
@@ -58,13 +62,18 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
     emergencyContactPhone: ''
   });
 
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+
   const plus = getLocalPlusCode(userLocation.lat, userLocation.lng, userLocation.name || 'Perú');
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem('ayllu_medical_id_v1');
       if (raw) {
-        setProfile((prev) => ({ ...prev, ...JSON.parse(raw) }));
+        const parsed = JSON.parse(raw);
+        setProfile((prev) => ({ ...prev, ...parsed }));
+        setPhoneInput(parsed.emergencyContactPhone || '');
       }
     } catch {}
   }, [open]);
@@ -75,6 +84,19 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
       stopStrobeTorch();
     };
   }, []);
+
+  const handleSaveContactPhone = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    tapFeedback();
+    const clean = phoneInput.trim();
+    const updated = { ...profile, emergencyContactPhone: clean };
+    setProfile(updated);
+    try {
+      localStorage.setItem('ayllu_medical_id_v1', JSON.stringify(updated));
+      showNotice(t('Contacto de auxilio guardado'));
+    } catch {}
+    setIsEditingPhone(false);
+  };
 
   // 1. Voice read out Plus Code in active language
   const handleDictateCode = () => {
@@ -119,7 +141,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
     }
   };
 
-  // 2. 1-Touch Emergency Rescue SMS
+  // 2. 1-Touch Emergency Rescue SMS (No balance / No internet required)
   const handleSendRescueSMS = () => {
     tapFeedback();
     const phone = profile.emergencyContactPhone || '';
@@ -129,12 +151,24 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
     window.location.href = `sms:${phone}?body=${message}`;
   };
 
-  // 3. Community Alarm & Strobe Torch
+  // 3. 1-Touch Emergency Rescue WhatsApp
+  const handleSendRescueWhatsApp = () => {
+    tapFeedback();
+    const digits = profile.emergencyContactPhone ? profile.emergencyContactPhone.replace(/\D/g, '') : '';
+    const phoneParam = digits.length >= 9 ? (digits.startsWith('51') ? digits : `51${digits}`) : '';
+    const message = encodeURIComponent(
+      `¡ALERTA DE AUXILIO AYLLU! Necesito ayuda urgente en mi ubicación exacta. Plus Code: ${plus.shortCode} (${userLocation.name || 'Perú'}). Mapa: https://plus.codes/${encodeURIComponent(plus.fullCode)} (Coords: ${userLocation.lat.toFixed(5)}, ${userLocation.lng.toFixed(5)}).`
+    );
+    const url = phoneParam ? `https://wa.me/${phoneParam}?text=${message}` : `https://wa.me/?text=${message}`;
+    window.open(url, '_blank');
+  };
+
+  // 4. Community Alarm & Strobe Torch
   const startAlarm = async () => {
     tapFeedback();
     setIsAlarmActive(true);
 
-    // Audio frequency oscillator (dual tone disuasivo: 2900Hz / 1800Hz)
+    // Audio frequency oscillator (dual tone disuasivo: 2900Hz / 1850Hz)
     try {
       audioCtxRef.current ??= new (window.AudioContext || (window as any).webkitAudioContext)();
       const ctx = audioCtxRef.current;
@@ -301,36 +335,104 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
               </div>
             </div>
 
-            {/* 1-Touch Rescue SMS */}
-            <button
-              type="button"
-              onClick={handleSendRescueSMS}
-              className="w-full py-3 px-4 bg-red-600 hover:bg-red-500 active:scale-98 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
-            >
-              <MessageSquare className="w-4 h-4" />
-              {t('Enviar SMS de Rescate en 1 Toque (Sin Saldo ni Internet)')}
-            </button>
+            {/* Dual 1-Touch Rescue Buttons: SMS & WhatsApp */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleSendRescueSMS}
+                className="w-full py-3 px-3 bg-red-600 hover:bg-red-500 active:scale-98 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+              >
+                <MessageSquare className="w-4 h-4 shrink-0" />
+                <span>{t('SMS de Rescate (Sin saldo)')}</span>
+              </button>
 
-            {/* Medical ICE snapshot */}
-            <div className="p-3 bg-surface border border-line rounded-xl flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-red-500 shrink-0" />
-                <div>
-                  <span className="block font-bold text-ink">Ficha Médica ICE de Rescate</span>
-                  <span className="block text-ink-secondary text-[11px]">
-                    Sangre: <strong>{profile.bloodType}</strong> • Alergias: {profile.allergies}
-                  </span>
+              <button
+                type="button"
+                onClick={handleSendRescueWhatsApp}
+                className="w-full py-3 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+              >
+                <Share2 className="w-4 h-4 shrink-0" />
+                <span>{t('Auxilio por WhatsApp')}</span>
+              </button>
+            </div>
+
+            {/* Medical ICE snapshot with quick inline phone configuration */}
+            <div className="p-3 bg-surface border border-line rounded-xl flex flex-col gap-2 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-red-500 shrink-0" />
+                  <div>
+                    <span className="block font-bold text-ink">Ficha Médica ICE de Rescate</span>
+                    <span className="block text-ink-secondary text-[11px]">
+                      Sangre: <strong>{profile.bloodType}</strong> • Alergias: {profile.allergies}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              {profile.emergencyContactPhone && (
-                <a
-                  href={`tel:${profile.emergencyContactPhone}`}
-                  className="py-1 px-2.5 bg-neutral-200 dark:bg-neutral-800 text-ink font-bold rounded-lg text-xs flex items-center gap-1"
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditingPhone(!isEditingPhone)}
+                  className="p-1.5 text-primary hover:bg-neutral-100 rounded-lg flex items-center gap-1 font-semibold text-[11px]"
+                  title="Configurar teléfono"
                 >
-                  <Phone className="w-3 h-3 text-emerald-500" />
-                  {profile.emergencyContactName || 'Familiar'}
-                </a>
+                  <Edit3 className="w-3.5 h-3.5" />
+                  {profile.emergencyContactPhone ? t('Cambiar') : t('Configurar')}
+                </button>
+              </div>
+
+              {isEditingPhone ? (
+                <form onSubmit={handleSaveContactPhone} className="flex gap-2 pt-1 border-t border-line">
+                  <input
+                    type="tel"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value)}
+                    placeholder="Celular familiar (ej. 987654321)"
+                    maxLength={15}
+                    className="flex-1 field py-1.5 px-2.5 text-xs"
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    className="py-1.5 px-3 bg-primary text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-xs"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    {t('Guardar')}
+                  </button>
+                </form>
+              ) : profile.emergencyContactPhone ? (
+                <div className="flex items-center justify-between pt-1 border-t border-line text-[11px]">
+                  <span className="text-ink-secondary">
+                    Contacto guardado: <strong>{profile.emergencyContactPhone}</strong> ({profile.emergencyContactName || 'Familiar'})
+                  </span>
+                  <a
+                    href={`tel:${profile.emergencyContactPhone}`}
+                    className="py-1 px-2.5 bg-neutral-200 dark:bg-neutral-800 text-ink font-bold rounded-lg flex items-center gap-1 hover:bg-neutral-300"
+                  >
+                    <Phone className="w-3 h-3 text-emerald-500" />
+                    {t('Llamar')}
+                  </a>
+                </div>
+              ) : (
+                <p className="text-[11px] text-amber-600 dark:text-amber-400 pt-1 border-t border-line">
+                  ⚠️ No tienes un número de familiar guardado. Toca «Configurar» para asignarlo.
+                </p>
               )}
+            </div>
+
+            {/* Official 119 Voice Message Banner (Ley Telecomunicaciones MTC Perú) */}
+            <div className="p-2.5 bg-sky-50 dark:bg-sky-950/20 border border-sky-300/60 dark:border-sky-800/60 rounded-xl flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Radio className="w-4 h-4 text-sky-600 shrink-0" />
+                <span className="text-ink text-[11px] font-medium leading-tight">
+                  <strong>Línea 119 MTC:</strong> Deja o escucha mensajes de voz si las líneas colapsan por sismo.
+                </span>
+              </div>
+              <a
+                href="tel:119"
+                className="py-1 px-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg text-[11px] shrink-0 ml-2"
+              >
+                119
+              </a>
             </div>
           </div>
         )}
@@ -379,7 +481,7 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
               </span>
             </div>
 
-            {/* Emergency fast dialers */}
+            {/* Emergency fast dialers: 4 official lines of the Peruvian State */}
             <div className="pt-2 border-t border-line grid grid-cols-2 gap-2">
               <a
                 href="tel:105"
@@ -394,6 +496,20 @@ export const TacticalPanicSheet: React.FC<TacticalPanicSheetProps> = ({ open, on
               >
                 <Phone className="w-4 h-4 text-red-500" />
                 Bomberos (116)
+              </a>
+              <a
+                href="tel:106"
+                className="py-2.5 px-3 bg-surface border border-line rounded-xl text-xs font-bold text-ink flex items-center justify-center gap-2 hover:bg-neutral-100"
+              >
+                <Phone className="w-4 h-4 text-emerald-600" />
+                SAMU Ambulancia (106)
+              </a>
+              <a
+                href="tel:115"
+                className="py-2.5 px-3 bg-surface border border-line rounded-xl text-xs font-bold text-ink flex items-center justify-center gap-2 hover:bg-neutral-100"
+              >
+                <Phone className="w-4 h-4 text-amber-600" />
+                Defensa Civil INDECI (115)
               </a>
             </div>
           </div>
