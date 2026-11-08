@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { reverseGeocode } from '../services/geoService';
 import {
   addComment,
+  authorLabel,
   COMMENT_PROBLEMS,
   deleteComment,
   fetchComments,
@@ -75,7 +76,7 @@ export const NewsDetailSheet: React.FC = () => {
       refreshReports();
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
-      setProblem((COMMENT_PROBLEMS as Record<string, string>)[code] ?? 'No se pudo enviar el comentario. Intenta de nuevo.');
+      setProblem(t((COMMENT_PROBLEMS as Record<string, string>)[code] ?? 'No se pudo enviar el comentario. Intenta de nuevo.'));
     } finally {
       setIsSending(false);
     }
@@ -87,7 +88,7 @@ export const NewsDetailSheet: React.FC = () => {
       await load(report.id);
       refreshReports();
     } catch {
-      showNotice('No se pudo borrar el comentario.');
+      showNotice(t('No se pudo borrar el comentario.'));
     }
   };
 
@@ -121,7 +122,7 @@ export const NewsDetailSheet: React.FC = () => {
           </p>
           <p className="flex items-center gap-2 text-secondary text-ink-2">
             <Clock className="w-5 h-5 shrink-0" aria-hidden="true" />
-            {formatRelativeTime(report.created_at)}, por {report.author_name}
+            {t('{time}, por {name}', { time: formatRelativeTime(report.created_at), name: authorLabel(report.author_name) })}
           </p>
           {!report.is_mine && (
             <button
@@ -191,7 +192,7 @@ export const NewsDetailSheet: React.FC = () => {
               <button
                 type="button"
                 className="btn btn-secondary"
-                onClick={() => openAccess('Para comentar necesitas entrar con tu código de usuario.')}
+                onClick={() => openAccess(t('Para comentar necesitas entrar con tu código de usuario.'))}
               >
                 {t('Entra con tu código para comentar')}
               </button>

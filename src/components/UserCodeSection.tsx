@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CODE_CHANGE_PROBLEMS, cachedUserCode, changeUserCode, fetchUserCode } from '../services/userCodeService';
+import { useT } from '../i18n/LanguageContext';
 
 /** Shows the neighbour's code and lets them pick another one that nobody else has. */
 export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
@@ -8,6 +9,7 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
   const [draft, setDraft] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     if (!isVisible) {
@@ -18,7 +20,7 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
     fetchUserCode()
       .then(setCode)
       .catch(() => {
-        if (!cachedUserCode()) setProblem('Necesitas internet para ver tu código la primera vez.');
+        if (!cachedUserCode()) setProblem(t('Necesitas internet para ver tu código la primera vez.'));
       });
   }, [isVisible]);
 
@@ -32,10 +34,10 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
         setCode(draft.trim().toUpperCase());
         setIsEditing(false);
       } else {
-        setProblem(CODE_CHANGE_PROBLEMS[result]);
+        setProblem(t(CODE_CHANGE_PROBLEMS[result]));
       }
     } catch {
-      setProblem('Necesitas internet para cambiar tu código.');
+      setProblem(t('Necesitas internet para cambiar tu código.'));
     } finally {
       setIsSaving(false);
     }
@@ -43,10 +45,10 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
 
   return (
     <section className="px-4 pb-4 border-b border-line" aria-labelledby="user-code-title">
-      <h3 id="user-code-title" className="text-secondary text-ink-2">Tu código de usuario</h3>
+      <h3 id="user-code-title" className="text-secondary text-ink-2">{t('Tu código de usuario')}</h3>
       {isEditing ? (
         <form onSubmit={save} className="pt-2 space-y-2">
-          <label htmlFor="user-code-input" className="block text-secondary font-bold">Nuevo código</label>
+          <label htmlFor="user-code-input" className="block text-secondary font-bold">{t('Nuevo código')}</label>
           <input
             id="user-code-input"
             className="field uppercase"
@@ -58,12 +60,12 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
             spellCheck={false}
             aria-describedby="user-code-help"
           />
-          <p id="user-code-help" className="text-meta text-ink-2">De 4 a 10 letras o números. Solo puedes cambiarlo una vez al día.</p>
+          <p id="user-code-help" className="text-meta text-ink-2">{t('De 4 a 10 letras o números. Solo puedes cambiarlo una vez al día.')}</p>
           {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
           <div className="flex gap-2">
-            <button type="button" className="btn btn-secondary" onClick={() => { setIsEditing(false); setProblem(null); }}>Cancelar</button>
+            <button type="button" className="btn btn-secondary" onClick={() => { setIsEditing(false); setProblem(null); }}>{t('Cancelar')}</button>
             <button type="submit" className="btn btn-primary" disabled={isSaving || draft.trim().length < 4}>
-              {isSaving ? 'Guardando...' : 'Guardar'}
+              {isSaving ? t('Guardando...') : t('Guardar')}
             </button>
           </div>
         </form>
@@ -72,13 +74,13 @@ export const UserCodeSection: React.FC<{ isVisible: boolean }> = ({ isVisible })
           <p className="flex-1 text-sign font-bold tracking-widest" aria-live="polite">{code ?? '······'}</p>
           {code && (
             <button type="button" className="btn btn-secondary w-auto min-h-12" onClick={() => { setDraft(code); setIsEditing(true); }}>
-              Cambiar
+              {t('Cambiar')}
             </button>
           )}
         </div>
       )}
       {!isEditing && problem && <p role="status" className="pt-1 text-secondary text-ink-2">{problem}</p>}
-      <p className="pt-1 text-meta text-ink-2">Te distingue de los demás vecinos. Se anuncia cuando llamas desde AYLLU.</p>
+      <p className="pt-1 text-meta text-ink-2">{t('Te distingue de los demás vecinos. Se anuncia cuando llamas desde AYLLU.')}</p>
     </section>
   );
 };

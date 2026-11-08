@@ -2,6 +2,8 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 import { useApp } from './AppContext';
 import { HazardFeed, isSenamhiFresh, loadHazardFeed, NoticeLevel, subscribeToHazardEvents } from '../services/hazardService';
 import { formatRelativeTime } from '../utils/time';
+import { useLanguage } from '../i18n/LanguageContext';
+import { tr } from '../i18n/translate';
 
 const DEFAULT_DEPARTMENT_ID = '15'; // Lima, until the neighbour is located
 
@@ -23,7 +25,10 @@ const TITLE_BY_LEVEL: Record<NoticeLevel, string> = {
 };
 const SERIOUS_NOTICES: NoticeLevel[] = ['naranja', 'rojo'];
 
-/** One verdict for the whole app: the first rule that applies wins. Never promises safety. */
+/**
+ * One verdict for the whole app: the first rule that applies wins. Never promises safety.
+ * Its words come out in the chosen language, so the provider computes it again when the language changes.
+ */
 export function computeVerdict(
   feed: HazardFeed | null,
   savedAt: string | null,
@@ -33,49 +38,50 @@ export function computeVerdict(
 ): SafetyVerdict {
   if (!hasLocation) {
     return isLocating
-      ? { tone: 'unknown', title: 'Buscando tu ubicación', line: 'Esto toma unos segundos', action: 'alerts', actionLabel: 'Ver alertas del Perú' }
-      : { tone: 'unknown', title: 'No sabemos dónde estás', line: 'Activa tu ubicación para ver tu zona', action: 'locate', actionLabel: 'Activar ubicación' };
+      ? { tone: 'unknown', title: tr('Buscando tu ubicación'), line: tr('Esto toma unos segundos'), action: 'alerts', actionLabel: tr('Ver alertas del Perú') }
+      : { tone: 'unknown', title: tr('No sabemos dónde estás'), line: tr('Activa tu ubicación para ver tu zona'), action: 'locate', actionLabel: tr('Activar ubicación') };
   }
 
   const zone = feed?.zones_here[0];
   if (zone) {
     const level = LEVEL_BY_NUMBER[zone.level];
-    const what = zone.kind === 'huaico' ? 'Riesgo de huaico en tu zona' : 'Lluvia intensa en tu zona';
-    return { tone: level, title: TITLE_BY_LEVEL[level], line: what, action: 'alerts', actionLabel: 'Mira qué hacer' };
+    const what = zone.kind === 'huaico' ? tr('Riesgo de huaico en tu zona') : tr('Lluvia intensa en tu zona');
+    return { tone: level, title: tr(TITLE_BY_LEVEL[level]), line: what, action: 'alerts', actionLabel: tr('Mira qué hacer') };
   }
 
   if (!isOnline || savedAt) {
-    const when = savedAt ? formatRelativeTime(savedAt).toLowerCase() : 'sin datos';
-    return { tone: 'offline', title: 'Sin internet', line: `Último dato: ${when}`, action: 'alerts', actionLabel: 'Ver lo guardado' };
+    const line = savedAt ? tr('Último dato: {time}', { time: formatRelativeTime(savedAt).toLowerCase() }) : tr('Último dato: sin datos');
+    return { tone: 'offline', title: tr('Sin internet'), line, action: 'alerts', actionLabel: tr('Ver lo guardado') };
   }
 
   if (!feed) {
-    return { tone: 'unknown', title: 'Revisando tu zona', line: 'Consultando fuentes oficiales', action: 'alerts', actionLabel: 'Ver alertas' };
+    return { tone: 'unknown', title: tr('Revisando tu zona'), line: tr('Consultando fuentes oficiales'), action: 'alerts', actionLabel: tr('Ver alertas') };
   }
 
   if (!isSenamhiFresh(feed)) {
     const updated = feed.updated_at?.senamhi;
-    const line = updated ? `Datos ${formatRelativeTime(updated).toLowerCase()}` : 'Aún no recibimos datos oficiales';
-    return { tone: 'unknown', title: 'No sabemos si hay riesgo', line, action: 'alerts', actionLabel: 'Ver alertas' };
+    const line = updated ? tr('Datos {time}', { time: formatRelativeTime(updated).toLowerCase() }) : tr('Aún no recibimos datos oficiales');
+    return { tone: 'unknown', title: tr('No sabemos si hay riesgo'), line, action: 'alerts', actionLabel: tr('Ver alertas') };
   }
 
   if (feed.notices.some((notice) => SERIOUS_NOTICES.includes(notice.level))) {
+    const place = feed.department?.name;
     return {
       tone: 'amarillo',
-      title: 'Ten cuidado hoy',
-      line: `Hay avisos en ${feed.department?.name ?? 'tu zona'}`,
+      title: tr('Ten cuidado hoy'),
+      line: place ? tr('Hay avisos en {place}', { place }) : tr('Hay avisos en tu zona'),
       action: 'alerts',
-      actionLabel: 'Ver avisos'
+      actionLabel: tr('Ver avisos')
     };
   }
 
   const checked = feed.updated_at?.senamhi;
   return {
     tone: 'safe',
-    title: 'Sin alertas en tu zona',
-    line: checked ? `Revisado ${formatRelativeTime(checked).toLowerCase()}` : 'Revisado hoy',
+    title: tr('Sin alertas en tu zona'),
+    line: checked ? tr('Revisado {time}', { time: formatRelativeTime(checked).toLowerCase() }) : tr('Revisado hoy'),
     action: 'alerts',
-    actionLabel: 'Ver alertas'
+    actionLabel: tr('Ver alertas')
   };
 }
 
@@ -91,6 +97,8 @@ const HazardContext = createContext<HazardContextType | undefined>(undefined);
 
 export const HazardProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { userLocation, hasLocation, locationStatus, isOnline } = useApp();
+  // This provider sits above the screens that start over on a new language; the verdict follows it here.
+  const { lang } = useLanguage();
   const [feed, setFeed] = useState<HazardFeed | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -124,7 +132,8 @@ export const HazardProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const verdict = useMemo(
     () => computeVerdict(feed, savedAt, hasLocation, locationStatus === 'locating', isOnline),
-    [feed, savedAt, hasLocation, locationStatus, isOnline]
+    // lang: the verdict's words are in the chosen language (tr reads it).
+    [feed, savedAt, hasLocation, locationStatus, isOnline, lang]
   );
 
   return (

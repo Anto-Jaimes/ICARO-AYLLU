@@ -28,7 +28,9 @@ import { MedicalIdSheet, MedicalProfile } from '../components/MedicalIdSheet';
 import { FirstAidSheet } from '../components/FirstAidSheet';
 import { AcousticBeaconSheet } from '../components/AcousticBeaconSheet';
 import { useBackHandler } from '../hooks/useBackHandler';
+import { useT } from '../i18n/LanguageContext';
 import { tapFeedback } from '../lib/native';
+import { placeLabel } from '../services/geoService';
 
 interface BatterySaverScreenProps {
   onExit: () => void;
@@ -42,6 +44,7 @@ interface BatteryInfo extends EventTarget {
 
 export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }) => {
   const { userLocation } = useApp();
+  const t = useT();
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [isCharging, setIsCharging] = useState<boolean>(false);
   const [hoursLeft, setHoursLeft] = useState<number | null>(null);
@@ -304,12 +307,15 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
 
   const getCardinal = (deg: number): string => {
     const directions = ['N (Norte)', 'NE (Noreste)', 'E (Este)', 'SE (Sureste)', 'S (Sur)', 'SO (Suroeste)', 'O (Oeste)', 'NO (Noroeste)'];
-    return directions[Math.round(deg / 45) % 8];
+    return t(directions[Math.round(deg / 45) % 8]);
   };
 
-  // SMS SOS coordinates
+  // SMS SOS coordinates. Plain letters (no accents) so the message travels as a cheap, short SMS.
   const smsBody = encodeURIComponent(
-    `S.O.S. AUXILIO URGENTE.${batteryLevel !== null ? ` Bateria: ${batteryLevel}%.` : ''} Mi ubicacion es: ${userLocation.name} (Lat: ${userLocation.lat.toFixed(4)}, Lng: ${userLocation.lng.toFixed(4)}).${medicalProfile?.bloodType ? ` Sangre: ${medicalProfile.bloodType}.` : ''}`
+    t('S.O.S. AUXILIO URGENTE.') +
+      (batteryLevel !== null ? ` ${t('Bateria: {level}%.', { level: batteryLevel })}` : '') +
+      ` ${t('Mi ubicacion es: {place} (Lat: {lat}, Lng: {lng}).', { place: placeLabel(userLocation.name), lat: userLocation.lat.toFixed(4), lng: userLocation.lng.toFixed(4) })}` +
+      (medicalProfile?.bloodType ? ` ${t('Sangre: {blood}.', { blood: medicalProfile.bloodType })}` : '')
   );
   const smsUrl = `sms:?body=${smsBody}`;
 
@@ -321,13 +327,13 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
         className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-between p-6 cursor-pointer"
       >
         <span className="text-black font-black text-meta uppercase tracking-widest bg-black/10 px-3 py-1 rounded-full">
-          Linterna Pantalla Máxima (Toca para apagar)
+          {t('Linterna Pantalla Máxima (Toca para apagar)')}
         </span>
         <div className="text-center">
           <Sun className="w-16 h-16 text-black/80 mx-auto" />
-          <p className="text-black font-black text-secondary mt-3">Toca cualquier parte para volver al Modo Negro OLED</p>
+          <p className="text-black font-black text-secondary mt-3">{t('Toca cualquier parte para volver al Modo Negro OLED')}</p>
         </div>
-        <span className="text-black/50 text-meta">AYLLU • Modo Supervivencia</span>
+        <span className="text-black/50 text-meta">{t('AYLLU • Modo Supervivencia')}</span>
       </div>
     );
   }
@@ -340,7 +346,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
             <h1 className="text-meta font-black tracking-wider text-emerald-400 uppercase">
-              Modo apagón
+              {t('Modo apagón')}
             </h1>
           </div>
 
@@ -349,7 +355,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             onClick={onExit}
             className="px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-meta font-bold text-neutral-300 hover:text-white cursor-pointer active:scale-95"
           >
-            Salir del modo
+            {t('Salir del modo')}
           </button>
         </div>
 
@@ -368,22 +374,22 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
               </div>
               <div>
                 <span className="text-2xl font-black block leading-none">
-                  {batteryLevel !== null ? `${batteryLevel}%` : 'Sin dato'}
+                  {batteryLevel !== null ? `${batteryLevel}%` : t('Sin dato')}
                 </span>
                 <span className="text-meta text-neutral-400 font-sans">
-                  {isCharging ? 'Cargando' : batteryLevel !== null ? 'de batería' : 'Este celular no informa su batería'}
+                  {isCharging ? t('Cargando') : batteryLevel !== null ? t('de batería') : t('Este celular no informa su batería')}
                 </span>
               </div>
             </div>
 
             {batteryLevel !== null && !isCharging && (
               <div className="text-right">
-                <span className="text-meta text-emerald-400 font-bold block">Te queda</span>
+                <span className="text-meta text-emerald-400 font-bold block">{t('Te queda')}</span>
                 <span className="text-xl font-black text-emerald-400 block font-mono">
-                  {hoursLeft !== null ? `~${hoursLeft} h` : 'Midiendo...'}
+                  {hoursLeft !== null ? `~${hoursLeft} h` : t('Midiendo...')}
                 </span>
                 <span className="text-meta text-neutral-500 block">
-                  {hoursLeft !== null ? 'a tu ritmo de ahora' : 'con tu consumo real'}
+                  {hoursLeft !== null ? t('a tu ritmo de ahora') : t('con tu consumo real')}
                 </span>
               </div>
             )}
@@ -391,7 +397,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
 
           <div className="pt-2 border-t border-neutral-900 flex items-center gap-1 text-meta font-sans text-neutral-400">
             <Zap className="w-3.5 h-3.5 shrink-0 text-emerald-400" aria-hidden="true" />
-            Baja el brillo y apaga datos, wifi y Bluetooth si no los usas.
+            {t('Baja el brillo y apaga datos, wifi y Bluetooth si no los usas.')}
           </div>
         </div>
 
@@ -399,29 +405,29 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
         <div className="mb-3 p-3 rounded-2xl bg-neutral-950 border border-neutral-800">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-meta font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1">
-              <HeartPulse className="w-3.5 h-3.5 text-rojo" /> Ficha de Identidad & Ubicación (Siempre Visible)
+              <HeartPulse className="w-3.5 h-3.5 text-rojo" /> {t('Ficha de Identidad & Ubicación (Siempre Visible)')}
             </span>
             <button
               type="button"
               onClick={() => setIsMedicalOpen(true)}
               className="text-meta text-cyan-400 font-bold hover:underline"
             >
-              Editar ICE
+              {t('Editar ICE')}
             </button>
           </div>
 
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="text-secondary font-bold text-white">
-                {medicalProfile?.fullName || 'Sin nombre en tu ficha'}
+                {medicalProfile?.fullName || t('Sin nombre en tu ficha')}
               </div>
               <div className="text-meta text-neutral-400 mt-0.5">
                 {/* "None registered" could be read by a rescuer as "no allergies": it says it was not filled in. */}
-                Alergias: <strong className="text-neutral-200">{medicalProfile?.allergies || 'sin registrar'}</strong>
+                {t('Alergias:')} <strong className="text-neutral-200">{medicalProfile?.allergies || t('sin registrar')}</strong>
               </div>
               {medicalProfile?.conditions && (
                 <div className="text-meta text-neutral-400">
-                  Condición: <strong className="text-amber-300">{medicalProfile.conditions}</strong>
+                  {t('Condición:')} <strong className="text-amber-300">{medicalProfile.conditions}</strong>
                 </div>
               )}
             </div>
@@ -433,10 +439,10 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
                   {medicalProfile.bloodType}
                 </span>
               ) : (
-                <span className="text-meta text-neutral-400 inline-block mb-1">Sin tipo de sangre</span>
+                <span className="text-meta text-neutral-400 inline-block mb-1">{t('Sin tipo de sangre')}</span>
               )}
               <div className="text-meta text-neutral-400 font-mono">
-                {medicalProfile?.emergencyContactPhone || 'Sin contacto'}
+                {medicalProfile?.emergencyContactPhone || t('Sin contacto')}
               </div>
             </div>
           </div>
@@ -445,7 +451,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
           <div className="mt-2 pt-2 border-t border-neutral-900 flex items-center justify-between text-meta font-sans text-neutral-400">
             <span className="flex items-center gap-1 truncate max-w-[200px]">
               <MapPin className="w-3.5 h-3.5 text-rojo shrink-0" />
-              {userLocation.name}
+              {placeLabel(userLocation.name)}
             </span>
             <span className="font-mono text-neutral-300 text-meta shrink-0">
               GPS: {userLocation.lat.toFixed(3)}, {userLocation.lng.toFixed(3)}
@@ -469,13 +475,13 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             <div className="flex items-center justify-between w-full">
               <Flashlight className={`w-5 h-5 ${torchMode === 'hardware' ? 'text-black' : 'text-amber-400'}`} />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
-                {torchMode === 'hardware' ? 'ENCENDIDA' : 'LED TRASERO'}
+                {torchMode === 'hardware' ? t('ENCENDIDA') : t('LED TRASERO')}
               </span>
             </div>
             <div>
-              <span className="font-bold text-meta block leading-tight">Linterna Flash LED</span>
+              <span className="font-bold text-meta block leading-tight">{t('Linterna Flash LED')}</span>
               <span className={`text-meta ${torchMode === 'hardware' ? 'text-black/80' : 'text-neutral-400'}`}>
-                Mantiene pantalla negra
+                {t('Mantiene pantalla negra')}
               </span>
             </div>
           </button>
@@ -493,13 +499,13 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             <div className="flex items-center justify-between w-full">
               <Sun className={`w-5 h-5 ${torchMode === 'morse' ? 'text-white' : 'text-rojo'}`} />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
-                {torchMode === 'morse' ? 'PARPADEANDO' : 'MORSE'}
+                {torchMode === 'morse' ? t('PARPADEANDO') : 'MORSE'}
               </span>
             </div>
             <div>
-              <span className="font-bold text-meta block leading-tight">Luz S.O.S. Morse</span>
+              <span className="font-bold text-meta block leading-tight">{t('Luz S.O.S. Morse')}</span>
               <span className={`text-meta ${torchMode === 'morse' ? 'text-white/80' : 'text-neutral-400'}`}>
-                Rescate nocturno / aéreo
+                {t('Rescate nocturno / aéreo')}
               </span>
             </div>
           </button>
@@ -517,13 +523,13 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             <div className="flex items-center justify-between w-full">
               <Volume2 className={`w-5 h-5 ${isWhistleActive ? 'text-white' : 'text-emerald-400'}`} />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
-                {isWhistleActive ? 'ACTIVO' : 'BAJO GASTO'}
+                {isWhistleActive ? t('ACTIVO') : t('BAJO GASTO')}
               </span>
             </div>
             <div>
-              <span className="font-bold text-meta block leading-tight">Silbato Cada 12s</span>
+              <span className="font-bold text-meta block leading-tight">{t('Silbato Cada 12s')}</span>
               <span className={`text-meta ${isWhistleActive ? 'text-white/80' : 'text-neutral-400'}`}>
-                Suena 1 segundo de cada 12
+                {t('Suena 1 segundo de cada 12')}
               </span>
             </div>
           </button>
@@ -540,12 +546,12 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             <div className="flex items-center justify-between w-full">
               <Waves className="w-5 h-5 text-cyan-400" />
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">
-                P2P SONIDO
+                {t('P2P SONIDO')}
               </span>
             </div>
             <div>
-              <span className="font-bold text-meta block leading-tight">Baliza Acústica</span>
-              <span className="text-meta text-neutral-400">Emite socorro por ondas</span>
+              <span className="font-bold text-meta block leading-tight">{t('Baliza Acústica')}</span>
+              <span className="text-meta text-neutral-400">{t('Emite socorro por ondas')}</span>
             </div>
           </button>
 
@@ -562,13 +568,13 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
             <div className="flex items-center justify-between w-full">
               {isSounding ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-rojo" />}
               <span className="text-meta uppercase px-1.5 py-0.5 rounded bg-black/30 font-bold">
-                {isSounding ? 'SONANDO' : 'ESTRUENDO'}
+                {isSounding ? t('SONANDO') : t('ESTRUENDO')}
               </span>
             </div>
             <div>
-              <span className="font-bold text-meta block leading-tight">Sirena Continua</span>
+              <span className="font-bold text-meta block leading-tight">{t('Sirena Continua')}</span>
               <span className="text-meta text-neutral-400">
-                {isSounding ? 'Toca para detener' : 'Máximo volumen'}
+                {isSounding ? t('Toca para detener') : t('Máximo volumen')}
               </span>
             </div>
           </button>
@@ -585,8 +591,8 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
               </span>
             </div>
             <div>
-              <span className="font-bold text-meta block leading-tight">SMS con GPS</span>
-              <span className="text-meta text-neutral-400">Sin internet</span>
+              <span className="font-bold text-meta block leading-tight">{t('SMS con GPS')}</span>
+              <span className="text-meta text-neutral-400">{t('Sin internet')}</span>
             </div>
           </a>
 
@@ -603,15 +609,15 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
           >
             <span className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-              <span className="text-meta font-bold text-neutral-300">Brújula</span>
+              <span className="text-meta font-bold text-neutral-300">{t('Brújula')}</span>
             </span>
             <span className="text-meta font-mono font-bold text-emerald-400">
               {!hasCompass
-                ? 'Este celular no tiene brújula'
+                ? t('Este celular no tiene brújula')
                 : !isCompassOn
-                  ? 'Toca para ver el norte'
+                  ? t('Toca para ver el norte')
                   : heading === null
-                    ? 'Buscando el norte...'
+                    ? t('Buscando el norte...')
                     : `${heading}° ${getCardinal(heading)}`}
             </span>
           </button>
@@ -623,7 +629,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
               className="p-2 rounded-xl bg-neutral-900 border border-red-900/60 text-center no-underline text-white"
             >
               <span className="text-base font-black text-rojo block">116</span>
-              <span className="text-meta text-neutral-400 font-sans block">Bomberos</span>
+              <span className="text-meta text-neutral-400 font-sans block">{t('Bomberos')}</span>
             </a>
 
             <a
@@ -631,7 +637,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
               className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-center no-underline text-white"
             >
               <span className="text-base font-black text-white block">105</span>
-              <span className="text-meta text-neutral-400 font-sans block">Policía</span>
+              <span className="text-meta text-neutral-400 font-sans block">{t('Policía')}</span>
             </a>
 
             <a
@@ -647,7 +653,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
               className="p-2 rounded-xl bg-neutral-900 border border-emerald-900/60 text-center no-underline text-white"
             >
               <span className="text-base font-black text-emerald-400 block">119</span>
-              <span className="text-meta text-neutral-400 font-sans block">MTC Voz</span>
+              <span className="text-meta text-neutral-400 font-sans block">{t('MTC Voz')}</span>
             </a>
           </div>
         </div>
@@ -656,7 +662,7 @@ export const BatterySaverScreen: React.FC<BatterySaverScreenProps> = ({ onExit }
       {/* Footer */}
       <div className="pt-3 pb-1 border-t border-neutral-900 text-center">
         <p className="text-meta text-neutral-500 font-sans">
-          AYLLU • Sistema de Telecomunicación y Resiliencia en Apagones
+          {t('AYLLU • Sistema de Telecomunicación y Resiliencia en Apagones')}
         </p>
       </div>
 

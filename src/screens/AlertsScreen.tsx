@@ -61,7 +61,7 @@ export const AlertsScreen: React.FC = () => {
 
   const forecast = useForecast(forecastLat, forecastLng);
 
-  const departmentName = feed?.department?.name ?? 'el Perú';
+  const departmentName = feed?.department?.name ?? t('el Perú');
   const isFresh = feed ? isSenamhiFresh(feed) : false;
   const summary = feed?.huaico_summary;
 
@@ -87,7 +87,7 @@ export const AlertsScreen: React.FC = () => {
 
       {!departmentId && ownSavedAt && (
         <p role="status" className="mx-4 mt-3 p-3 rounded-lg bg-offline text-white text-secondary">
-          {t('Sin internet')}. {t('Datos guardados')} {formatRelativeTime(ownSavedAt).toLowerCase()}.
+          {t('Sin internet. Datos guardados {time}.', { time: formatRelativeTime(ownSavedAt).toLowerCase() })}
         </p>
       )}
 
@@ -113,34 +113,36 @@ export const AlertsScreen: React.FC = () => {
             </Section>
           )}
 
-          <Section title={`Huaicos y lluvia en ${departmentName}`}>
+          <Section title={t('Huaicos y lluvia en {place}', { place: departmentName })}>
             {!isFresh ? (
               <div className="flex gap-3 px-4">
                 <CircleHelp className="w-6 h-6 shrink-0" aria-hidden="true" />
-                <p>Sin datos actualizados de SENAMHI. No podemos decirte si hay riesgo.</p>
+                <p>{t('Sin datos actualizados de SENAMHI. No podemos decirte si hay riesgo.')}</p>
               </div>
             ) : (
               <div className="px-4 space-y-3">
                 {summary ? (
                   <div>
                     <p className="flex flex-wrap items-center gap-2 font-bold">
-                      {summary.districts} {summary.districts === 1 ? 'distrito' : 'distritos'} con riesgo de huaico
+                      {summary.districts === 1
+                        ? t('1 distrito con riesgo de huaico')
+                        : t('{count} distritos con riesgo de huaico', { count: summary.districts })}
                       <LevelTag level={LEVEL_NAMES[summary.max_level]} />
                     </p>
                     {summary.top_districts?.length > 0 && (
-                      <p className="mt-1 text-secondary text-ink-2">Entre ellos: {summary.top_districts.join(', ')}.</p>
+                      <p className="mt-1 text-secondary text-ink-2">{t('Entre ellos: {districts}.', { districts: summary.top_districts.join(', ') })}</p>
                     )}
                   </div>
                 ) : (
-                  <p>Sin zonas de huaico hoy.</p>
+                  <p>{t('Sin zonas de huaico hoy.')}</p>
                 )}
                 {feed.rain_level !== null ? (
                   <p className="flex flex-wrap items-center gap-2 font-bold">
-                    Lluvia intensa en 24 horas
+                    {t('Lluvia intensa en 24 horas')}
                     <LevelTag level={LEVEL_NAMES[feed.rain_level]} />
                   </p>
                 ) : (
-                  <p>Sin lluvia intensa en 24 horas.</p>
+                  <p>{t('Sin lluvia intensa en 24 horas.')}</p>
                 )}
               </div>
             )}
@@ -166,14 +168,14 @@ export const AlertsScreen: React.FC = () => {
             </Section>
           )}
 
-          <Section title={`Sismos en ${departmentName}`}>
+          <Section title={t('Sismos en {place}', { place: departmentName })}>
             {feed.quakes.length === 0 ? (
-              <p className="px-4 text-secondary text-ink-2">Sin sismos registrados aquí este año.</p>
+              <p className="px-4 text-secondary text-ink-2">{t('Sin sismos registrados aquí este año.')}</p>
             ) : (
               <ul className="list-plain">
                 {feed.quakes.slice(0, 5).map((quake) => (
                   <li key={quake.id} className="px-4 py-3">
-                    <p className="text-row font-semibold">{t('Magnitud')} {quake.magnitude}</p>
+                    <p className="text-row font-semibold">{t('Magnitud {magnitude}', { magnitude: quake.magnitude })}</p>
                     <p className="text-secondary">{quake.detail}</p>
                     <p className="text-meta text-ink-2">{formatRelativeTime(quake.occurred_at)}</p>
                   </li>
@@ -182,7 +184,7 @@ export const AlertsScreen: React.FC = () => {
             )}
             <p className="flex gap-2 px-4 pt-2 text-meta text-ink-2">
               <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
-              Los sismos no se pueden predecir. Aquí ves los registrados por el IGP.
+              {t('Los sismos no se pueden predecir. Aquí ves los registrados por el IGP.')}
             </p>
           </Section>
 
@@ -191,7 +193,7 @@ export const AlertsScreen: React.FC = () => {
           </Section>
 
           <p className="px-4 pt-6 text-meta text-ink-2 lg:col-span-2">
-            Fuentes oficiales: IGP y SENAMHI. Pronóstico: Open-Meteo.
+            {t('Fuentes oficiales: IGP y SENAMHI. Pronóstico: Open-Meteo.')}
           </p>
         </div>
       )}

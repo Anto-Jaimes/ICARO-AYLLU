@@ -4,6 +4,15 @@
  * Completely free, no API key required, with in-memory caching.
  */
 import type { MapPoint } from './myPlaces';
+import { getLang, tr } from '../i18n/translate';
+
+/** The name reverseGeocode() gives when it finds none. Kept in Spanish as data: show it with t(). */
+export const LOCATED_FALLBACK = 'Tu ubicación';
+
+/** A place name as the neighbour should read it: the app's own "Tu ubicación" in their language, real names as they are. */
+export function placeLabel(name: string): string {
+  return name === LOCATED_FALLBACK ? tr(name) : name;
+}
 
 // Nominatim's usage policy allows one request per second from the whole app.
 const NOMINATIM_GAP_MS = 1100;
@@ -74,12 +83,12 @@ export async function reverseGeocode(lat: number, lon: number): Promise<string> 
     const district = address.suburb || address.city_district || address.town || address.city || '';
 
     const street = road ? `${road}${houseNumber}` : '';
-    const formatted = [street, district].filter(Boolean).join(', ') || 'Tu ubicación';
+    const formatted = [street, district].filter(Boolean).join(', ') || LOCATED_FALLBACK;
     geocodeCache.set(cacheKey, formatted);
     return formatted;
   } catch (error) {
     console.warn('Reverse geocoding fallback used:', error);
-    return 'Tu ubicación';
+    return LOCATED_FALLBACK;
   }
 }
 
@@ -144,9 +153,9 @@ export async function calculateWalkingEstimate(
 }
 
 function formatWalkingText(minutes: number, distanceMeters: number): string {
-  if (minutes <= 1) return `A 1 min a pie (${distanceMeters}m)`;
-  if (distanceMeters < 1000) return `A ${minutes} min a pie (${distanceMeters}m)`;
-  return `A ${minutes} min a pie (${(distanceMeters / 1000).toFixed(1)} km)`;
+  if (minutes <= 1) return tr('A 1 min a pie ({meters}m)', { meters: distanceMeters });
+  if (distanceMeters < 1000) return tr('A {minutes} min a pie ({meters}m)', { minutes, meters: distanceMeters });
+  return tr('A {minutes} min a pie ({km} km)', { minutes, km: (distanceMeters / 1000).toFixed(1) });
 }
 
 /** A place found by the search box. */
@@ -199,7 +208,7 @@ function toPlaceResult(raw: NominatimPlace): PlaceResult | null {
   const lng = Number(raw.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   const address = raw.address ?? {};
-  const name = raw.name?.trim() || streetOf(address) || raw.display_name?.split(',')[0]?.trim() || 'Lugar sin nombre';
+  const name = raw.name?.trim() || streetOf(address) || raw.display_name?.split(',')[0]?.trim() || tr('Lugar sin nombre');
   return { id: String(raw.place_id ?? `${lat},${lng}`), name, address: shortAddress(address, name), lat, lng };
 }
 
@@ -209,7 +218,8 @@ function toPlaceResult(raw: NominatimPlace): PlaceResult | null {
  */
 export async function searchPlaces(query: string, near: MapPoint | null, signal?: AbortSignal): Promise<PlaceResult[]> {
   const text = query.trim().replace(/\s+/g, ' ');
-  const cacheKey = `${text.toLowerCase()}|${near ? `${near.lat.toFixed(1)},${near.lng.toFixed(1)}` : ''}`;
+  // The language is part of the key: a place with no name is named in the language of the screen.
+  const cacheKey = `${getLang()}|${text.toLowerCase()}|${near ? `${near.lat.toFixed(1)},${near.lng.toFixed(1)}` : ''}`;
   const cached = searchCache.get(cacheKey);
   if (cached) return cached;
 
@@ -244,7 +254,7 @@ export async function searchPlaces(query: string, near: MapPoint | null, signal?
 /** A street or place name for a point picked on the map, or null when there is none. */
 export async function describePoint(lat: number, lng: number): Promise<string | null> {
   const name = await reverseGeocode(lat, lng);
-  return name === 'Tu ubicación' ? null : name;
+  return name === LOCATED_FALLBACK ? null : name;
 }
 
 export type TravelMode = 'foot' | 'car';
@@ -308,26 +318,33 @@ export const estimateWalkingMinutes = (straightMeters: number) => walkingMinutes
 /** Walking time is worth showing only when walking is a real option. */
 export const isWalkable = (minutes: number) => minutes <= MAX_WALK_TO_SHOW_MIN;
 
+/** "1,2" in Spanish, Quechua and Aymara as written in Peru; "1.2" in English. */
+export const decimal = (value: number, digits = 1) => {
+  const text = value.toFixed(digits);
+  return getLang() === 'en' ? text : text.replace('.', ',');
+};
+
 /** "850 m", "1,2 km", "320 km". */
 export function formatMeters(meters: number): string {
   if (meters < 1000) return `${Math.max(10, Math.round(meters / 10) * 10)} m`;
-  if (meters < 100_000) return `${(meters / 1000).toFixed(1).replace('.', ',')} km`;
+  if (meters < 100_000) return `${decimal(meters / 1000)} km`;
   return `${Math.round(meters / 1000)} km`;
 }
 
-/** "1 minuto", "15 minutos", "1 hora y 10 minutos". */
+/** "1 minuto", "15 minutos", "1 hora y 10 minutos", in the chosen language. */
 export function formatMinutes(minutes: number): string {
   const total = Math.max(1, Math.round(minutes));
-  const unit = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
-  if (total < 60) return unit(total, 'minuto', 'minutos');
+  const minutesText = (count: number) => (count === 1 ? tr('1 minuto') : tr('{count} minutos', { count }));
+  if (total < 60) return minutesText(total);
   const rest = total % 60;
-  const hours = unit(Math.floor(total / 60), 'hora', 'horas');
-  return rest ? `${hours} y ${unit(rest, 'minuto', 'minutos')}` : hours;
+  const hourCount = Math.floor(total / 60);
+  const hours = hourCount === 1 ? tr('1 hora') : tr('{count} horas', { count: hourCount });
+  return rest ? tr('{hours} y {minutes}', { hours, minutes: minutesText(rest) }) : hours;
 }
 
 /** "unos 15 minutos", "cerca de 1 hora y 10 minutos": every time here is an estimate. */
 export function aboutMinutes(minutes: number): string {
   const total = Math.max(1, Math.round(minutes));
-  if (total === 1) return '1 minuto';
-  return `${total < 60 ? 'unos' : 'cerca de'} ${formatMinutes(total)}`;
+  if (total === 1) return tr('1 minuto');
+  return total < 60 ? tr('unos {time}', { time: formatMinutes(total) }) : tr('cerca de {time}', { time: formatMinutes(total) });
 }

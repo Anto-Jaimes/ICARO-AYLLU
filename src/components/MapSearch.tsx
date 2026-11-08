@@ -116,7 +116,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
     if (!isOnline) return t('Buscar lugares necesita internet.');
     if (status === 'searching') return t('Buscando...');
     if (status === 'error') return t('No pudimos buscar. Revisa tu conexión e intenta otra vez.');
-    if (status === 'done' && results.length === 0) return `No encontramos "${resultsFor}" en el Perú. Prueba con otra palabra o el distrito.`;
+    if (status === 'done' && results.length === 0) return t('No encontramos "{query}" en el Perú. Prueba con otra palabra o el distrito.', { query: resultsFor });
     return null;
   })();
   const showList = isOpen && isLongEnough && (message !== null || results.length > 0);
@@ -169,7 +169,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
 
       <div id="map-search-results" hidden={!showList} className="mt-2 rounded-lg bg-surface border border-line shadow-sm overflow-hidden">
         <p role="status" className={message ? 'px-4 py-3 text-secondary text-ink-2' : 'sr-only'}>
-          {message ?? (results.length > 0 ? `${results.length} lugares encontrados` : '')}
+          {message ?? (results.length > 0 ? t('{count} lugares encontrados', { count: results.length }) : '')}
         </p>
         {results.length > 0 && status !== 'searching' && (
           <ul className={`list-plain ${message ? 'border-t border-line' : ''}`} aria-label={t("Lugares encontrados")}>

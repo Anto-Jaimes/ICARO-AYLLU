@@ -27,7 +27,11 @@ export const QuakeCard: React.FC = () => {
       onClick={() => setIsAlertsOpen(true)}
       className="mx-4 block w-[calc(100%-2rem)] p-4 rounded-2xl text-left text-white shadow-sm"
       style={{ background }}
-      aria-label={`Último sismo: magnitud ${quake.magnitude}, ${quake.detail}, ${formatRelativeTime(quake.occurred_at).toLowerCase()}. Ver alertas`}
+      aria-label={t('Último sismo: magnitud {magnitude}, {place}, {time}. Ver alertas', {
+        magnitude: quake.magnitude,
+        place: quake.detail,
+        time: formatRelativeTime(quake.occurred_at).toLowerCase()
+      })}
     >
       <span className="flex items-center gap-2 text-secondary font-semibold">
         <Activity className="w-5 h-5" aria-hidden="true" />
@@ -43,8 +47,9 @@ export const QuakeCard: React.FC = () => {
       </span>
       <span className="block pt-2 text-secondary">{quake.detail}</span>
       <span className="block text-meta opacity-90">
-        {formatRelativeTime(quake.occurred_at)}
-        {quake.depth_km ? `, a ${quake.depth_km} km de profundidad` : ''}. Fuente: IGP.
+        {quake.depth_km
+          ? t('{time}, a {depth} km de profundidad. Fuente: IGP.', { time: formatRelativeTime(quake.occurred_at), depth: quake.depth_km })
+          : t('{time}. Fuente: IGP.', { time: formatRelativeTime(quake.occurred_at) })}
       </span>
     </button>
   );

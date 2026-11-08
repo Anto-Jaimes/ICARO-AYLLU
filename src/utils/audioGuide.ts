@@ -5,39 +5,46 @@
  */
 import { Capacitor } from '@capacitor/core';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { getLang } from '../i18n/translate';
 
 const SPANISH = ['es-PE', 'es-US', 'es-419', 'es-MX', 'es-ES'];
+const ENGLISH = ['en-US', 'en-GB', 'en-IN', 'en'];
+
+// Phones bring no Quechua or Aymara voice: those texts are read with a Spanish one, which
+// pronounces their letters closely enough.
+const isEnglish = () => getLang() === 'en';
 
 export function canSpeak(): boolean {
   return Capacitor.isNativePlatform() || 'speechSynthesis' in window;
 }
 
-async function pickSpanish(): Promise<string | null> {
-  for (const lang of SPANISH) {
+async function pickVoice(): Promise<string | null> {
+  for (const lang of isEnglish() ? ENGLISH : SPANISH) {
     try {
       if ((await TextToSpeech.isLanguageSupported({ lang })).supported) return lang;
     } catch {
       // try the next one
     }
   }
-  // Browsers list their voices late; they still find a Spanish one from the language alone.
-  return Capacitor.isNativePlatform() ? null : 'es-ES';
+  // Browsers list their voices late; they still find one from the language alone.
+  if (Capacitor.isNativePlatform()) return null;
+  return isEnglish() ? 'en-US' : 'es-ES';
 }
 
-/** Resolves when the reading ends. Rejects when the phone has no Spanish voice or it is stopped. */
+/** Resolves when the reading ends. Rejects when the phone has no voice for the language or it is stopped. */
 export async function speak(text: string): Promise<void> {
   if (Capacitor.isNativePlatform()) {
-    const lang = await pickSpanish();
-    if (!lang) throw new Error('Sin voz en español');
+    const lang = await pickVoice();
+    if (!lang) throw new Error('No voice for this language');
     await TextToSpeech.speak({ text, lang, rate: 0.92, pitch: 1, volume: 1, category: 'playback' });
     return;
   }
 
   // In the browser: its own voices. Waits for the end, so the button does not go back to "listen" while it still talks.
-  if (!('speechSynthesis' in window)) throw new Error('Sin voz en español');
+  if (!('speechSynthesis' in window)) throw new Error('No voice for this language');
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'es-PE';
+  utterance.lang = isEnglish() ? 'en-US' : 'es-PE';
   utterance.rate = 0.92;
   await new Promise<void>((resolve, reject) => {
     utterance.onend = () => resolve();

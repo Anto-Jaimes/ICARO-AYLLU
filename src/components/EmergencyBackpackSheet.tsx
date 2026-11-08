@@ -51,7 +51,7 @@ export const EmergencyBackpackSheet: React.FC<EmergencyBackpackSheetProps> = ({ 
   const ready = ALL_ITEMS.filter((item) => checkedIds.includes(item.id)).length;
   const summary = ready === ALL_ITEMS.length
     ? t('Tu mochila está completa.')
-    : `Tienes ${ready} de ${ALL_ITEMS.length} cosas. Te faltan ${ALL_ITEMS.length - ready}.`;
+    : t('Tienes {ready} de {total} cosas. Te faltan {missing}.', { ready, total: ALL_ITEMS.length, missing: ALL_ITEMS.length - ready });
 
   return (
     <BottomSheet open={open} onClose={onClose} title={t("Mochila de emergencia")}>

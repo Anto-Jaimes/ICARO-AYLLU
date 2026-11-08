@@ -5,12 +5,12 @@ import { AudioGuideButton } from './AudioGuideButton';
 import { useLanguage, useT } from '../i18n/LanguageContext';
 
 export const TopBarLanguageSelector: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const { lang, setLang } = useLanguage();
+  const { lang, setLang, t } = useLanguage();
   return (
     <div
       className={`inline-flex items-center rounded-md bg-sunken p-0.5 border border-line text-xs font-bold shrink-0 ${className}`}
       role="group"
-      aria-label="Idioma"
+      aria-label={t('Idioma')}
     >
       {(['es', 'qu', 'ay', 'en'] as const).map((l) => (
         <button
@@ -45,8 +45,18 @@ export const HelpButton: React.FC<{ className?: string }> = ({ className = '' })
   );
 };
 
+/**
+ * Quechua and Aymara titles are often one long word (Willakuykuna, Yanapt'asiña): a step smaller they fit
+ * beside the buttons, two steps when a back arrow takes room too. Spanish keeps its size.
+ */
+const titleSize = (lang: string, text: string, { wraps = false, narrow = false } = {}) => {
+  if (lang === 'es' || text.length <= 9) return 'truncate text-title';
+  if (wraps) return 'text-row leading-tight line-clamp-2';
+  return narrow && text.length > 10 ? 'truncate text-secondary' : 'truncate text-row';
+};
+
 export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
-  const t = useT();
+  const { lang, t } = useLanguage();
   return (
     <header className="sticky top-0 z-20 bg-surface border-b border-line" style={{ paddingTop: 'var(--safe-top)' }}>
       <div className="page flex items-center h-14 pl-4 pr-1 gap-1">
@@ -55,7 +65,7 @@ export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
             <ArrowLeft className="w-6 h-6" aria-hidden="true" />
           </button>
         )}
-        <h1 className="flex-1 min-w-0 truncate text-title font-bold">{t(title)}</h1>
+        <h1 className={`flex-1 min-w-0 font-bold ${titleSize(lang, t(title), { narrow: Boolean(onBack) })}`}>{t(title)}</h1>
         <div className="flex items-center gap-1">
           <TopBarLanguageSelector />
           <AudioGuideButton screenTitle={t(title)} />
@@ -68,11 +78,11 @@ export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
 
 /** The red frame of emergency mode: always says where you are and how to leave. */
 export const EmergencyBar: React.FC<{ onExit: () => void }> = ({ onExit }) => {
-  const t = useT();
+  const { lang, t } = useLanguage();
   return (
     <header className="sticky top-0 z-20 bg-rojo text-white" style={{ paddingTop: 'var(--safe-top)' }}>
       <div className="page flex items-center h-14 pl-4 pr-2 gap-2">
-        <h1 className="flex-1 min-w-0 truncate text-title font-bold">{t('Modo emergencia')}</h1>
+        <h1 className={`flex-1 min-w-0 font-bold ${titleSize(lang, t('Modo emergencia'), { wraps: true })}`}>{t('Modo emergencia')}</h1>
         <TopBarLanguageSelector className="bg-rojo-press border-white/20 text-white" />
         <AudioGuideButton className="text-white hover:bg-white/10" screenTitle={t('Modo emergencia')} />
         <button

@@ -1,6 +1,14 @@
+import { CORE } from './dict/core';
+import { EMERGENCY_TOOLS } from './dict/emergencyTools';
+import type { Entries } from './dict/entries';
+import { MAP_ALERTS } from './dict/mapAlerts';
+import { SOS_REPORTS } from './dict/sosReports';
+
 /**
  * Translations, keyed by the Spanish text. Anything missing stays in Spanish, so a screen never shows a
  * blank. Quechua (Southern Quechua, runasimi) and Aymara provide comprehensive native terminology.
+ * The tables below are the first ones; the files in ./dict add the rest, one line per text with its
+ * three translations side by side, and win when a text appears in both.
  */
 export type TranslatedLang = 'en' | 'qu' | 'ay';
 
@@ -1062,3 +1070,12 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
   "Prepárate": "Wakicht’asim"
 }
 };
+
+const MORE: Entries[] = [CORE, EMERGENCY_TOOLS, SOS_REPORTS, MAP_ALERTS];
+for (const entries of MORE) {
+  for (const [spanish, [en, qu, ay]] of Object.entries(entries)) {
+    STRINGS.en[spanish] = en;
+    STRINGS.qu[spanish] = qu;
+    STRINGS.ay[spanish] = ay;
+  }
+}

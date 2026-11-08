@@ -68,7 +68,7 @@ export const TutorialSheet: React.FC = () => {
         <Icon className="w-10 h-10 text-anil" aria-hidden="true" />
         <h3 className="mt-3 text-section font-bold">{t(title)}</h3>
         <p className="mt-1">{t(text)}</p>
-        <p className="mt-3 text-meta text-ink-2">{t('Paso')} {slide + 1} {t('de')} {SLIDES.length}</p>
+        <p className="mt-3 text-meta text-ink-2">{t('Paso {step} de {total}', { step: slide + 1, total: SLIDES.length })}</p>
       </div>
     </BottomSheet>
   );
@@ -83,13 +83,13 @@ export const MenuSheet: React.FC = () => {
   const leaveWeb = async () => {
     setIsMenuOpen(false);
     await signOutOfWeb();
-    showNotice('Saliste de la web en esta computadora. Tu celular sigue igual.');
+    showNotice(t('Saliste de la web en esta computadora. Tu celular sigue igual.'));
   };
 
   return (
     <>
       <EmergencyBackpackSheet open={isBackpackOpen} onClose={() => setIsBackpackOpen(false)} />
-      <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title="Ayuda">
+      <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title={t('Ayuda')}>
         <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
           {/* A code comes only from the app: on the web it shows once entered with it, never creates one. */}
           {canWrite && <UserCodeSection isVisible={isMenuOpen} />}

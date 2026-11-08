@@ -3,6 +3,7 @@
  * still shows something without internet, saying how old it is.
  */
 import { CloudDrizzle, CloudFog, CloudLightning, CloudMoon, CloudRain, CloudSnow, CloudSun, Cloud, Moon, Sun, type LucideIcon } from 'lucide-react';
+import { tr } from '../i18n/translate';
 
 export interface WeatherNow {
   temp: number;
@@ -63,17 +64,17 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
   return weather;
 }
 
-/** WMO weather codes, in plain Spanish. */
+/** WMO weather codes, in plain words of the chosen language. */
 export function weatherWords(code: number): string {
-  if (code === 0) return 'Despejado';
-  if (code <= 2) return 'Parcialmente nublado';
-  if (code === 3) return 'Nublado';
-  if (code <= 48) return 'Neblina';
-  if (code <= 57) return 'Llovizna';
-  if (code <= 67) return 'Lluvia';
-  if (code <= 77) return 'Nieve';
-  if (code <= 82) return 'Chubascos';
-  return 'Tormenta';
+  if (code === 0) return tr('Despejado');
+  if (code <= 2) return tr('Parcialmente nublado');
+  if (code === 3) return tr('Nublado');
+  if (code <= 48) return tr('Neblina');
+  if (code <= 57) return tr('Llovizna');
+  if (code <= 67) return tr('Lluvia');
+  if (code <= 77) return tr('Nieve');
+  if (code <= 82) return tr('Chubascos');
+  return tr('Tormenta');
 }
 
 export function weatherIcon(code: number, isDay = true): LucideIcon {

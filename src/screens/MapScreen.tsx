@@ -20,6 +20,7 @@ import {
 import { calculateDistanceMeters } from '../utils/geo';
 import { PostType } from '../types';
 import { useT } from '../i18n/LanguageContext';
+import { tr } from '../i18n/translate';
 
 interface Layer {
   id: string;
@@ -118,7 +119,7 @@ function createPin(color: string, label: string, onOpen: () => void): HTMLButton
 function createUserDot(): HTMLDivElement {
   const dot = document.createElement('div');
   dot.className = 'map-me';
-  dot.setAttribute('aria-label', 'Tu ubicación');
+  dot.setAttribute('aria-label', tr('Tu ubicación'));
   return dot;
 }
 
@@ -212,7 +213,8 @@ interface Trip {
 
 type FixPurpose = 'center' | 'home' | 'place';
 
-const homeSpot = (home: Home): Spot => ({ kind: 'home', name: 'Mi casa', address: home.address, lat: home.lat, lng: home.lng });
+// The map starts over on a new language, so names made here are always in the current one.
+const homeSpot = (home: Home): Spot => ({ kind: 'home', name: tr('Mi casa'), address: home.address, lat: home.lat, lng: home.lng });
 const placeSpot = (place: MyPlace): Spot => ({ kind: 'place', name: place.name, address: place.address, lat: place.lat, lng: place.lng, placeId: place.id });
 
 /** Minutes on foot along a route; a car route only gives its length, walked at the usual pace. */
@@ -252,24 +254,38 @@ function useRouteSummary(from: MapPoint | null, to: MapPoint | null, isOnline: b
   return result?.key === key ? result : null;
 }
 
-/** "A 3,3 km: unos 44 minutos caminando o 7 minutos en auto." or, without a route, the honest straight line. */
-function describeWay(straightMeters: number | null, routes: RouteSummary | null, hereText: string, ofYou: string): string {
-  if (straightMeters === null) return 'Activa tu ubicación para saber a cuánto estás.';
+/**
+ * "A 3,3 km: unos 44 minutos caminando o 7 minutos en auto." or, without a route, the honest straight line.
+ * fromYou adds "de ti" ("A 3,3 km de ti..."). Each shape is one whole sentence to translate.
+ */
+function describeWay(straightMeters: number | null, routes: RouteSummary | null, hereText: string, fromYou: boolean): string {
+  if (straightMeters === null) return tr('Activa tu ubicación para saber a cuánto estás.');
   if (straightMeters < AT_PLACE_M) return hereText;
 
   const street = routes?.foot ?? routes?.car ?? null;
   if (routes && street) {
     const walk = walkMinutesOf(routes.foot, routes.car) ?? 0;
     const pieces: string[] = [];
-    if (isWalkable(walk)) pieces.push(`${aboutMinutes(walk)} caminando`);
+    if (isWalkable(walk)) pieces.push(tr('{time} caminando', { time: aboutMinutes(walk) }));
     // For a short walk the car time is only noise.
     if (routes.car && (walk > 10 || pieces.length === 0)) {
-      pieces.push(`${pieces.length ? formatMinutes(routes.car.minutes) : aboutMinutes(routes.car.minutes)} en auto`);
+      const carTime = pieces.length ? formatMinutes(routes.car.minutes) : aboutMinutes(routes.car.minutes);
+      pieces.push(tr('{time} en auto', { time: carTime }));
     }
-    return `A ${formatMeters(street.distanceMeters)}${ofYou}${pieces.length ? `: ${pieces.join(' o ')}` : ''}.`;
+    const distance = formatMeters(street.distanceMeters);
+    if (pieces.length === 0) return fromYou ? tr('A {distance} de ti.', { distance }) : tr('A {distance}.', { distance });
+    const way = pieces.length === 2 ? tr('{walk} o {car}', { walk: pieces[0], car: pieces[1] }) : pieces[0];
+    return fromYou ? tr('A {distance} de ti: {way}.', { distance, way }) : tr('A {distance}: {way}.', { distance, way });
   }
   const walk = estimateWalkingMinutes(straightMeters);
-  return `A ${formatMeters(straightMeters)}${ofYou} en línea recta${isWalkable(walk) ? `, ${aboutMinutes(walk)} caminando` : ''}.`;
+  const distance = formatMeters(straightMeters);
+  if (!isWalkable(walk)) {
+    return fromYou ? tr('A {distance} de ti en línea recta.', { distance }) : tr('A {distance} en línea recta.', { distance });
+  }
+  const time = aboutMinutes(walk);
+  return fromYou
+    ? tr('A {distance} de ti en línea recta, {time} caminando.', { distance, time })
+    : tr('A {distance} en línea recta, {time} caminando.', { distance, time });
 }
 
 const MAP_BUTTON = 'grid place-items-center w-12 h-12 rounded-lg bg-surface text-ink border border-line shadow-sm active:bg-sunken';
@@ -313,8 +329,8 @@ const MapScreen: React.FC = () => {
   );
   const distanceTo = useCallback((point: MapPoint) => {
     const meters = metersFromMe(point);
-    return meters === null ? null : `a ${formatMeters(meters)}`;
-  }, [metersFromMe]);
+    return meters === null ? null : t('a {distance}', { distance: formatMeters(meters) });
+  }, [metersFromMe, t]);
 
   // ---- Everything the map's own listeners call goes through refs, so they always see fresh state.
   const onLongPressRef = useRef<(point: MapPoint) => void>(() => {});
@@ -418,7 +434,7 @@ const MapScreen: React.FC = () => {
     );
     if (home) {
       markers.push(
-        new Marker({ element: createSpotPin('home', 'Mi casa', () => selectSpotRef.current(homeSpot(home))) })
+        new Marker({ element: createSpotPin('home', tr('Mi casa'), () => selectSpotRef.current(homeSpot(home))) })
           .setLngLat([home.lng, home.lat])
           .addTo(map)
       );
@@ -483,10 +499,10 @@ const MapScreen: React.FC = () => {
   // ---- How far home and the chosen place are, along the streets when a router answers.
   const homeRoutes = useRouteSummary(me, home, isOnline);
   const selectedRoutes = useRouteSummary(me, selected && selected.kind !== 'home' ? selected : null, isOnline);
-  const homeLine = home ? describeWay(metersFromMe(home), homeRoutes, 'Estás en tu casa.', '') : '';
+  const homeLine = home ? describeWay(metersFromMe(home), homeRoutes, t('Estás en tu casa.'), false) : '';
   const spotDistanceLine = (spot: Spot) => spot.kind === 'home'
-    ? describeWay(metersFromMe(spot), homeRoutes, 'Estás en tu casa.', ' de ti')
-    : describeWay(metersFromMe(spot), selectedRoutes, 'Estás aquí.', ' de ti');
+    ? describeWay(metersFromMe(spot), homeRoutes, t('Estás en tu casa.'), true)
+    : describeWay(metersFromMe(spot), selectedRoutes, t('Estás aquí.'), true);
 
   // ---- Actions
   // The card under the map changes height with what is chosen, so the map flies only after the
@@ -515,7 +531,7 @@ const MapScreen: React.FC = () => {
 
   const pickPressedPoint = (point: MapPoint) => {
     if (picking) return;
-    selectSpot({ kind: 'point', name: 'Punto elegido', address: '', ...point }, false);
+    selectSpot({ kind: 'point', name: t('Punto elegido'), address: '', ...point }, false);
     if (!navigator.onLine) return;
     describePoint(point.lat, point.lng).then((name) => {
       if (!name) return;
@@ -530,7 +546,7 @@ const MapScreen: React.FC = () => {
   // A fresh position, not the one from when the app opened: the neighbour may have walked since.
   const askFix = (purpose: FixPurpose) => {
     if (!('geolocation' in navigator)) {
-      showNotice('Este celular no puede darnos tu ubicación.');
+      showNotice(t('Este celular no puede darnos tu ubicación.'));
       return;
     }
     pendingFix.current = purpose;
@@ -547,7 +563,7 @@ const MapScreen: React.FC = () => {
   const saveHomeAt = (point: MapPoint, address: string) => {
     const next: Home = { lat: point.lat, lng: point.lng, address };
     if (!saveHome(next)) {
-      showNotice(CANNOT_SAVE);
+      showNotice(t(CANNOT_SAVE));
       return;
     }
     const hadHome = home !== null;
@@ -555,7 +571,7 @@ const MapScreen: React.FC = () => {
     setSheet(null);
     setSelected(null);
     clearTrip();
-    showNotice(hadHome ? 'Cambiamos tu casa a este lugar.' : 'Guardamos tu casa en este celular.');
+    showNotice(hadHome ? t('Cambiamos tu casa a este lugar.') : t('Guardamos tu casa en este celular.'));
     if (address || !navigator.onLine) return;
     describePoint(point.lat, point.lng).then((name) => {
       const current = loadHome();
@@ -568,7 +584,7 @@ const MapScreen: React.FC = () => {
 
   const openDraft = (point: MapPoint, name: string, address: string) => {
     if (places.length >= MAX_PLACES) {
-      showNotice(`Tienes ${MAX_PLACES} lugares, el máximo. Borra uno para agregar otro.`);
+      showNotice(t('Tienes {count} lugares, el máximo. Borra uno para agregar otro.', { count: MAX_PLACES }));
       return;
     }
     setSheet(null);
@@ -585,37 +601,37 @@ const MapScreen: React.FC = () => {
     const place = newPlace(name, draft, draft.address);
     const next = [...places, place];
     if (!savePlaces(next)) {
-      showNotice(CANNOT_SAVE);
+      showNotice(t(CANNOT_SAVE));
       return;
     }
     setPlaces(next);
     setDraft(null);
     setSelected(null);
-    showNotice(`Guardamos "${place.name}" en tus lugares.`);
+    showNotice(t('Guardamos "{place}" en tus lugares.', { place: place.name }));
   };
 
   const deletePlace = (place: MyPlace) => {
     const next = places.filter((candidate) => candidate.id !== place.id);
     if (!savePlaces(next)) {
-      showNotice(CANNOT_SAVE);
+      showNotice(t(CANNOT_SAVE));
       return;
     }
     setPlaces(next);
     if (selected?.placeId === place.id) setSelected(null);
     if (trip?.target.placeId === place.id) clearTrip();
-    showNotice(`Borramos "${place.name}" de tus lugares.`);
+    showNotice(t('Borramos "{place}" de tus lugares.', { place: place.name }));
   };
 
   const removeHome = () => {
     if (!clearHome()) {
-      showNotice(CANNOT_SAVE);
+      showNotice(t(CANNOT_SAVE));
       return;
     }
     setHome(null);
     setSheet(null);
     if (selected?.kind === 'home') setSelected(null);
     if (trip?.target.kind === 'home') clearTrip();
-    showNotice('Quitamos tu casa de este celular.');
+    showNotice(t('Quitamos tu casa de este celular.'));
   };
 
   // Runs when the position asked for above arrives (or does not).
@@ -641,18 +657,18 @@ const MapScreen: React.FC = () => {
     setLocatingFor(null);
 
     if (locationStatus === 'ready') onFixRef.current(purpose);
-    else showNotice('No pudimos ubicarte. Activa la ubicación de tu celular.');
+    else showNotice(t('No pudimos ubicarte. Activa la ubicación de tu celular.'));
   }, [locationStatus, showNotice]);
 
   const goTo = async (target: Spot) => {
     if (!me) {
-      showNotice('Activa tu ubicación para ver el camino.');
+      showNotice(t('Activa tu ubicación para ver el camino.'));
       askFix('center');
       return;
     }
     const straightMeters = calculateDistanceMeters(me.lat, me.lng, target.lat, target.lng);
     if (straightMeters < AT_PLACE_M) {
-      showNotice(target.kind === 'home' ? 'Ya estás en tu casa.' : 'Ya estás en ese lugar.');
+      showNotice(target.kind === 'home' ? t('Ya estás en tu casa.') : t('Ya estás en ese lugar.'));
       return;
     }
 
@@ -719,15 +735,21 @@ const MapScreen: React.FC = () => {
     if (!trip) return '';
     if (trip.status === 'straight') {
       const walk = estimateWalkingMinutes(trip.straightMeters);
-      return `A ${formatMeters(trip.straightMeters)}${isWalkable(walk) ? `, ${aboutMinutes(walk)} caminando` : ''}.`;
+      const distance = formatMeters(trip.straightMeters);
+      return isWalkable(walk)
+        ? t('A {distance}, {time} caminando.', { distance, time: aboutMinutes(walk) })
+        : t('A {distance}.', { distance });
     }
     if (tripMode === 'car' && trip.car) {
-      return `${formatMeters(trip.car.distanceMeters)} en auto, ${aboutMinutes(trip.car.minutes)}. No cuenta el tráfico.`;
+      return t('{distance} en auto, {time}. No cuenta el tráfico.', {
+        distance: formatMeters(trip.car.distanceMeters),
+        time: aboutMinutes(trip.car.minutes)
+      });
     }
     const street = trip.foot ?? trip.car;
     const walk = walkMinutesOf(trip.foot, trip.car);
     if (!street || walk === null) return '';
-    return `${formatMeters(street.distanceMeters)} por la calle, ${aboutMinutes(walk)} caminando.`;
+    return t('{distance} por la calle, {time} caminando.', { distance: formatMeters(street.distanceMeters), time: aboutMinutes(walk) });
   })();
 
   const panel = (() => {
@@ -735,7 +757,7 @@ const MapScreen: React.FC = () => {
     if (trip) {
       return (
         <TripCard
-          title={trip.target.kind === 'home' ? 'Camino a tu casa' : `Camino a ${trip.target.name}`}
+          title={trip.target.kind === 'home' ? t('Camino a tu casa') : t('Camino a {place}', { place: trip.target.name })}
           address={trip.target.address}
           status={trip.status}
           isOffline={trip.isOffline}
@@ -796,8 +818,8 @@ const MapScreen: React.FC = () => {
           <div className="h-full overflow-y-auto">
             <EmptyState
               icon={CloudOff}
-              title="El mapa necesita internet"
-              line="Tu casa y tus lugares siguen aquí abajo. Para buscar lugares o ver el camino por las calles, conéctate."
+              title={t('El mapa necesita internet')}
+              line={t('Tu casa y tus lugares siguen aquí abajo. Para buscar lugares o ver el camino por las calles, conéctate.')}
               action={<button type="button" className="btn btn-secondary" onClick={() => setTab(homeTab)}>{t("Ver lista de vecinos")}</button>}
             />
           </div>
@@ -859,7 +881,7 @@ const MapScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => mapRef.current?.easeTo({ bearing: 0, duration: 300 })}
-                aria-label={isRotated ? `Apuntar al norte. Mapa girado ${Math.round(bearing)} grados` : 'El mapa apunta al norte'}
+                aria-label={isRotated ? t('Apuntar al norte. Mapa girado {degrees} grados', { degrees: Math.round(bearing) }) : t('El mapa apunta al norte')}
                 title={t("Apuntar al norte")}
                 className={MAP_BUTTON}
               >

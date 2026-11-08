@@ -1,3 +1,5 @@
+import { tr } from '../i18n/translate';
+
 const WALKING_METERS_PER_MINUTE = 75;
 const STREET_DETOUR = 1.25; // streets are longer than a straight line
 const MAX_WALKING_MINUTES = 30;
@@ -35,7 +37,7 @@ export function calculateDistanceMeters(
 export function describeDistance(meters?: number): string | null {
   if (meters === undefined || Number.isNaN(meters)) return null;
   const minutes = Math.max(1, Math.round((meters * STREET_DETOUR) / WALKING_METERS_PER_MINUTE));
-  return minutes <= MAX_WALKING_MINUTES ? `a ${minutes} min a pie` : `a ${(meters / 1000).toFixed(1)} km`;
+  return minutes <= MAX_WALKING_MINUTES ? tr('a {minutes} min a pie', { minutes }) : tr('a {km} km', { km: (meters / 1000).toFixed(1) });
 }
 
 /** Returns a number that WhatsApp and the dialer can open, or undefined if it is not one. */

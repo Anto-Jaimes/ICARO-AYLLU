@@ -1,6 +1,7 @@
 /** Neighbour news with a photo or video. The server decides what becomes public. */
 
 import { Activity, Car, Flame, Mountain, TriangleAlert, Waves, type LucideIcon } from 'lucide-react';
+import { tr } from '../i18n/translate';
 import { supabase } from '../lib/supabase';
 import { MediaOutcome } from './mediaCheck';
 import { ensureSession } from './postsService';
@@ -16,9 +17,17 @@ export const REPORT_KINDS: { id: ReportKind; label: string; icon: LucideIcon }[]
   { id: 'otro', label: 'Otro', icon: TriangleAlert }
 ];
 
-/** How a report is named on screen: "Huaico", or simply "Aviso" for anything else. */
+/** How a report is named on screen: "Huaico", or simply "Aviso" for anything else. In Spanish: callers translate it. */
 export function reportTitle(kind: ReportKind): string {
   return kind === 'otro' ? 'Aviso' : REPORT_KINDS.find((option) => option.id === kind)?.label ?? 'Aviso';
+}
+
+/** The name saved when the neighbour left theirs blank. */
+export const ANONYMOUS_AUTHOR = 'Un vecino';
+
+/** The author as shown: their own name, or "Un vecino" in the chosen language. */
+export function authorLabel(name: string): string {
+  return name === ANONYMOUS_AUTHOR ? tr(ANONYMOUS_AUTHOR) : name;
 }
 
 export interface Report {

@@ -3,12 +3,9 @@ import { Droplets } from 'lucide-react';
 import { fetchWeather, savedWeather, Weather, weatherIcon, weatherSky, weatherWords } from '../services/weatherService';
 import { formatRelativeTime } from '../utils/time';
 import { useT } from '../i18n/LanguageContext';
+import { tr, weekdayShort } from '../i18n/translate';
 
-const dayName = (date: string, index: number) => {
-  if (index === 0) return 'Hoy';
-  const name = new Date(`${date}T12:00:00-05:00`).toLocaleDateString('es-PE', { weekday: 'short' }).replace('.', '');
-  return name.charAt(0).toUpperCase() + name.slice(1);
-};
+const dayName = (date: string, index: number) => (index === 0 ? tr('Hoy') : weekdayShort(new Date(`${date}T12:00:00-05:00`)));
 
 /** The weather where the neighbour is: now in large, and the next days with an icon each. */
 export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }> = ({ lat, lng, place }) => {
@@ -33,8 +30,8 @@ export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }
 
   if (!weather) {
     return (
-      <section aria-label="Pronóstico" className="mx-4 p-4 rounded-2xl bg-sunken">
-        <p className="text-secondary text-ink-2">Consultando el pronóstico...</p>
+      <section aria-label={t('Pronóstico')} className="mx-4 p-4 rounded-2xl bg-sunken">
+        <p className="text-secondary text-ink-2">{t('Consultando el pronóstico...')}</p>
       </section>
     );
   }
@@ -49,12 +46,12 @@ export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }
       className="mx-4 p-4 rounded-2xl text-white shadow-sm"
       style={{ background: weatherSky(now.code, now.isDay) }}
     >
-      <h2 id="weather-title" className="text-secondary font-semibold truncate">{t('Pronóstico en')} {place}</h2>
+      <h2 id="weather-title" className="text-secondary font-semibold truncate">{t('Pronóstico en {place}', { place })}</h2>
       <div className="flex items-center justify-between gap-3 pt-1">
         <div>
-          <p className="text-[56px] leading-none font-light" aria-label={`${now.temp} grados`}>{now.temp}°</p>
+          <p className="text-[56px] leading-none font-light" aria-label={t('{temp} grados', { temp: now.temp })}>{now.temp}°</p>
           <p className="pt-1 text-row font-semibold">{weatherWords(now.code)}</p>
-          {today && <p className="text-secondary opacity-90">Máx. {today.tempMax}°, mín. {today.tempMin}°</p>}
+          {today && <p className="text-secondary opacity-90">{t('Máx. {max}°, mín. {min}°', { max: today.tempMax, min: today.tempMin })}</p>}
         </div>
         <NowIcon className="w-16 h-16 shrink-0 opacity-95" aria-hidden="true" />
       </div>
@@ -69,7 +66,7 @@ export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }
               <span className="text-meta font-semibold">{day.tempMax}°</span>
               <span className="text-meta opacity-90">{day.tempMin}°</span>
               {(day.rainProbability ?? 0) >= 30 && (
-                <span className="flex items-center text-meta" title="Probabilidad de lluvia">
+                <span className="flex items-center text-meta" title={t('Probabilidad de lluvia')}>
                   <Droplets className="w-3.5 h-3.5" aria-hidden="true" />
                   {day.rainProbability}%
                 </span>
@@ -78,7 +75,7 @@ export const WeatherCard: React.FC<{ lat?: number; lng?: number; place: string }
           );
         })}
       </ul>
-      {isSaved && <p className="pt-2 text-meta opacity-90">Guardado {formatRelativeTime(weather.savedAt).toLowerCase()}.</p>}
+      {isSaved && <p className="pt-2 text-meta opacity-90">{t('Guardado {time}.', { time: formatRelativeTime(weather.savedAt).toLowerCase() })}</p>}
     </section>
   );
 };

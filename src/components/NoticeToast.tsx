@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { useT } from '../i18n/LanguageContext';
 
 const VISIBLE_MS = 5000;
 
 export const NoticeToast: React.FC = () => {
   const { notice, clearNotice } = useApp();
+  const t = useT();
 
   useEffect(() => {
     if (!notice) return;
@@ -22,7 +24,8 @@ export const NoticeToast: React.FC = () => {
     >
       {notice && (
         <p className="flex items-center min-h-14 px-4 py-3 rounded-lg bg-ink text-white text-secondary shadow-[0_4px_16px_#12182647]">
-          {notice}
+          {/* Most notices arrive translated; t() also catches a Spanish one that did not. */}
+          {t(notice)}
         </p>
       )}
     </div>

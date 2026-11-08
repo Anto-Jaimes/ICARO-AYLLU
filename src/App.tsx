@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { AppProvider, useApp } from './context/AppContext';
-import { LanguageProvider, useT } from './i18n/LanguageContext';
+import { LanguageProvider, useLanguage, useT } from './i18n/LanguageContext';
 import { HazardProvider, SafetyTone, useHazards } from './context/HazardContext';
 import { BottomNav } from './components/BottomNav';
 import { BottomSheet } from './components/BottomSheet';
@@ -34,10 +34,15 @@ const DARK_TONES: SafetyTone[] = ['safe', 'rojo', 'unknown', 'offline'];
 
 const OfflineStrip: React.FC = () => {
   const { isOnline, pendingOfflineCount } = useApp();
+  const t = useT();
   if (isOnline) return null;
 
   const pending =
-    pendingOfflineCount === 1 ? '1 publicación pendiente' : pendingOfflineCount > 1 ? `${pendingOfflineCount} publicaciones pendientes` : '';
+    pendingOfflineCount === 1
+      ? t('1 publicación pendiente')
+      : pendingOfflineCount > 1
+        ? t('{count} publicaciones pendientes', { count: pendingOfflineCount })
+        : '';
 
   return (
     <p
@@ -45,7 +50,7 @@ const OfflineStrip: React.FC = () => {
       className="fixed z-20 inset-x-0 flex items-center min-h-12 px-4 bg-offline text-white text-secondary lg:left-60"
       style={{ bottom: 'var(--content-bottom)' }}
     >
-      {['Sin internet', pending].filter(Boolean).join('. ')}
+      {[t('Sin internet'), pending].filter(Boolean).join('. ')}
     </p>
   );
 };
@@ -102,7 +107,7 @@ const Shell: React.FC = () => {
     if (isNewsOpen) return <NewsScreen />;
     if (tab === 'map') {
       return (
-        <Suspense fallback={<p className="p-4 text-secondary text-ink-2">Abriendo el mapa...</p>}>
+        <Suspense fallback={<p className="p-4 text-secondary text-ink-2">{t('Abriendo el mapa...')}</p>}>
           <MapScreen />
         </Suspense>
       );
@@ -162,14 +167,23 @@ const Shell: React.FC = () => {
   );
 };
 
+/**
+ * A new language draws every screen again: the contexts above keep their data, and the shell starts
+ * over with each text in the chosen language, so nothing is left in the one before.
+ */
+const ShellInLanguage: React.FC = () => {
+  const { lang } = useLanguage();
+  return <Shell key={lang} />;
+};
+
 export function App() {
   return (
     <LanguageProvider>
-    <AppProvider>
-      <HazardProvider>
-        <Shell />
-      </HazardProvider>
-    </AppProvider>
+      <AppProvider>
+        <HazardProvider>
+          <ShellInLanguage />
+        </HazardProvider>
+      </AppProvider>
     </LanguageProvider>
   );
 }

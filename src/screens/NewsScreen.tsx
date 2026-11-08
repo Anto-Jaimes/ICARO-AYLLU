@@ -9,7 +9,7 @@ import { TopBar } from '../components/TopBar';
 import { useBackHandler } from '../hooks/useBackHandler';
 import { useFlagReport } from '../hooks/useFlagReport';
 import { useReports } from '../hooks/useReports';
-import { mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
+import { authorLabel, mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
 import { formatRelativeTime } from '../utils/time';
 import { useT } from '../i18n/LanguageContext';
 
@@ -43,7 +43,7 @@ export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = (
         {report.district}, {report.province}, {report.department}
       </p>
       <p className="px-4 text-meta text-ink-2">
-        {report.author_name}, {formatRelativeTime(report.created_at).toLowerCase()}
+        {authorLabel(report.author_name)}, {formatRelativeTime(report.created_at).toLowerCase()}
       </p>
 
       <div className="px-4 flex flex-wrap items-center gap-x-6">

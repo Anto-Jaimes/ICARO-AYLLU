@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SwitchCamera, X } from 'lucide-react';
 import { useBackHandler } from '../hooks/useBackHandler';
+import { useT } from '../i18n/LanguageContext';
+import { tr } from '../i18n/translate';
 
 export type CameraMode = 'photo' | 'video';
 type Facing = 'environment' | 'user';
@@ -42,9 +44,9 @@ function stopStream(stream: MediaStream): void {
 
 function explainProblem(error: unknown): string {
   const name = error instanceof DOMException ? error.name : '';
-  if (name === 'NotAllowedError') return 'Falta el permiso de la cámara. Actívalo en los ajustes o elige un archivo.';
-  if (name === 'NotFoundError') return 'Este equipo no tiene cámara. Puedes elegir un archivo.';
-  return 'No se pudo abrir la cámara. Puedes elegir un archivo.';
+  if (name === 'NotAllowedError') return tr('Falta el permiso de la cámara. Actívalo en los ajustes o elige un archivo.');
+  if (name === 'NotFoundError') return tr('Este equipo no tiene cámara. Puedes elegir un archivo.');
+  return tr('No se pudo abrir la cámara. Puedes elegir un archivo.');
 }
 
 interface CameraCaptureProps {
@@ -54,6 +56,7 @@ interface CameraCaptureProps {
 }
 
 export const CameraCapture: React.FC<CameraCaptureProps> = ({ mode, onCapture, onClose }) => {
+  const t = useT();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -132,7 +135,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ mode, onCapture, o
     const stream = streamRef.current;
     const format = RECORDING_FORMATS.find((option) => MediaRecorder.isTypeSupported(option.mimeType));
     if (!stream || !format) {
-      setProblem('Este equipo no puede grabar video. Puedes elegir un archivo.');
+      setProblem(t('Este equipo no puede grabar video. Puedes elegir un archivo.'));
       return;
     }
 
@@ -175,8 +178,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ mode, onCapture, o
     else startRecording();
   };
 
-  const title = mode === 'photo' ? 'Tomar foto' : 'Grabar video';
-  const shutterLabel = mode === 'photo' ? 'Tomar foto' : isRecording ? 'Detener' : 'Empezar a grabar';
+  const title = mode === 'photo' ? t('Tomar foto') : t('Grabar video');
+  const shutterLabel = mode === 'photo' ? t('Tomar foto') : isRecording ? t('Detener') : t('Empezar a grabar');
 
   return (
     <dialog
@@ -189,11 +192,11 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ mode, onCapture, o
       }}
     >
       <div className="shrink-0 flex items-center px-1 min-h-14" style={{ paddingTop: 'var(--safe-top)' }}>
-        <button type="button" onClick={onClose} aria-label="Cerrar cámara" className="grid place-items-center w-12 h-12">
+        <button type="button" onClick={onClose} aria-label={t('Cerrar cámara')} className="grid place-items-center w-12 h-12">
           <X className="w-6 h-6" aria-hidden="true" />
         </button>
         <h2 ref={titleRef} tabIndex={-1} className="flex-1 text-center text-row font-bold outline-none">
-          {isRecording ? <span role="timer">0:{String(seconds).padStart(2, '0')} de 1:00</span> : title}
+          {isRecording ? <span role="timer">{t('{elapsed} de 1:00', { elapsed: `0:${String(seconds).padStart(2, '0')}` })}</span> : title}
         </h2>
         <span aria-hidden="true" className="w-12" />
       </div>
@@ -201,7 +204,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ mode, onCapture, o
       {problem ? (
         <div className="flex-1 flex flex-col justify-center gap-4 p-6 text-center">
           <p role="alert" className="text-row">{problem}</p>
-          <button type="button" onClick={onClose} className="btn btn-primary">Volver</button>
+          <button type="button" onClick={onClose} className="btn btn-primary">{t('Volver')}</button>
         </div>
       ) : (
         <>
@@ -224,7 +227,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ mode, onCapture, o
               <button
                 type="button"
                 onClick={() => setFacing((current) => (current === 'environment' ? 'user' : 'environment'))}
-                aria-label="Cambiar de cámara"
+                aria-label={t('Cambiar de cámara')}
                 className="grid place-items-center w-12 h-12"
               >
                 <SwitchCamera className="w-7 h-7" aria-hidden="true" />

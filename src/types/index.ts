@@ -40,6 +40,8 @@ export interface Review {
   authorName: string;
   comment: string;
   date: string;
+  /** When it was written, so the "Hace 5 min" can be shown again in another language. */
+  dateIso?: string;
   isNeighborVerified: boolean;
 }
 
@@ -65,6 +67,8 @@ export interface CommunityItem {
   urgencyLevel?: 'baja' | 'media' | 'alta' | 'critica'; // para emergencias
   status: 'active' | 'in_progress' | 'resolved';
   createdAt: string;
+  /** When it was posted, so the "Hace 5 min" can be shown again in another language. */
+  createdAtIso?: string;
   isOfflineCreated?: boolean;
 }
 

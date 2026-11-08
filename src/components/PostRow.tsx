@@ -5,11 +5,11 @@ import { findCategory } from '../data/categories';
 import { CommunityItem } from '../types';
 import { describeDistance } from '../utils/geo';
 import { postPhotoUrl } from '../services/postPhotos';
-import { useT } from '../i18n/LanguageContext';
+import { tr, useT } from '../i18n/LanguageContext';
 
 export function recommendationText(count: number): string {
-  if (count === 0) return 'Aún sin recomendaciones';
-  return count === 1 ? 'Recomendado por 1 vecino' : `Recomendado por ${count} vecinos`;
+  if (count === 0) return tr('Aún sin recomendaciones');
+  return count === 1 ? tr('Recomendado por 1 vecino') : tr('Recomendado por {count} vecinos', { count });
 }
 
 export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: boolean }> = ({
@@ -24,7 +24,7 @@ export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: bool
 
   const recText = item.vistosBuenos === 1
     ? t('Recomendado por 1 vecino')
-    : `${t('Recomendado por')} ${item.vistosBuenos} ${t('vecinos')}`;
+    : t('Recomendado por {count} vecinos', { count: item.vistosBuenos });
 
   return (
     <button type="button" className="row" onClick={() => openItem(item.id)}>
