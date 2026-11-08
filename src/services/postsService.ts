@@ -44,6 +44,7 @@ interface PostRow {
   reviews: ReviewRow[];
   photos: string[] | null;
   audience: CommunityItem['audience'] | null;
+  author_verified: boolean | null;
 }
 
 function toReview(row: ReviewRow): Review {
@@ -76,6 +77,7 @@ function toCommunityItem(row: PostRow): CommunityItem {
     priceInfo: row.price_info ?? undefined,
     photos: row.photos ?? [],
     audience: row.audience ?? undefined,
+    authorVerified: row.author_verified ?? false,
     urgencyLevel: row.urgency_level ?? undefined,
     status: row.status,
     createdAt: formatRelativeTime(row.created_at),

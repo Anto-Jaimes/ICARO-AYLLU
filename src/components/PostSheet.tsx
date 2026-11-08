@@ -11,6 +11,7 @@ import { postPhotoUrl } from '../services/postPhotos';
 import { flagPost } from '../services/postsService';
 import { useLanguage, useT } from '../i18n/LanguageContext';
 import { speak, stopSpeaking } from '../utils/audioGuide';
+import { VerifiedBadge } from './VerifiedBadge';
 
 const EMERGENCY_TYPES = ['emergency_need', 'emergency_resource', 'support_group'];
 
@@ -176,7 +177,10 @@ export const PostSheet: React.FC = () => {
         <dl className="space-y-1 text-secondary">
           <div className="flex gap-2">
             <dt className="text-ink-2">{t('Publicó')}</dt>
-            <dd className="font-medium">{item.authorName}</dd>
+            <dd className="font-medium">
+              {item.authorName}
+              {item.authorVerified && <VerifiedBadge explain className="pt-0.5" />}
+            </dd>
           </div>
           {item.priceInfo && (
             <div className="flex gap-2">

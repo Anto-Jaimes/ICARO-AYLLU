@@ -17,6 +17,7 @@ import {
 } from '../services/reportsService';
 import { formatRelativeTime } from '../utils/time';
 import { BottomSheet } from './BottomSheet';
+import { VerifiedBadge } from './VerifiedBadge';
 import { useT } from '../i18n/LanguageContext';
 
 const NAME_KEY = 'ayllu_comment_name';
@@ -124,6 +125,7 @@ export const NewsDetailSheet: React.FC = () => {
             <Clock className="w-5 h-5 shrink-0" aria-hidden="true" />
             {t('{time}, por {name}', { time: formatRelativeTime(report.created_at), name: authorLabel(report.author_name) })}
           </p>
+          {report.author_verified && <VerifiedBadge explain />}
           {!report.is_mine && (
             <button
               type="button"

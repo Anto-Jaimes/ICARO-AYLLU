@@ -12,6 +12,7 @@ import { OFFICIAL_SOURCES } from './dict/officialSources';
 import { EXACT_LOCATION } from './dict/exactLocation';
 import { MAP_RADAR } from './dict/mapRadar';
 import { ROADS } from './dict/roads';
+import { BADGES } from './dict/badges';
 
 /**
  * Translations, keyed by the Spanish text. Anything missing stays in Spanish, so a screen never shows a
@@ -1850,7 +1851,7 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
   }
 };
 
-const MORE: Entries[] = [CORE, EMERGENCY_TOOLS, SOS_REPORTS, MAP_ALERTS, DONATIONS, ALERTS_PLUS, ACCOUNT, GUIDE, PUSH, OFFICIAL_SOURCES, EXACT_LOCATION, MAP_RADAR, ROADS];
+const MORE: Entries[] = [CORE, EMERGENCY_TOOLS, SOS_REPORTS, MAP_ALERTS, DONATIONS, ALERTS_PLUS, ACCOUNT, GUIDE, PUSH, OFFICIAL_SOURCES, EXACT_LOCATION, MAP_RADAR, ROADS, BADGES];
 for (const entries of MORE) {
   for (const [spanish, [en, qu, ay]] of Object.entries(entries)) {
     STRINGS.en[spanish] = en;

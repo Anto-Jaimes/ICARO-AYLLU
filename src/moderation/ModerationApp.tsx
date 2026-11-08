@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import { BadgesTab } from './BadgesTab';
 import { BlockedTab, LogTab } from './BlockedTab';
 import { CallsTab } from './CallsTab';
 import { CommentsTab } from './CommentsTab';
@@ -9,7 +10,7 @@ import { ReportsTab } from './ReportsTab';
 import { db, ErrorLine } from './shared';
 
 type Stage = 'checking' | 'signed_out' | 'not_moderator' | 'must_change' | 'ready';
-type Tab = 'reports' | 'posts' | 'comments' | 'calls' | 'complaints' | 'blocked' | 'log';
+type Tab = 'reports' | 'posts' | 'comments' | 'calls' | 'complaints' | 'badges' | 'blocked' | 'log';
 
 const MIN_PASSWORD = 10;
 
@@ -135,6 +136,7 @@ export const ModerationApp: React.FC = () => {
     { id: 'comments', label: 'Comentarios' },
     { id: 'calls', label: 'Llamadas' },
     { id: 'complaints', label: `Denuncias${complaintCount ? ` (${complaintCount})` : ''}` },
+    { id: 'badges', label: 'Verificados' },
     { id: 'blocked', label: 'Bloqueados' },
     { id: 'log', label: 'Registro' }
   ];
@@ -167,6 +169,7 @@ export const ModerationApp: React.FC = () => {
         {tab === 'posts' && <PostsTab onCount={setPostFlagCount} />}
         {tab === 'comments' && <CommentsTab />}
         {tab === 'calls' && <CallsTab />}
+        {tab === 'badges' && <BadgesTab />}
         {tab === 'complaints' && <ComplaintsTab onCount={setComplaintCount} />}
         {tab === 'blocked' && <BlockedTab />}
         {tab === 'log' && <LogTab />}

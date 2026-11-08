@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { mediaUrl, Report, REPORT_KINDS, reportTitle } from '../services/reportsService';
 import { formatRelativeTime } from '../utils/time';
 import { useT } from '../i18n/LanguageContext';
+import { VerifiedBadge } from './VerifiedBadge';
 
 /** A news item in large: the photo first, then what happened, where and how long ago. Opens the detail. */
 export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
@@ -42,6 +43,7 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
         <div className="p-4">
           <h3 className="text-row font-bold">{title}</h3>
           <p className="pt-1 text-secondary line-clamp-2">{report.description}</p>
+          {report.author_verified && <VerifiedBadge className="pt-1" />}
           <p className="pt-2 flex items-center gap-1.5 text-meta text-ink-2">
             <MapPin className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span className="truncate">{report.district}, {report.province}</span>

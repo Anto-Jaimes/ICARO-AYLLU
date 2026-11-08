@@ -6,6 +6,7 @@ import { CommunityItem } from '../types';
 import { describeDistance } from '../utils/geo';
 import { postPhotoUrl } from '../services/postPhotos';
 import { tr, useT } from '../i18n/LanguageContext';
+import { VerifiedBadge } from './VerifiedBadge';
 
 export function recommendationText(count: number): string {
   if (count === 0) return tr('Aún sin recomendaciones');
@@ -38,6 +39,7 @@ export const PostRow: React.FC<{ item: CommunityItem; showRecommendations?: bool
 
       <span className="flex-1 min-w-0">
         <span className="block text-row font-semibold line-clamp-2">{item.title}</span>
+        {item.authorVerified && <VerifiedBadge />}
         {showRecommendations && item.vistosBuenos > 0 && (
           <span className="flex items-center gap-1.5 text-secondary font-medium text-anil">
             <ThumbsUp className="w-4 h-4 shrink-0" aria-hidden="true" />

@@ -142,6 +142,15 @@
   .btn:active {
     transform: scale(0.97);
   }
+  /* A button that cannot be used yet must look like it. */
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn:disabled:active {
+    transform: none;
+  }
 
   .btn-primary {
     background: var(--color-anil);

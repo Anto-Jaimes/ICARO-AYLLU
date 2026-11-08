@@ -76,6 +76,8 @@ const ACTIONS: Record<string, string> = {
   call_unmark: 'quitó la marca de denuncia de una llamada',
   phone_block: 'bloqueó un número',
   phone_unblock: 'desbloqueó un número',
+  badge_grant: 'dio el distintivo de celular verificado',
+  badge_revoke: 'quitó el distintivo de celular verificado',
   complaint_reviewed: 'revisó una denuncia',
   complaint_dismissed: 'descartó una denuncia',
   complaint_new: 'reabrió una denuncia'
