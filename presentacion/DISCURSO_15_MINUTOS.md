@@ -29,7 +29,7 @@
 
 ### [2:15 - 3:30] Diapositiva 3 — La Solución AYLLU
 > «AYLLU responde a esto con un sistema en dos modos:  
-> En el día a día, dinamizamos la **Economía Solidaria de Hiperproximidad**. Tienes un directorio de oficios barriales respaldado por el *Visto Bueno Vecinal*, un muro para prestarte herramientas, donar materiales escolares o intercambiar saberes sin usar dinero, y pagos por QR directo sin comisiones bancarias. Pero con una regla técnica estricta: la app calcula tu ruta peatonal real para garantizar que todo se resuelva caminando a pie.  
+> En el día a día, dinamizamos la **Economía Solidaria de Hiperproximidad**. Tienes un directorio de oficios barriales respaldado por el *Visto Bueno Vecinal*, un muro de Donaciones para regalar lo que ya no usas o pedir ayuda para ti o para una organización, sin dinero, y el número del vecino listo para pagarle por Yape o Plin sin comisiones bancarias. Pero con una regla técnica estricta: la app calcula tu ruta peatonal real para garantizar que todo se resuelva caminando a pie.  
 > Pero ante una crisis, la aplicación conmuta con un solo toque a **Modo Emergencia**: la pantalla se transforma en un centro de comando barrial para mapear vecinos en riesgo, compartir recursos críticos como generadores de luz o tanques de agua, y organizar brigadas con triaje médico rápido.»
 
 ---
@@ -53,23 +53,23 @@
 
 ---
 
-### [6:15 - 7:30] Publicación en 3 Clics y Cadena de Favores
+### [6:15 - 7:30] Publicación en 3 Clics y Donaciones
 > *(Hacen clic en el botón azul flotante de publicar).*  
 > «Para que cualquier vecino, sin importar su edad, pueda usar la app, diseñamos la publicación en solo 3 clics:  
 > * **Clic 1:** Elijo la intención: Ofrezco un oficio o pido un favor solidario.  
-> * **Clic 2:** Elijo la categoría con botones táctiles grandes: Préstamo de herramientas, gasfitería, electricidad.  
+> * **Clic 2:** Elijo la categoría con botones táctiles grandes: gasfitería, electricidad, herramientas.  
 > * **Clic 3:** La app autocompleta la plantilla y se publica de inmediato.  
-> *(Pasan a la pestaña Favores).*  
-> En este muro se materializa el Ayni: vecinos que prestan un taladro, regalan libros escolares o intercambian clases de computación por jardinería. Es economía solidaria real que resuelve problemas sin dinero.»
+> *(Pasan a la pestaña Donaciones).*  
+> En este muro se materializa el Ayni: vecinos que regalan un taladro que ya no usan, libros escolares o ropa, y organizaciones que piden lo que necesitan. Es economía solidaria real que resuelve problemas sin dinero.»
 
 ---
 
 ### [7:30 - 8:45] Servicios Ciudadanos contra la Especulación
 > *(Entran a la pestaña Servicios).*  
 > «Aquí conectamos con los servicios del Estado peruano:  
-> Primero, **Gas Facilito de OSINERGMIN**: muestra los distribuidores formales de balones de gas GLP de 10 kg, su precio oficial y su precinto formal, evitando que cobren de más ante desabastecimientos.  
-> Segundo, **Farmacias de Turno de DIGEMID**: identifica qué botica del barrio está de guardia las 24 horas y los precios de medicamentos esenciales.  
-> Tercero, **Radio Nacional de Emergencia**: con un toque se reproduce el streaming oficial de baja latencia para escuchar a INDECI durante un corte de luz general.»
+> Primero, **Precio del balón de gas**: te lleva a Facilito de OSINERGMIN, con el precio oficial del balón de 10 kg en los locales formales de tu distrito, para que no te cobren de más ante un desabastecimiento.  
+> Segundo, **Farmacias cerca**: muestra las farmacias reales más cercanas del mapa (más de 4 000 en el Perú) y te lleva al buscador oficial de DIGEMID para ver dónde venden un medicamento y a qué precio. No inventamos cuál está de turno: la app te pide llamar antes de ir.  
+> Tercero, **Radio Nacional**: abre la app oficial de Radio Nacional (IRTP) y, sin internet, te recuerda sintonizarla en una radio a pilas, 103.9 FM en Lima, donde se transmiten los comunicados oficiales.»
 
 ---
 

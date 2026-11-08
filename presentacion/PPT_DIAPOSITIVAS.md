@@ -43,7 +43,7 @@
 | :--- | :--- |
 | **Directorio de Oficios:** Gasfitería, electricidad, cerrajería recomendada. | **Tablero de Auxilio:** Adultos mayores solos, personas con oxígeno. |
 | **Cero Transporte Mayor:** Ruteo a pie con cálculo de minutos reales (OSRM). | **Recursos Críticos:** Generadores de luz y agua potable compartida. |
-| **Cadena de Favores:** Préstamo de herramientas, donaciones y trueques. | **Triaje Masivo START:** Código de color y auxilio médico inmediato. |
+| **Donaciones:** Regala lo que no usas o pide ayuda para ti o una organización, sin dinero. | **Triaje Masivo START:** Código de color y auxilio médico inmediato. |
 | **Visto Bueno Barrial:** Reputación orgánica basada en confianza. | **Conmutación Instantánea:** Interfaz de alto contraste en 1 toque. |
 
 * **Sugerencia Visual:**
@@ -75,9 +75,9 @@
 * **Servicios Integrados:**
   * **IGP (Instituto Geofísico del Perú):** Feed sísmico nacional en tiempo real con cálculo de radio de afectación.
   * **SENAMHI:** Polígonos oficiales de quebradas en riesgo de huaicos y avisos meteorológicos.
-  * **OSINERGMIN "Facilito":** Control de precios y distribuidores formales de balones de gas GLP de 10 kg.
-  * **DIGEMID / MINSA:** Farmacias de turno 24 horas y precios de medicamentos esenciales.
-  * **Radio Nacional del Perú (IRTP):** Streaming oficial en ultra-bajo ancho de banda para comunicados de INDECI.
+  * **OSINERGMIN "Facilito":** Precio oficial del balón de gas de 10 kg en los locales formales de tu distrito.
+  * **DIGEMID / MINSA:** Buscador oficial de medicamentos y precios, junto a las farmacias reales más cercanas (OpenStreetMap).
+  * **Radio Nacional del Perú (IRTP):** App oficial, y 103.9 FM en una radio a pilas cuando no hay internet.
 
 * **Mensaje de Cierre:**
   > **«Menos costo, cero transporte, máxima resiliencia.  
