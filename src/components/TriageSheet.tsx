@@ -328,7 +328,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                             type="button"
                             onClick={() => handleStatusChange(v.id, 'esperando')}
                             className={`px-2 py-0.5 text-[10px] font-bold rounded ${
-                              v.status === 'esperando' ? 'bg-red-600 text-white' : 'bg-surface text-ink-secondary border border-line'
+                              v.status === 'esperando' ? 'bg-rojo text-white' : 'bg-surface text-ink-secondary border border-line'
                             }`}
                           >
                             Esperando
@@ -337,7 +337,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                             type="button"
                             onClick={() => handleStatusChange(v.id, 'atendido')}
                             className={`px-2 py-0.5 text-[10px] font-bold rounded ${
-                              v.status === 'atendido' ? 'bg-amber-600 text-white' : 'bg-surface text-ink-secondary border border-line'
+                              v.status === 'atendido' ? 'bg-amarillo text-ink' : 'bg-surface text-ink-secondary border border-line'
                             }`}
                           >
                             Atendido
@@ -346,7 +346,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                             type="button"
                             onClick={() => handleStatusChange(v.id, 'evacuado')}
                             className={`px-2 py-0.5 text-[10px] font-bold rounded ${
-                              v.status === 'evacuado' ? 'bg-emerald-600 text-white' : 'bg-surface text-ink-secondary border border-line'
+                              v.status === 'evacuado' ? 'bg-verde text-white' : 'bg-surface text-ink-secondary border border-line'
                             }`}
                           >
                             Evacuado
@@ -404,7 +404,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                     type="button"
                     onClick={() => { setCanWalk(false); tapFeedback(); }}
                     className={`py-2 text-xs font-bold rounded-lg border transition-all ${
-                      !canWalk ? 'bg-red-600 text-white border-red-700' : 'bg-surface text-ink border-line'
+                      !canWalk ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
                     }`}
                   >
                     No (Inmovilizado / En suelo)
@@ -424,7 +424,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                         type="button"
                         onClick={() => { setBreathing('normal'); tapFeedback(); }}
                         className={`py-2 text-[11px] font-bold rounded-lg border ${
-                          breathing === 'normal' ? 'bg-amber-600 text-white border-amber-700' : 'bg-surface text-ink border-line'
+                          breathing === 'normal' ? 'bg-amarillo text-ink border-amber-500' : 'bg-surface text-ink border-line'
                         }`}
                       >
                         Normal (&lt;30 rpm)
@@ -433,7 +433,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                         type="button"
                         onClick={() => { setBreathing('rapida'); tapFeedback(); }}
                         className={`py-2 text-[11px] font-bold rounded-lg border ${
-                          breathing === 'rapida' ? 'bg-red-600 text-white border-red-700' : 'bg-surface text-ink border-line'
+                          breathing === 'rapida' ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
                         }`}
                       >
                         Rápida (&gt;30 rpm)
@@ -462,7 +462,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                             type="button"
                             onClick={() => { setPulse('radial_presente'); tapFeedback(); }}
                             className={`py-2 text-xs font-bold rounded-lg border ${
-                              pulse === 'radial_presente' ? 'bg-amber-600 text-white border-amber-700' : 'bg-surface text-ink border-line'
+                              pulse === 'radial_presente' ? 'bg-amarillo text-ink border-amber-500' : 'bg-surface text-ink border-line'
                             }`}
                           >
                             Presente (&lt; 2 seg)
@@ -471,7 +471,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                             type="button"
                             onClick={() => { setPulse('radial_ausente'); tapFeedback(); }}
                             className={`py-2 text-xs font-bold rounded-lg border ${
-                              pulse === 'radial_ausente' ? 'bg-red-600 text-white border-red-700' : 'bg-surface text-ink border-line'
+                              pulse === 'radial_ausente' ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
                             }`}
                           >
                             Ausente o débil (Shock)
@@ -489,7 +489,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                             type="button"
                             onClick={() => { setMentalState('obedece'); tapFeedback(); }}
                             className={`py-2 text-xs font-bold rounded-lg border ${
-                              mentalState === 'obedece' ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-surface text-ink border-line'
+                              mentalState === 'obedece' ? 'bg-verde text-white border-verde' : 'bg-surface text-ink border-line'
                             }`}
                           >
                             Obedece órdenes
@@ -498,7 +498,7 @@ export const TriageSheet: React.FC<TriageSheetProps> = ({ open, onClose }) => {
                             type="button"
                             onClick={() => { setMentalState('confuso_inconsciente'); tapFeedback(); }}
                             className={`py-2 text-xs font-bold rounded-lg border ${
-                              mentalState === 'confuso_inconsciente' ? 'bg-red-600 text-white border-red-700' : 'bg-surface text-ink border-line'
+                              mentalState === 'confuso_inconsciente' ? 'bg-rojo text-white border-rojo-press' : 'bg-surface text-ink border-line'
                             }`}
                           >
                             Confuso / Inconsciente
