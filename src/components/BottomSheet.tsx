@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useBackHandler } from '../hooks/useBackHandler';
+import { useT } from '../i18n/LanguageContext';
 
 const CLOSE_MS = 200;
 const DISMISS_DISTANCE = 0.3; // of the sheet's height
@@ -19,6 +20,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose, title, 
   const dragStart = useRef<{ y: number; time: number } | null>(null);
   const [isRendered, setIsRendered] = useState(open);
   const [isClosing, setIsClosing] = useState(false);
+  const t = useT();
 
   useBackHandler(open, onClose);
 
@@ -82,7 +84,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose, title, 
     <dialog
       ref={dialogRef}
       className="sheet"
-      aria-label={title}
+      aria-label={t(title)}
       data-closing={isClosing ? '' : undefined}
       onCancel={(event) => {
         event.preventDefault();
@@ -103,12 +105,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose, title, 
         <span aria-hidden="true" className="block lg:hidden mx-auto w-10 h-1 rounded-full bg-line" />
         <div className="flex items-center gap-2 pl-4 pr-1 min-h-14">
           {/* autoFocus keeps the focus ring off the close button and reads the title aloud. */}
-          <h2 tabIndex={-1} autoFocus className="flex-1 min-w-0 text-title font-bold outline-none">{title}</h2>
+          <h2 tabIndex={-1} autoFocus className="flex-1 min-w-0 text-title font-bold outline-none">{t(title)}</h2>
           <button
             type="button"
             onClick={onClose}
             onPointerDown={(event) => event.stopPropagation()}
-            aria-label="Cerrar"
+            aria-label={t('Cerrar')}
             className="icon-btn"
           >
             <X className="w-6 h-6" aria-hidden="true" />

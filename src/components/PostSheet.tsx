@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BadgeCheck, Copy, Flag, MessageCircle, Phone, ThumbsUp } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { ANONYMOUS_REVIEWER, useApp } from '../context/AppContext';
+import { formatRelativeTime } from '../utils/time';
 import { findCategory } from '../data/categories';
 import { calculateWalkingEstimate } from '../services/geoService';
 import { CommunityItem } from '../types';
@@ -22,7 +23,7 @@ export const PostSheet: React.FC = () => {
   if (selectedItem) lastItem.current = selectedItem;
   const item = selectedItem ?? lastItem.current;
 
-  const [walking, setWalking] = useState<string | null>(null);
+  const [walkingMinutes, setWalkingMinutes] = useState<number | null>(null);
   const [isWriting, setIsWriting] = useState(false);
   const [isConfirmingResolved, setIsConfirmingResolved] = useState(false);
   const [hasFlagged, setHasFlagged] = useState(false);
@@ -35,13 +36,13 @@ export const PostSheet: React.FC = () => {
     setIsWriting(false);
     setIsConfirmingResolved(false);
     setComment('');
-    setWalking(null);
+    setWalkingMinutes(null);
     if (!selectedItem || !hasLocation) return;
 
     let isCurrent = true;
     calculateWalkingEstimate(userLocation.lat, userLocation.lng, selectedItem.coordinates[0], selectedItem.coordinates[1])
       .then((estimate) => {
-        if (isCurrent) setWalking(`a ${estimate.durationMinutes} min a pie`);
+        if (isCurrent) setWalkingMinutes(estimate.durationMinutes);
       });
     return () => {
       isCurrent = false;
@@ -76,10 +77,10 @@ export const PostSheet: React.FC = () => {
       showNotice(t('No se pudo enviar. Vuelve a intentar.'));
     }
   };
-  const distance = walking ?? describeDistance(item.distanceMeters);
+  const distance = walkingMinutes !== null ? t('a {minutes} min a pie', { minutes: walkingMinutes }) : describeDistance(item.distanceMeters);
 
   const whatsappUrl = item.authorPhone
-    ? buildWhatsAppLink(item.authorPhone, `Hola ${item.authorName}, te escribo por "${item.title}" que vi en AYLLU.`)
+    ? buildWhatsAppLink(item.authorPhone, t('Hola {name}, te escribo por "{title}" que vi en AYLLU.', { name: item.authorName, title: item.title }))
     : null;
 
   const sendRecommendation = (event: React.FormEvent) => {
@@ -117,7 +118,7 @@ export const PostSheet: React.FC = () => {
     ? t('Recomendado por 1 vecino')
     : item.vistosBuenos === 0
     ? t('Aún sin recomendaciones')
-    : `${t('Recomendado por')} ${item.vistosBuenos} ${t('vecinos')}`;
+    : t('Recomendado por {count} vecinos', { count: item.vistosBuenos });
 
   return (
     <BottomSheet open={selectedItem !== null} onClose={closeItem} title={item.title} footer={footer}>
@@ -125,10 +126,10 @@ export const PostSheet: React.FC = () => {
         <ul className="list-plain flex gap-2 overflow-x-auto px-4 pb-3 snap-x" aria-label={t('Fotos')}>
           {item.photos.map((path, index) => (
             <li key={path} className="shrink-0 snap-start">
-              <a href={postPhotoUrl(path)} target="_blank" rel="noreferrer" aria-label={`Foto ${index + 1}`}>
+              <a href={postPhotoUrl(path)} target="_blank" rel="noreferrer" aria-label={t('Foto {number}', { number: index + 1 })}>
                 <img
                   src={postPhotoUrl(path)}
-                  alt={`Foto ${index + 1}`}
+                  alt={t('Foto {number}', { number: index + 1 })}
                   className={`${item.photos!.length === 1 ? 'w-[calc(100vw-2rem)] max-w-xl' : 'w-64'} h-48 rounded-xl object-cover bg-sunken`}
                 />
               </a>
@@ -162,7 +163,7 @@ export const PostSheet: React.FC = () => {
           )}
           <div className="flex gap-2">
             <dt className="text-ink-2">{t('Fecha')}</dt>
-            <dd className="font-medium">{item.createdAt}</dd>
+            <dd className="font-medium">{item.createdAtIso ? formatRelativeTime(item.createdAtIso) : t(item.createdAt)}</dd>
           </div>
         </dl>
 
@@ -250,7 +251,8 @@ export const PostSheet: React.FC = () => {
                     <p>{review.comment}</p>
                     <p className="flex items-center gap-1.5 mt-1 text-meta text-ink-2">
                       {review.isNeighborVerified && <BadgeCheck className="w-4 h-4 text-verde" aria-hidden="true" />}
-                      {review.authorName}{review.isNeighborVerified ? `, ${t('vive cerca')}` : ''}, {review.date.toLowerCase()}
+                      {review.authorName === ANONYMOUS_REVIEWER ? t(review.authorName) : review.authorName}
+                      {review.isNeighborVerified ? `, ${t('vive cerca')}` : ''}, {(review.dateIso ? formatRelativeTime(review.dateIso) : t(review.date)).toLowerCase()}
                     </p>
                   </li>
                 ))}
@@ -283,7 +285,7 @@ export const PostSheet: React.FC = () => {
                 <button
                   type="button"
                   className="btn btn-secondary mt-3"
-                  onClick={() => (canWrite ? setIsWriting(true) : openAccess('Para recomendar o comentar necesitas entrar con tu código de usuario.'))}
+                  onClick={() => (canWrite ? setIsWriting(true) : openAccess(t('Para recomendar o comentar necesitas entrar con tu código de usuario.')))}
                 >
                   {t('Escribir una recomendación')}
                 </button>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PERU_DEPARTMENTS } from '../data/departments';
 import { loadUbigeo, Ubigeo } from '../data/ubigeo';
+import { useT } from '../i18n/LanguageContext';
 
 export interface PlaceValue {
   departmentId: string;
@@ -19,6 +20,7 @@ interface PlacePickerProps {
 }
 
 export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLabel, idPrefix }) => {
+  const t = useT();
   const [data, setData] = useState<Ubigeo | null>(null);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
   return (
     <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-2">
       <div>
-        <label htmlFor={`${idPrefix}-department`} className="block pb-1 text-secondary font-bold">Departamento</label>
+        <label htmlFor={`${idPrefix}-department`} className="block pb-1 text-secondary font-bold">{t('Departamento')}</label>
         <select
           id={`${idPrefix}-department`}
           required={required}
@@ -40,7 +42,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
           onChange={(event) => onChange({ departmentId: event.target.value, province: '', district: '' })}
           className="field"
         >
-          <option value="">{anyLabel ?? 'Elige'}</option>
+          <option value="">{anyLabel ?? t('Elige')}</option>
           {PERU_DEPARTMENTS.map((department) => (
             <option key={department.id} value={department.id}>{department.name}</option>
           ))}
@@ -49,7 +51,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
 
       <div className="grid grid-cols-2 gap-2 lg:col-span-2">
         <div className="min-w-0">
-          <label htmlFor={`${idPrefix}-province`} className="block pb-1 text-secondary font-bold">Provincia</label>
+          <label htmlFor={`${idPrefix}-province`} className="block pb-1 text-secondary font-bold">{t('Provincia')}</label>
           <select
             id={`${idPrefix}-province`}
             required={required}
@@ -58,7 +60,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
             onChange={(event) => onChange({ ...value, province: event.target.value, district: '' })}
             className="field disabled:bg-sunken"
           >
-            <option value="">{anyLabel ?? 'Elige'}</option>
+            <option value="">{anyLabel ?? t('Elige')}</option>
             {provinces.map((province) => (
               <option key={province} value={province}>{province}</option>
             ))}
@@ -66,7 +68,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
         </div>
 
         <div className="min-w-0">
-          <label htmlFor={`${idPrefix}-district`} className="block pb-1 text-secondary font-bold">Distrito</label>
+          <label htmlFor={`${idPrefix}-district`} className="block pb-1 text-secondary font-bold">{t('Distrito')}</label>
           <select
             id={`${idPrefix}-district`}
             required={required}
@@ -75,7 +77,7 @@ export const PlacePicker: React.FC<PlacePickerProps> = ({ value, onChange, anyLa
             onChange={(event) => onChange({ ...value, district: event.target.value })}
             className="field disabled:bg-sunken"
           >
-            <option value="">{anyLabel ?? 'Elige'}</option>
+            <option value="">{anyLabel ?? t('Elige')}</option>
             {districts.map((district) => (
               <option key={district} value={district}>{district}</option>
             ))}

@@ -30,12 +30,12 @@ export const WebAccessSheet: React.FC = () => {
         setCode('');
         setKey('');
         closeAccess('member');
-        showNotice('Entraste con tu código. Ya puedes publicar, comentar y llamar.');
+        showNotice(t('Entraste con tu código. Ya puedes publicar, comentar y llamar.'));
       } else {
-        setProblem(WEB_LOGIN_PROBLEMS[result]);
+        setProblem(t(WEB_LOGIN_PROBLEMS[result]));
       }
     } catch (err) {
-      setProblem(isBusyNetwork(err) ? BUSY_NETWORK_MESSAGE : WEB_LOGIN_PROBLEMS.error);
+      setProblem(t(isBusyNetwork(err) ? BUSY_NETWORK_MESSAGE : WEB_LOGIN_PROBLEMS.error));
     } finally {
       setIsBusy(false);
     }
@@ -45,7 +45,7 @@ export const WebAccessSheet: React.FC = () => {
     <BottomSheet open={isAccessOpen} onClose={() => closeAccess('viewer')} title={t('Bienvenido a AYLLU')}>
       <div className="-mt-3"><LanguagePicker /></div>
       <div className="px-4 space-y-6" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
-        {accessReason && <p role="status" className="p-3 rounded-lg bg-surface-raised text-row font-semibold">{accessReason}</p>}
+        {accessReason && <p role="status" className="p-3 rounded-lg bg-surface-raised text-row font-semibold">{t(accessReason)}</p>}
 
         <section aria-labelledby="door-app-title">
           <h3 id="door-app-title" className="text-section font-bold">{t('1. Descarga la app')}</h3>
@@ -53,7 +53,7 @@ export const WebAccessSheet: React.FC = () => {
           <div className="flex items-center gap-4 pt-3">
             <img
               src="/descargar-qr.svg"
-              alt="Código QR para descargar AYLLU para Android"
+              alt={t('Código QR para descargar AYLLU para Android')}
               width={136}
               height={136}
               className="shrink-0 rounded-lg border border-line bg-white"
@@ -71,7 +71,7 @@ export const WebAccessSheet: React.FC = () => {
         <section aria-labelledby="door-code-title">
           <h3 id="door-code-title" className="text-section font-bold">{t('2. Entra con tu código')}</h3>
           <p className="text-secondary text-ink-2">
-            En la app abre Ayuda y toca "Entrar en la web": te da una clave de 6 números que dura {WEB_KEY_MINUTES} minutos.
+            {t('En la app abre Ayuda y toca "Entrar en la web": te da una clave de 6 números que dura {minutes} minutos.', { minutes: WEB_KEY_MINUTES })}
           </p>
           <form onSubmit={enter} className="pt-3 space-y-3">
             <div>
@@ -102,7 +102,7 @@ export const WebAccessSheet: React.FC = () => {
             {problem && <p role="alert" className="text-secondary font-bold text-rojo">{problem}</p>}
             <button type="submit" className="btn btn-primary" disabled={isBusy || code.trim().length < 4 || keyDigits.length !== 6}>
               <LogIn className="w-6 h-6" aria-hidden="true" />
-              {isBusy ? 'Entrando...' : t('Entrar')}
+              {isBusy ? t('Entrando...') : t('Entrar')}
             </button>
           </form>
         </section>

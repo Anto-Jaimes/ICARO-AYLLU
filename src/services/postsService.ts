@@ -51,6 +51,7 @@ function toReview(row: ReviewRow): Review {
     authorName: row.author_name,
     comment: row.comment,
     date: formatRelativeTime(row.created_at),
+    dateIso: row.created_at,
     isNeighborVerified: row.is_neighbor_verified
   };
 }
@@ -76,7 +77,8 @@ function toCommunityItem(row: PostRow): CommunityItem {
     audience: row.audience ?? undefined,
     urgencyLevel: row.urgency_level ?? undefined,
     status: row.status,
-    createdAt: formatRelativeTime(row.created_at)
+    createdAt: formatRelativeTime(row.created_at),
+    createdAtIso: row.created_at
   };
 }
 

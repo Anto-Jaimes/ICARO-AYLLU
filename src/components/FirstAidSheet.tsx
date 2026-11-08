@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useT } from '../i18n/LanguageContext';
 import { BottomSheet } from './BottomSheet';
 
 interface FirstAidSheetProps {
@@ -49,15 +50,16 @@ const GUIDES = [
 ];
 
 export const FirstAidSheet: React.FC<FirstAidSheetProps> = ({ open, onClose }) => {
+  const t = useT();
   const [selectedId, setSelectedId] = useState(GUIDES[0].id);
   const guide = GUIDES.find((item) => item.id === selectedId) ?? GUIDES[0];
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Primeros auxilios">
+    <BottomSheet open={open} onClose={onClose} title={t('Primeros auxilios')}>
       <div className="pb-6 space-y-3">
-        <p className="px-4 text-secondary text-ink-2">Pasos básicos mientras llega la ayuda. Funciona sin internet.</p>
+        <p className="px-4 text-secondary text-ink-2">{t('Pasos básicos mientras llega la ayuda. Funciona sin internet.')}</p>
 
-        <div className="chip-row" role="group" aria-label="Elige qué pasó">
+        <div className="chip-row" role="group" aria-label={t('Elige qué pasó')}>
           {GUIDES.map((item) => (
             <button
               key={item.id}
@@ -66,16 +68,16 @@ export const FirstAidSheet: React.FC<FirstAidSheetProps> = ({ open, onClose }) =
               aria-pressed={item.id === selectedId}
               onClick={() => setSelectedId(item.id)}
             >
-              {item.title}
+              {t(item.title)}
             </button>
           ))}
         </div>
 
         <section className="px-4" aria-live="polite">
-          <h3 className="pb-2 text-section font-bold">{guide.title}</h3>
+          <h3 className="pb-2 text-section font-bold">{t(guide.title)}</h3>
           <ol className="list-decimal pl-6 space-y-2 text-body">
             {guide.steps.map((step) => (
-              <li key={step} className="pl-1">{step}</li>
+              <li key={step} className="pl-1">{t(step)}</li>
             ))}
           </ol>
         </section>

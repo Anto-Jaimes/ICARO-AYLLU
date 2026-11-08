@@ -1,7 +1,8 @@
 import React from 'react';
 import { Boxes, Gift, HandHeart, Home, Map, Plus, Siren, Store, UsersRound, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
-import { useT } from '../i18n/LanguageContext';
+import { useLanguage } from '../i18n/LanguageContext';
+import { translateShort } from '../i18n/translate';
 import { tapFeedback } from '../lib/native';
 
 interface NavItem {
@@ -28,13 +29,13 @@ const CELL = 'flex-1 min-w-0 flex flex-col items-center justify-center gap-1 h-[
 
 export const BottomNav: React.FC = () => {
   const { mode, tab, setTab, setIsSosOpen, isAlertsOpen, isNewsOpen, openPublish } = useApp();
-  const t = useT();
+  const { lang, t } = useLanguage();
   const isEmergency = mode === 'emergency';
   const items = isEmergency ? EMERGENCY_ITEMS : NORMAL_ITEMS;
 
   return (
     <nav
-      aria-label="Principal"
+      aria-label={t('Principal')}
       className={`fixed z-30 bottom-0 inset-x-0 flex lg:top-0 lg:right-auto lg:w-60 lg:flex-col lg:gap-1 lg:p-3 ${
         isEmergency ? 'bg-rojo text-white' : 'bg-surface border-t border-line lg:border-t-0 lg:border-r'
       }`}
@@ -72,7 +73,15 @@ export const BottomNav: React.FC = () => {
             className={`${CELL} ${isActive ? activeStyle : idleStyle}`}
           >
             <Icon className="w-6 h-6 shrink-0" aria-hidden="true" />
-            <span className="max-w-full truncate">{t(label)}</span>
+            {translateShort(lang, label) === t(label) ? (
+              <span className="max-w-full truncate">{t(label)}</span>
+            ) : (
+              <>
+                {/* The phone's bar is narrow: a shorter word there, the whole one in the computer's side bar. */}
+                <span className="max-w-full truncate lg:hidden">{translateShort(lang, label)}</span>
+                <span className="hidden lg:inline max-w-full truncate">{t(label)}</span>
+              </>
+            )}
           </button>
         );
       })}

@@ -31,7 +31,7 @@ export const NearbyHelp: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   if (!hasLocation && !places) {
     return (
       <p className="px-4 pt-3 text-secondary text-ink-2">
-        Activa tu ubicación para ver la comisaría, los bomberos y el hospital más cercanos.
+        {t('Activa tu ubicación para ver la comisaría, los bomberos y el hospital más cercanos.')}
       </p>
     );
   }
@@ -40,10 +40,13 @@ export const NearbyHelp: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
   return (
     <section aria-labelledby="nearby-help-title" className="pt-3">
       <h3 id="nearby-help-title" className="px-4 text-secondary font-bold">{t('Más cerca de ti')}</h3>
-      {savedAt && <p className="px-4 text-meta text-ink-2">Guardado {formatRelativeTime(savedAt).toLowerCase()}, sin internet.</p>}
+      {savedAt && (
+        <p className="px-4 text-meta text-ink-2">{t('Guardado {time}, sin internet.', { time: formatRelativeTime(savedAt).toLowerCase() })}</p>
+      )}
       <ul className="list-plain">
         {places.map((place) => {
-          const { label, icon: Icon } = KIND[place.kind];
+          const { icon: Icon } = KIND[place.kind];
+          const label = t(KIND[place.kind].label);
           const name = place.name ?? label;
           const href = place.phone ? `tel:${dialablePhone(place.phone)}` : `https://maps.google.com/?q=${place.lat},${place.lng}`;
           return (
@@ -53,7 +56,7 @@ export const NearbyHelp: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
                 target={place.phone ? undefined : '_blank'}
                 rel={place.phone ? undefined : 'noreferrer'}
                 className="row no-underline"
-                aria-label={`${label}: ${name}, ${formatDistance(place.distance_m)}. ${place.phone ? `Llamar al ${place.phone}` : 'Ver cómo llegar'}`}
+                aria-label={`${label}: ${name}, ${formatDistance(place.distance_m)}. ${place.phone ? t('Llamar al {phone}', { phone: place.phone }) : t('Ver cómo llegar')}`}
               >
                 <Icon className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
                 <span className="flex-1 min-w-0">
@@ -70,7 +73,7 @@ export const NearbyHelp: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
           );
         })}
       </ul>
-      <p className="px-4 text-meta text-ink-2">Datos de OpenStreetMap. Si no tiene teléfono, te mostramos cómo llegar.</p>
+      <p className="px-4 text-meta text-ink-2">{t('Datos de OpenStreetMap. Si no tiene teléfono, te mostramos cómo llegar.')}</p>
     </section>
   );
 };

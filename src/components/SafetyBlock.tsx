@@ -5,6 +5,7 @@ import { SafetyTone, useHazards } from '../context/HazardContext';
 import { LevelGlyph } from './LevelTag';
 import { HelpButton, TopBarLanguageSelector } from './TopBar';
 import { useT } from '../i18n/LanguageContext';
+import { LOCATED_FALLBACK } from '../services/geoService';
 
 interface ToneStyle {
   field: string;
@@ -36,7 +37,9 @@ export const SafetyBlock: React.FC = () => {
   const tone = TONE_STYLES[verdict.tone];
   const Icon = tone.icon;
   const levelName = LEVEL_NAMES[verdict.tone];
-  const place = hasLocation ? userLocation.name : feed?.department?.name ?? 'Perú';
+  // Without a street name the location is called "Tu ubicación", kept in Spanish as data.
+  const located = userLocation.name === LOCATED_FALLBACK ? t(LOCATED_FALLBACK) : userLocation.name;
+  const place = hasLocation ? located : feed?.department?.name ?? t('Perú');
 
   return (
     <section
@@ -65,14 +68,14 @@ export const SafetyBlock: React.FC = () => {
         {levelName ? (
           <p className="flex items-center gap-2 text-row font-bold">
             <LevelGlyph level={verdict.tone as 'amarillo' | 'naranja' | 'rojo'} />
-            <span>{levelName}</span>
+            <span>{t(levelName)}</span>
           </p>
         ) : (
           <Icon className="w-8 h-8" aria-hidden="true" />
         )}
 
         <h1 id="verdict-title" className="mt-1 text-sign font-bold lg:text-[2.5rem] lg:leading-[3rem]">
-          {t(verdict.title)}
+          {verdict.title}
         </h1>
         <p className="mt-1 text-secondary">{verdict.line}</p>
         </div>
@@ -82,7 +85,7 @@ export const SafetyBlock: React.FC = () => {
           onClick={() => (verdict.action === 'locate' ? requestCurrentGPS() : setIsAlertsOpen(true))}
           className={`mt-1 min-h-12 shrink-0 text-secondary font-bold underline underline-offset-4 lg:mt-0 lg:px-5 lg:no-underline lg:rounded-lg lg:border-2 lg:border-current ${tone.link}`}
         >
-          {t(verdict.actionLabel)}
+          {verdict.actionLabel}
         </button>
       </div>
 

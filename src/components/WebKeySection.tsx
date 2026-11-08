@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { closeWebSessions, createWebLoginKey, lastWebLogin, WEB_KEY_MINUTES } from '../services/webLoginService';
 import { formatRelativeTime } from '../utils/time';
+import { useT } from '../i18n/LanguageContext';
 
 /**
  * In the app: a key to enter the web as this same neighbour, when the web was last entered, and a way
@@ -13,6 +14,7 @@ export const WebKeySection: React.FC<{ isVisible: boolean }> = ({ isVisible }) =
   const [lastLogin, setLastLogin] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  const t = useT();
   const secondsLeft = Math.max(0, Math.round((expiresAt - now) / 1000));
 
   useEffect(() => {
@@ -40,14 +42,14 @@ export const WebKeySection: React.FC<{ isVisible: boolean }> = ({ isVisible }) =
     try {
       const created = await createWebLoginKey();
       if (!created) {
-        setMessage('Tu código todavía no está listo. Vuelve a abrir Ayuda con internet.');
+        setMessage(t('Tu código todavía no está listo. Vuelve a abrir Ayuda con internet.'));
         return;
       }
       setKey(created);
       setExpiresAt(Date.now() + WEB_KEY_MINUTES * 60_000);
       setNow(Date.now());
     } catch {
-      setMessage('Necesitas internet para entrar en la web.');
+      setMessage(t('Necesitas internet para entrar en la web.'));
     } finally {
       setIsBusy(false);
     }
@@ -57,9 +59,9 @@ export const WebKeySection: React.FC<{ isVisible: boolean }> = ({ isVisible }) =
     setIsBusy(true);
     try {
       await closeWebSessions();
-      setMessage('Listo: la web tendrá que entrar de nuevo con una clave.');
+      setMessage(t('Listo: la web tendrá que entrar de nuevo con una clave.'));
     } catch {
-      setMessage('Necesitas internet para cerrar la web.');
+      setMessage(t('Necesitas internet para cerrar la web.'));
     } finally {
       setIsBusy(false);
     }
@@ -67,29 +69,29 @@ export const WebKeySection: React.FC<{ isVisible: boolean }> = ({ isVisible }) =
 
   return (
     <section className="px-4 py-4 border-b border-line" aria-labelledby="web-key-title">
-      <h3 id="web-key-title" className="text-secondary text-ink-2">Entrar en la web</h3>
+      <h3 id="web-key-title" className="text-secondary text-ink-2">{t('Entrar en la web')}</h3>
       {key ? (
         <div className="pt-1 space-y-1">
           <p className="text-sign font-bold tracking-widest" aria-live="polite">{`${key.slice(0, 3)} ${key.slice(3)}`}</p>
           <p className="text-secondary">
-            En ayllu-five.vercel.app escribe tu código y esta clave. Vence en {Math.floor(secondsLeft / 60)}:{String(secondsLeft % 60).padStart(2, '0')}.
+            {t('En ayllu-five.vercel.app escribe tu código y esta clave. Vence en {time}.', { time: `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')}` })}
           </p>
-          <p className="text-secondary font-bold">No se la des a nadie: con ella entran como tú.</p>
+          <p className="text-secondary font-bold">{t('No se la des a nadie: con ella entran como tú.')}</p>
         </div>
       ) : (
         <>
-          <p className="pt-1 text-secondary">Para publicar, comentar y llamar desde una computadora, con tu mismo código.</p>
+          <p className="pt-1 text-secondary">{t('Para publicar, comentar y llamar desde una computadora, con tu mismo código.')}</p>
           <button type="button" className="btn btn-secondary mt-2" onClick={create} disabled={isBusy}>
-            {isBusy ? 'Preparando...' : 'Entrar en la web'}
+            {isBusy ? t('Preparando...') : t('Entrar en la web')}
           </button>
         </>
       )}
       {message && <p role="status" className="pt-2 text-secondary font-bold">{message}</p>}
       {lastLogin && (
         <div className="pt-3">
-          <p className="text-secondary text-ink-2">Última entrada a la web: {formatRelativeTime(lastLogin).toLowerCase()}.</p>
+          <p className="text-secondary text-ink-2">{t('Última entrada a la web: {time}.', { time: formatRelativeTime(lastLogin).toLowerCase() })}</p>
           <button type="button" className="btn btn-secondary mt-2" onClick={closeEverywhere} disabled={isBusy}>
-            Cerrar la web en otros equipos
+            {t('Cerrar la web en otros equipos')}
           </button>
         </div>
       )}

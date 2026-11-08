@@ -12,11 +12,11 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
   const kind = REPORT_KINDS.find((option) => option.id === report.kind) ?? REPORT_KINDS[5];
   const Icon = kind.icon;
   const comments = report.comment_count ?? 0;
-  const title = `${reportTitle(report.kind)} en ${report.district}`;
+  const title = t('{kind} en {place}', { kind: t(reportTitle(report.kind)), place: report.district });
 
   return (
     <article className="rounded-2xl overflow-hidden border border-line bg-surface">
-      <button type="button" className="block w-full text-left" onClick={() => openNewsDetail(report)} aria-label={`${title}. ${report.description}. Ver la noticia y los comentarios`}>
+      <button type="button" className="block w-full text-left" onClick={() => openNewsDetail(report)} aria-label={`${title}. ${report.description}. ${t('Ver la noticia y los comentarios')}`}>
         <div className="relative aspect-[16/9] bg-sunken">
           {report.media_path && report.media_type === 'image' ? (
             <img src={mediaUrl(report.media_path)} alt="" loading="lazy" className="w-full h-full object-cover" />
@@ -36,7 +36,7 @@ export const NewsCard: React.FC<{ report: Report }> = ({ report }) => {
           )}
           <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/95 text-meta font-bold">
             <Icon className="w-4 h-4 text-rojo" aria-hidden="true" />
-            {reportTitle(report.kind)}
+            {t(reportTitle(report.kind))}
           </span>
         </div>
         <div className="p-4">

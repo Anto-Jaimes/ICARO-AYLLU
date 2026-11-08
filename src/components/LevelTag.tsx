@@ -1,5 +1,6 @@
 import React from 'react';
 import { NoticeLevel } from '../services/hazardService';
+import { useT } from '../i18n/LanguageContext';
 
 const FILLED_BARS: Record<NoticeLevel, number> = { amarillo: 1, naranja: 2, rojo: 3 };
 
@@ -27,11 +28,14 @@ export const LevelGlyph: React.FC<{ level: NoticeLevel }> = ({ level }) => (
   </svg>
 );
 
-export const LevelTag: React.FC<{ level: NoticeLevel }> = ({ level }) => (
-  <span
-    className={`inline-flex items-center gap-1.5 shrink-0 h-8 px-2 rounded border border-ink text-secondary font-bold ${TAG_STYLES[level]}`}
-  >
-    <LevelGlyph level={level} />
-    {LEVEL_LABELS[level]}
-  </span>
-);
+export const LevelTag: React.FC<{ level: NoticeLevel }> = ({ level }) => {
+  const t = useT();
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 shrink-0 h-8 px-2 rounded border border-ink text-secondary font-bold ${TAG_STYLES[level]}`}
+    >
+      <LevelGlyph level={level} />
+      {t(LEVEL_LABELS[level])}
+    </span>
+  );
+};

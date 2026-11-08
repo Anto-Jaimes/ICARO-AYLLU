@@ -12,6 +12,7 @@ import { WeatherCard } from '../components/WeatherCard';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import { useReports } from '../hooks/useReports';
 import { useT } from '../i18n/LanguageContext';
+import { placeLabel } from '../services/geoService';
 
 const NEARBY_ROWS = 4;
 const NEARBY_ROWS_DESKTOP = 6;
@@ -62,10 +63,11 @@ const ZoneNews: React.FC<{ count: number }> = ({ count }) => {
 const TodayCards: React.FC = () => {
   const { hasLocation, userLocation } = useApp();
   const { feed } = useHazards();
+  const t = useT();
   const lat = hasLocation ? userLocation.lat : feed?.department?.lat;
   const lng = hasLocation ? userLocation.lng : feed?.department?.lng;
   // "Avenida Petit Thouars #3050, San Isidro" reads as "San Isidro".
-  const place = hasLocation ? userLocation.name.split(',').pop()?.trim() || userLocation.name : feed?.department?.name ?? 'tu zona';
+  const place = hasLocation ? placeLabel(userLocation.name.split(',').pop()?.trim() || userLocation.name) : feed?.department?.name ?? t('tu zona');
 
   return (
     <div className="space-y-3 pt-6">

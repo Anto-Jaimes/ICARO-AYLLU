@@ -1,4 +1,5 @@
 import type { HazardFeed } from '../services/hazardService';
+import { tr } from '../i18n/translate';
 
 /** Why the app suggests emergency mode, from official data only. */
 export interface EmergencyReason {
@@ -23,8 +24,9 @@ export function emergencyReason(feed: HazardFeed | null, now = Date.now()): Emer
   if (quake) {
     return {
       id: `sismo-${quake.id}`,
-      title: `Sismo fuerte de magnitud ${quake.magnitude.toFixed(1)}`,
-      line: `${quake.detail}. Revisa si tú y tus vecinos están bien.`
+      title: tr('Sismo fuerte de magnitud {magnitude}', { magnitude: quake.magnitude.toFixed(1) }),
+      // The place comes from IGP as it is written there.
+      line: tr('{place}. Revisa si tú y tus vecinos están bien.', { place: quake.detail })
     };
   }
 
@@ -33,8 +35,9 @@ export function emergencyReason(feed: HazardFeed | null, now = Date.now()): Emer
     const day = new Date(now).toISOString().slice(0, 10);
     return {
       id: `zona-${zone.kind}-${zone.district ?? zone.province ?? ''}-${day}`,
-      title: zone.kind === 'huaico' ? 'Alerta roja de huaico en tu zona' : 'Alerta roja de lluvia intensa en tu zona',
-      line: zone.recommendation ?? zone.description ?? 'Sigue las indicaciones de las autoridades.'
+      title: zone.kind === 'huaico' ? tr('Alerta roja de huaico en tu zona') : tr('Alerta roja de lluvia intensa en tu zona'),
+      // SENAMHI's own advice is shown as SENAMHI wrote it.
+      line: zone.recommendation ?? zone.description ?? tr('Sigue las indicaciones de las autoridades.')
     };
   }
 

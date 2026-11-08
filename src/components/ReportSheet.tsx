@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Check, ImagePlus, Trash2, Video } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useT } from '../i18n/LanguageContext';
 import { departmentName, districtCoordinates, loadUbigeo, nearestPlace } from '../data/ubigeo';
 import { inspectMedia, MediaOutcome, validateFile } from '../services/mediaCheck';
 import { BUSY_NETWORK_MESSAGE, isBusyNetwork } from '../services/postsService';
-import { REPORT_KINDS, ReportKind, submitReport } from '../services/reportsService';
+import { ANONYMOUS_AUTHOR, REPORT_KINDS, ReportKind, submitReport } from '../services/reportsService';
 import { loadContact, saveContact } from '../utils/storage';
 import { BottomSheet } from './BottomSheet';
 import { CameraCapture, CameraMode, canRecordVideo, canUseCamera } from './CameraCapture';
@@ -15,6 +16,7 @@ const MEDIA_OPTION = 'flex-1 basis-0 flex flex-col items-center gap-1 min-h-20 p
 
 export const ReportSheet: React.FC = () => {
   const { reportKind, closeReport, isOnline, hasLocation, userLocation, showNotice, refreshReports } = useApp();
+  const t = useT();
   const isOpen = reportKind !== null;
 
   const [kind, setKind] = useState<ReportKind>('otro');
@@ -61,7 +63,7 @@ export const ReportSheet: React.FC = () => {
 
     const invalid = validateFile(picked);
     if (invalid) {
-      setProblem(invalid);
+      setProblem(t(invalid));
       return;
     }
 
@@ -70,7 +72,8 @@ export const ReportSheet: React.FC = () => {
     setIsChecking(false);
 
     if (result.outcome === 'blocked') {
-      setProblem(result.message ?? 'Este archivo no se puede publicar.');
+      // mediaCheck explains in Spanish; the message is translated here, where it is shown.
+      setProblem(t(result.message ?? 'Este archivo no se puede publicar.'));
       return;
     }
 
@@ -106,7 +109,7 @@ export const ReportSheet: React.FC = () => {
       const result = await submitReport({
         kind,
         description: description.trim(),
-        authorName: contact.name || 'Un vecino',
+        authorName: contact.name || ANONYMOUS_AUTHOR,
         place: { department: departmentName(place.departmentId), province: place.province, district: place.district, ...coordinates },
         file,
         mediaOutcome
@@ -115,19 +118,19 @@ export const ReportSheet: React.FC = () => {
       if (result.status === 'rejected') {
         setProblem(
           result.reason === 'advertising'
-            ? 'Esto parece publicidad. Para ofrecer algo, usa Publicar y elige "Ofrezco mi trabajo".'
-            : 'Ya publicaste varias noticias. Espera un momento.'
+            ? t('Esto parece publicidad. Para ofrecer algo, usa Publicar y elige "Ofrezco mi trabajo".')
+            : t('Ya publicaste varias noticias. Espera un momento.')
         );
         return;
       }
 
       saveContact({ ...contact });
-      showNotice(result.status === 'published' ? 'Noticia publicada' : 'Un moderador la revisará antes de publicarla.');
+      showNotice(result.status === 'published' ? t('Noticia publicada') : t('Un moderador la revisará antes de publicarla.'));
       refreshReports();
       closeReport();
     } catch (err) {
       console.error('No se pudo publicar la noticia:', err);
-      setProblem(isBusyNetwork(err) ? BUSY_NETWORK_MESSAGE : 'No se pudo enviar. Revisa tu internet y vuelve a intentar.');
+      setProblem(isBusyNetwork(err) ? t(BUSY_NETWORK_MESSAGE) : t('No se pudo enviar. Revisa tu internet y vuelve a intentar.'));
     } finally {
       setIsSending(false);
     }
@@ -140,7 +143,7 @@ export const ReportSheet: React.FC = () => {
       <BottomSheet
         open={isOpen}
         onClose={closeReport}
-        title="Avisar a tus vecinos"
+        title={t('Avisar a tus vecinos')}
         footer={
           <button
             type="submit"
@@ -148,19 +151,19 @@ export const ReportSheet: React.FC = () => {
             disabled={!isOnline || isChecking || isSending}
             className="btn btn-primary disabled:opacity-50"
           >
-            {isSending ? 'Enviando...' : 'Publicar noticia'}
+            {isSending ? t('Enviando...') : t('Publicar noticia')}
           </button>
         }
       >
         <form id="report-form" onSubmit={send} className="pb-4 space-y-4">
           {!isOnline && (
             <p role="status" className="mx-4 p-3 rounded-lg bg-offline text-white text-secondary">
-              Necesitas internet para enviar una noticia. Si es urgente, toca SOS.
+              {t('Necesitas internet para enviar una noticia. Si es urgente, toca SOS.')}
             </p>
           )}
 
           <fieldset className="border-0 p-0 m-0">
-            <legend className="px-4 pb-1 text-secondary font-bold">¿Qué pasó?</legend>
+            <legend className="px-4 pb-1 text-secondary font-bold">{t('¿Qué pasó?')}</legend>
             <div className="chip-row">
               {REPORT_KINDS.map((option) => (
                 <button
@@ -171,14 +174,14 @@ export const ReportSheet: React.FC = () => {
                   onClick={() => setKind(option.id)}
                 >
                   {kind === option.id && <Check className="w-4 h-4" aria-hidden="true" />}
-                  {option.label}
+                  {t(option.label)}
                 </button>
               ))}
             </div>
           </fieldset>
 
           <div className="px-4">
-            <p className="pb-1 text-secondary font-bold">Agregar foto o video</p>
+            <p className="pb-1 text-secondary font-bold">{t('Agregar foto o video')}</p>
             <input
               ref={inputRef}
               id="report-file"
@@ -193,42 +196,42 @@ export const ReportSheet: React.FC = () => {
                 {isVideo ? (
                   <video src={previewUrl} controls playsInline className="w-full max-h-56 rounded-lg bg-black" />
                 ) : (
-                  <img src={previewUrl} alt="Vista previa" className="w-full max-h-56 object-cover rounded-lg" />
+                  <img src={previewUrl} alt={t('Vista previa')} className="w-full max-h-56 object-cover rounded-lg" />
                 )}
                 <button type="button" onClick={clearMedia} className="mt-1 min-h-12 flex items-center gap-2 text-secondary font-bold text-anil">
                   <Trash2 className="w-5 h-5" aria-hidden="true" />
-                  Quitar
+                  {t('Quitar')}
                 </button>
               </div>
             ) : isChecking ? (
               <p role="status" className="grid place-items-center min-h-20 rounded-lg bg-sunken text-row font-bold text-anil">
-                Revisando el archivo...
+                {t('Revisando el archivo...')}
               </p>
             ) : (
               <div className="flex gap-2">
                 {canUseCamera() && (
                   <button type="button" onClick={() => setCameraMode('photo')} className={MEDIA_OPTION}>
                     <Camera className="w-6 h-6" aria-hidden="true" />
-                    Tomar foto
+                    {t('Tomar foto')}
                   </button>
                 )}
                 {canRecordVideo() && (
                   <button type="button" onClick={() => setCameraMode('video')} className={MEDIA_OPTION}>
                     <Video className="w-6 h-6" aria-hidden="true" />
-                    Grabar video
+                    {t('Grabar video')}
                   </button>
                 )}
                 <label htmlFor="report-file" className={MEDIA_OPTION}>
                   <ImagePlus className="w-6 h-6" aria-hidden="true" />
-                  Elegir archivo
+                  {t('Elegir archivo')}
                 </label>
               </div>
             )}
-            <p className="pt-1 text-meta text-ink-2">Opcional. Video de hasta 1 minuto.</p>
+            <p className="pt-1 text-meta text-ink-2">{t('Opcional. Video de hasta 1 minuto.')}</p>
           </div>
 
           <div className="px-4">
-            <label htmlFor="report-description" className="block pb-1 text-secondary font-bold">Cuéntalo en pocas palabras</label>
+            <label htmlFor="report-description" className="block pb-1 text-secondary font-bold">{t('Cuéntalo en pocas palabras')}</label>
             <textarea
               id="report-description"
               required

@@ -1,5 +1,7 @@
 /** The nearest police station, fire station and hospital, from OpenStreetMap data kept in our database. */
 import { supabase } from '../lib/supabase';
+import { tr } from '../i18n/translate';
+import { decimal } from './geoService';
 
 export type PlaceKind = 'police' | 'fire_station' | 'hospital';
 
@@ -45,5 +47,8 @@ export async function nearbyEmergencyPlaces(lat: number, lng: number): Promise<E
 /** Phone numbers from the map come in many shapes; the dialler needs only digits and "+". */
 export const dialablePhone = (phone: string) => phone.replace(/[^\d+]/g, '');
 
+/** "a 350 m", "a 1,2 km", in the chosen language. */
 export const formatDistance = (meters: number) =>
-  meters < 1000 ? `a ${Math.max(50, Math.round(meters / 50) * 50)} m` : `a ${(meters / 1000).toFixed(1).replace('.', ',')} km`;
+  meters < 1000
+    ? tr('a {meters} m', { meters: Math.max(50, Math.round(meters / 50) * 50) })
+    : tr('a {km} km', { km: decimal(meters / 1000) });

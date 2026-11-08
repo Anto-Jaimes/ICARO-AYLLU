@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useT } from '../i18n/LanguageContext';
+import { fillNodes, useT } from '../i18n/LanguageContext';
 import { Activity, AlertTriangle, Ear, Mic, MicOff, ShieldAlert } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { geophoneDetector, handsFreeSentinel, SurvivalPatternMatch } from '../utils/rubbleRescue';
@@ -105,16 +105,16 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
   };
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Rescate en Escombros">
+    <BottomSheet open={open} onClose={onClose} title={t('Rescate en Escombros')}>
       <div className="px-4" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
 
         <div className="mb-3 p-3 bg-gradient-to-r from-neutral-900 to-amber-950 text-white rounded-xl shadow-sm border border-amber-800/40">
           <div className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-amber-400 shrink-0" aria-hidden="true" />
-            <span className="text-secondary font-bold text-amber-300">Búsqueda de personas atrapadas</span>
+            <span className="text-secondary font-bold text-amber-300">{t('Búsqueda de personas atrapadas')}</span>
           </div>
           <p className="text-secondary text-neutral-300 mt-1">
-            Escucha golpes detrás de un muro, o pide auxilio con la voz si no puedes mover los brazos. Funciona sin internet.
+            {t('Escucha golpes detrás de un muro, o pide auxilio con la voz si no puedes mover los brazos. Funciona sin internet.')}
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
             }`}
           >
             <Ear className="w-5 h-5 shrink-0" aria-hidden="true" />
-            Buscar tras un muro
+            {t('Buscar tras un muro')}
           </button>
           <button
             type="button"
@@ -141,7 +141,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
           </button>
         </div>
 
-        {micProblem && <p role="alert" className="mb-3 text-secondary font-bold text-rojo">{micProblem}</p>}
+        {micProblem && <p role="alert" className="mb-3 text-secondary font-bold text-rojo">{t(micProblem)}</p>}
 
         {activeTab === 'geophone' && (
           <div className="space-y-4">
@@ -189,7 +189,12 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
                   <span className="text-section font-black tracking-tight text-red-900">{t("Alguien golpea al otro lado")}</span>
                 </div>
                 <p className="text-secondary text-red-800 font-medium">
-                  Se escucharon <strong>3 golpes a ritmo parejo</strong>, uno cada {(detectedMatch.intervalMs / 1000).toFixed(1).replace('.', ',')} segundos. Responde con golpes y avisa a los rescatistas.
+                  {fillNodes(
+                    t('Se escucharon {knocks}, uno cada {seconds} segundos. Responde con golpes y avisa a los rescatistas.', {
+                      seconds: (detectedMatch.intervalMs / 1000).toFixed(1).replace('.', ',')
+                    }),
+                    { knocks: <strong>{t('3 golpes a ritmo parejo')}</strong> }
+                  )}
                 </p>
               </div>
             )}
@@ -197,7 +202,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
             <div className="p-3 bg-surface-raised border border-line rounded-xl text-secondary text-ink-2 space-y-1">
               <span className="font-bold text-ink block">{t("¿Cómo funciona?")}</span>
               <p>
-                El concreto y los tubos llevan los golpes como un sonido grave. El celular cuenta solo esos golpes graves y cortos: los aplausos, las voces y los ruidos largos no cuentan. Tres golpes a ritmo parejo son alguien llamando.
+                {t('El concreto y los tubos llevan los golpes como un sonido grave. El celular cuenta solo esos golpes graves y cortos: los aplausos, las voces y los ruidos largos no cuentan. Tres golpes a ritmo parejo son alguien llamando.')}
               </p>
             </div>
           </div>
@@ -217,8 +222,8 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
               </h4>
               <p className="text-secondary text-slate-300 max-w-xs mx-auto mt-1">
                 {isSentinelActive
-                  ? 'Si quedas atrapado, grita fuerte dos veces, en el idioma que sea: "¡Auxilio!", "¡Ayuda!", "¡Yanapay!". El celular hará sonar la alarma.'
-                  : 'Para cuando quedas bajo escombros y no alcanzas el celular con las manos. Déjalo encendido cerca de ti.'}
+                  ? t('Si quedas atrapado, grita fuerte dos veces, en el idioma que sea: "¡Auxilio!", "¡Ayuda!", "¡Yanapay!". El celular hará sonar la alarma.')
+                  : t('Para cuando quedas bajo escombros y no alcanzas el celular con las manos. Déjalo encendido cerca de ti.')}
               </p>
 
               <button
@@ -226,7 +231,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
                 onClick={handleToggleSentinel}
                 className={`btn mt-4 min-h-12 font-bold ${isSentinelActive ? 'btn-secondary text-rojo' : 'btn-danger'}`}
               >
-                {isSentinelActive ? 'Desactivar manos libres' : 'Activar manos libres'}
+                {isSentinelActive ? t('Desactivar manos libres') : t('Activar manos libres')}
               </button>
             </div>
 
@@ -234,16 +239,16 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
               <div role="alert" className="p-4 bg-red-100 border-2 border-red-500 rounded-2xl text-red-950">
                 <div className="flex items-center gap-2 mb-1">
                   <ShieldAlert className="w-6 h-6 text-red-600 shrink-0" aria-hidden="true" />
-                  <span className="text-section font-black text-red-900">Alarma sonando</span>
+                  <span className="text-section font-black text-red-900">{t('Alarma sonando')}</span>
                 </div>
-                <p className="text-secondary text-red-800">Se escucharon tus gritos. La alarma suena para que los rescatistas te encuentren.</p>
-                <button type="button" onClick={stopAlarm} className="btn btn-secondary mt-3">Detener alarma</button>
+                <p className="text-secondary text-red-800">{t('Se escucharon tus gritos. La alarma suena para que los rescatistas te encuentren.')}</p>
+                <button type="button" onClick={stopAlarm} className="btn btn-secondary mt-3">{t('Detener alarma')}</button>
               </div>
             )}
 
             <div className="p-3.5 bg-surface border border-line rounded-xl text-secondary text-ink-2">
-              <span className="font-bold text-ink block mb-1">¿Qué lo activa?</span>
-              Dos gritos fuertes y largos, de medio segundo o más, en cualquier idioma, o dos silbidos largos. Una conversación normal, los aplausos y los golpes no lo activan.
+              <span className="font-bold text-ink block mb-1">{t('¿Qué lo activa?')}</span>
+              {t('Dos gritos fuertes y largos, de medio segundo o más, en cualquier idioma, o dos silbidos largos. Una conversación normal, los aplausos y los golpes no lo activan.')}
             </div>
           </div>
         )}

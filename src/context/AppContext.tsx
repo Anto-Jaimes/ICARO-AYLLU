@@ -15,6 +15,7 @@ import {
   saveLastLocation
 } from '../utils/storage';
 import { calculateDistanceMeters, isInPeru } from '../utils/geo';
+import { tr } from '../i18n/translate';
 import { reverseGeocode } from '../services/geoService';
 import {
   createPost,
@@ -60,6 +61,9 @@ export interface ServicesFilter {
 const NORMAL_HOME: Tab = 'home';
 const EMERGENCY_HOME: Tab = 'neighbors';
 const LOCATED_NAME = 'Tu ubicación';
+
+/** The name saved with a recommendation left without one; shown translated, stored in Spanish. */
+export const ANONYMOUS_REVIEWER = 'Vecino de la zona';
 
 // Posts still waiting to reach the server stay visible to their author.
 function withPendingPosts(items: CommunityItem[]): CommunityItem[] {
@@ -227,7 +231,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const openPublish = useCallback((preset?: PublishPreset) => {
     if (!canWrite) {
-      openAccess('Para publicar necesitas entrar con tu código de usuario.');
+      openAccess(tr('Para publicar necesitas entrar con tu código de usuario.'));
       return;
     }
     setPublishPreset(preset ?? null);
@@ -237,7 +241,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const openReport = useCallback((kind: ReportKind) => {
     if (!canWrite) {
-      openAccess('Para avisar a tus vecinos necesitas entrar con tu código de usuario.');
+      openAccess(tr('Para avisar a tus vecinos necesitas entrar con tu código de usuario.'));
       return;
     }
     setReportKind(kind);
@@ -281,7 +285,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           console.error('Publicación rechazada por el servidor:', err);
           removeFromOfflineQueue(id);
           setItems((prev) => prev.filter((existing) => existing.id !== id));
-          setNotice(`No se pudo publicar "${title}". Revisa los datos y vuelve a intentar.`);
+          setNotice(tr('No se pudo publicar "{title}". Revisa los datos y vuelve a intentar.', { title }));
         }
       }
     } finally {
@@ -328,7 +332,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const applyPosition = useCallback((lat: number, lng: number) => {
     if (!isInPeru(lat, lng)) {
       setLocationStatus('unavailable');
-      setNotice('Estás fuera del Perú. Elige un departamento en Alertas.');
+      setNotice(tr('Estás fuera del Perú. Elige un departamento en Alertas.'));
       return;
     }
 
@@ -405,8 +409,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const place = hasLocation ? { lat: userLocation.lat, lng: userLocation.lng, name: userLocation.name } : null;
     requestCall(waiting.destination, place)
       .then((result) => setNotice(result.status === 'ok'
-        ? 'Volvió la señal: pedimos tu llamada gratis. Tu celular sonará en unos segundos.'
-        : 'No se pudo hacer tu llamada guardada. Ábrela otra vez en SOS.'))
+        ? tr('Volvió la señal: pedimos tu llamada gratis. Tu celular sonará en unos segundos.')
+        : tr('No se pudo hacer tu llamada guardada. Ábrela otra vez en SOS.')))
       .catch(() => queueCall(waiting.destination));
   }, [isOnline]);
 
@@ -414,15 +418,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const canRecommend = (item: CommunityItem | undefined): item is CommunityItem => {
     if (!item) return false;
     if (!canWrite) {
-      openAccess('Para recomendar o comentar necesitas entrar con tu código de usuario.');
+      openAccess(tr('Para recomendar o comentar necesitas entrar con tu código de usuario.'));
       return false;
     }
     if (item.isMine) {
-      setNotice('No puedes recomendar tu propia publicación.');
+      setNotice(tr('No puedes recomendar tu propia publicación.'));
       return false;
     }
     if (!navigator.onLine) {
-      setNotice('Necesitas internet para recomendar.');
+      setNotice(tr('Necesitas internet para recomendar.'));
       return false;
     }
     return true;
@@ -449,7 +453,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setVote(id, voted).catch((err) => {
       console.error('No se pudo guardar el voto:', err);
       applyVote(id, !voted);
-      setNotice('No se guardó tu Visto Bueno. Vuelve a intentar.');
+      setNotice(tr('No se guardó tu Visto Bueno. Vuelve a intentar.'));
     });
   };
 
@@ -457,7 +461,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const item = items.find((candidate) => candidate.id === itemId);
     if (!canRecommend(item)) return;
 
-    const authorName = reviewerName || 'Vecino de la zona';
+    const authorName = reviewerName || ANONYMOUS_REVIEWER;
     const optimisticReview: Review = {
       id: `pending-${Date.now()}`,
       authorName,
@@ -483,7 +487,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       await submitReview(itemId, authorName, comment, userLocation.lat, userLocation.lng);
     } catch (err) {
       console.error('No se pudo guardar la recomendación:', err);
-      setNotice('No se guardó tu recomendación. Vuelve a intentar.');
+      setNotice(tr('No se guardó tu recomendación. Vuelve a intentar.'));
     }
     await refreshItems();
   };
@@ -505,7 +509,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setPendingOfflineCount(getOfflineQueueCount());
     setItems((prev) => [newItem, ...prev]);
     tapFeedback();
-    setNotice(navigator.onLine ? 'Publicado' : 'Guardado. Se publicará cuando vuelva internet.');
+    setNotice(navigator.onLine ? tr('Publicado') : tr('Guardado. Se publicará cuando vuelva internet.'));
 
     await flushOfflineQueue();
     if (navigator.onLine) await refreshItems();
@@ -515,12 +519,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const previousStatus = items.find((item) => item.id === id)?.status;
     if (!previousStatus) return;
     if (!canWrite) {
-      openAccess('Para cambiar tu publicación necesitas entrar con tu código de usuario.');
+      openAccess(tr('Para cambiar tu publicación necesitas entrar con tu código de usuario.'));
       return;
     }
 
     if (!navigator.onLine) {
-      setNotice('Necesitas internet para avisar a tus vecinos.');
+      setNotice(tr('Necesitas internet para avisar a tus vecinos.'));
       return;
     }
 
@@ -533,7 +537,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setPostStatus(id, status).catch((err) => {
       console.error('No se pudo cambiar el estado:', err);
       applyStatus(previousStatus);
-      setNotice('No se pudo avisar. Vuelve a intentar.');
+      setNotice(tr('No se pudo avisar. Vuelve a intentar.'));
     });
   };
 
