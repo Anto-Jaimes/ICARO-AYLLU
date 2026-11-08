@@ -32,6 +32,9 @@ La aplicación integra fuentes oficiales del Perú y servicios abiertos, sin cos
 | **SENAMHI (avisos y GeoServer)** | `scripts/senamhi-relay.ts` | **Huaicos, lluvias y avisos:** Polígonos oficiales de quebradas en riesgo y avisos meteorológicos por departamento. |
 | **Open-Meteo** | `src/services/hazardService.ts` | **Pronóstico:** 3 días para el punto exacto del vecino. |
 | **Generador QR Yape / Plin Vecinal** | `src/services/paymentService.ts` | **Micro-pagos P2P:** Pagos directos entre vecinos sin comisiones bancarias escaneando el QR desde la ficha del oficio. |
+| **DIGEMID / MINSA (Observatorio)** | `src/services/pharmacyService.ts` | **Farmacias de Turno y Medicinas:** Boticas de guardia 24h y precios regulados de medicamentos esenciales básicos. |
+| **OSINERGMIN "Facilito"** | `src/services/gasService.ts` | **Balón de Gas GLP 10kg:** Precios oficiales, precinto formal y distribuidores locales para ahorro y contingencia. |
+| **Radio Nacional del Perú (IRTP)** | `src/services/emergencyRadioService.ts` | **Streaming Oficial de Emergencia:** Sintonización 1-toque en ultra-bajo ancho de banda para partes de INDECI y COEN durante cortes y sismos. |
 
 ---
 
