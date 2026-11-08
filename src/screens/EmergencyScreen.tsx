@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, Boxes, HandHeart, Phone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
+import { Activity, Boxes, HandHeart, HeartPulse, Phone, ShieldCheck, UsersRound, Waves, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { EmptyState, LoadingRow } from '../components/EmptyState';
@@ -7,6 +7,8 @@ import { CommunityItem, PostType } from '../types';
 import { describeDistance } from '../utils/geo';
 import { AcousticBeaconSheet } from '../components/AcousticBeaconSheet';
 import { RubbleRescueSheet } from '../components/RubbleRescueSheet';
+import { TriageSheet } from '../components/TriageSheet';
+import { SafePlacesSheet } from '../components/SafePlacesSheet';
 
 interface EmergencyView {
   type: PostType;
@@ -61,6 +63,8 @@ export const EmergencyScreen: React.FC = () => {
   const { verdict } = useHazards();
   const [isAcousticOpen, setIsAcousticOpen] = useState(false);
   const [isRubbleOpen, setIsRubbleOpen] = useState(false);
+  const [isTriageOpen, setIsTriageOpen] = useState(false);
+  const [isSafePlacesOpen, setIsSafePlacesOpen] = useState(false);
   const view = VIEWS[tab] ?? VIEWS.neighbors!;
 
   const posts = useMemo(() => {
@@ -129,6 +133,60 @@ export const EmergencyScreen: React.FC = () => {
         </button>
       </div>
 
+      {/* Banner de Triage START & QR Rescatistas */}
+      <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-rose-950 to-red-950 text-white rounded-2xl shadow-sm border border-red-900/60 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-red-950/80 text-red-400 flex items-center justify-center shrink-0 border border-red-800/60 shadow-inner">
+            <HeartPulse className="w-5 h-5 animate-pulse" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+              Triage START y QR Táctico
+              <span className="text-[10px] bg-red-900/80 text-red-300 px-1.5 py-0.5 rounded border border-red-700/60 font-bold uppercase">
+                Bomberos 116
+              </span>
+            </span>
+            <span className="block text-caption text-slate-300 truncate">
+              Clasifica víctimas y entrega informe en QR sin internet
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsTriageOpen(true)}
+          className="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
+        >
+          Abrir
+        </button>
+      </div>
+
+      {/* Banner de Puntos Seguros y Recursos de Supervivencia */}
+      <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-emerald-950 to-teal-950 text-white rounded-2xl shadow-sm border border-emerald-900/60 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-emerald-950/80 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-800/60 shadow-inner">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+              Puntos Seguros y Refugios
+              <span className="text-[10px] bg-emerald-900/80 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/60 font-bold uppercase">
+                Agua / Salud
+              </span>
+            </span>
+            <span className="block text-caption text-slate-300 truncate">
+              Hospitales, albergues y piletas de agua con OSM e INDECI
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsSafePlacesOpen(true)}
+          className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
+        >
+          Abrir
+        </button>
+      </div>
+
       <p className="px-4 pt-3 text-secondary font-bold">{verdict.title}</p>
       <h2 className="px-4 pt-3 pb-1 text-section font-bold">{view.heading}</h2>
 
@@ -156,6 +214,18 @@ export const EmergencyScreen: React.FC = () => {
       <RubbleRescueSheet
         open={isRubbleOpen}
         onClose={() => setIsRubbleOpen(false)}
+      />
+
+      {/* Sheet de Triage START & QR Rescatistas */}
+      <TriageSheet
+        open={isTriageOpen}
+        onClose={() => setIsTriageOpen(false)}
+      />
+
+      {/* Sheet de Puntos Seguros y Recursos */}
+      <SafePlacesSheet
+        open={isSafePlacesOpen}
+        onClose={() => setIsSafePlacesOpen(false)}
       />
     </div>
   );
