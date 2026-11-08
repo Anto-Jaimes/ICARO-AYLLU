@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useBackHandler } from '../hooks/useBackHandler';
-import { useT } from '../i18n/LanguageContext';
+import { languageJustChanged, useT } from '../i18n/LanguageContext';
 
 const CLOSE_MS = 200;
 const DISMISS_DISTANCE = 0.3; // of the sheet's height
@@ -20,6 +20,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose, title, 
   const dragStart = useRef<{ y: number; time: number } | null>(null);
   const [isRendered, setIsRendered] = useState(open);
   const [isClosing, setIsClosing] = useState(false);
+  // Open again only because the language changed: it is already on screen, so no slide.
+  const [isInPlace] = useState(() => open && languageJustChanged());
   const t = useT();
 
   useBackHandler(open, onClose);
@@ -86,6 +88,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({ open, onClose, title, 
       className="sheet"
       aria-label={t(title)}
       data-closing={isClosing ? '' : undefined}
+      data-in-place={isInPlace ? '' : undefined}
       onCancel={(event) => {
         event.preventDefault();
         onClose();

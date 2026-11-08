@@ -798,3 +798,9 @@
     overflow: visible;
   }
 }
+
+/* A sheet drawn again after a language change is already on screen: no slide, no fade. */
+.sheet[data-in-place][open]:not([data-closing]),
+.sheet[data-in-place]:not([data-closing])::backdrop {
+  animation: none;
+}

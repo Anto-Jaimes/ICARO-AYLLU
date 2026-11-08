@@ -45,6 +45,16 @@ const LanguageContext = createContext<LanguageValue>({
   t: (spanish, params) => translate('es', spanish, params)
 });
 
+let languageChangedAt = 0;
+
+/**
+ * True right after the neighbour picks another language. Every screen is drawn again then, and a sheet
+ * that was open should simply be there, not slide up as if it had just been opened.
+ */
+export function languageJustChanged(): boolean {
+  return Date.now() - languageChangedAt < 800;
+}
+
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [lang, setLangState] = useState<Lang>(readSavedLang);
 
@@ -56,6 +66,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const setLang = useCallback((next: Lang) => {
     // Code outside React reads the new language before anything re-renders.
     setCurrentLang(next);
+    languageChangedAt = Date.now();
     setLangState(next);
     try {
       localStorage.setItem(LANG_KEY, next);
