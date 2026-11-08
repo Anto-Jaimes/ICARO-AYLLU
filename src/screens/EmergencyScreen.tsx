@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, Boxes, HandHeart, HeartPulse, Phone, ShieldCheck, UsersRound, Waves, type LucideIcon } from 'lucide-react';
+import { Activity, Boxes, HandHeart, HeartPulse, Phone, ShieldCheck, TrafficCone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { EmptyState, LoadingRow } from '../components/EmptyState';
@@ -9,6 +9,7 @@ import { AcousticBeaconSheet } from '../components/AcousticBeaconSheet';
 import { RubbleRescueSheet } from '../components/RubbleRescueSheet';
 import { TriageSheet } from '../components/TriageSheet';
 import { SafePlacesSheet } from '../components/SafePlacesSheet';
+import { SutranAlertsSheet } from '../components/SutranAlertsSheet';
 import { useT } from '../i18n/LanguageContext';
 
 interface EmergencyView {
@@ -68,6 +69,7 @@ export const EmergencyScreen: React.FC = () => {
   const [isRubbleOpen, setIsRubbleOpen] = useState(false);
   const [isTriageOpen, setIsTriageOpen] = useState(false);
   const [isSafePlacesOpen, setIsSafePlacesOpen] = useState(false);
+  const [isSutranOpen, setIsSutranOpen] = useState(false);
   const view = VIEWS[tab] ?? VIEWS.neighbors!;
 
   const posts = useMemo(() => {
@@ -155,11 +157,11 @@ export const EmergencyScreen: React.FC = () => {
             <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
               {t('Puntos Seguros y Refugios')}
               <span className="text-[10px] bg-emerald-900/80 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/60 font-bold uppercase">
-                Agua / Salud
+                Agua / Salud / Tambos
               </span>
             </span>
             <span className="block text-caption text-slate-300 truncate">
-              {t('Hospitales, albergues y piletas de agua con OSM e INDECI')}
+              {t('Hospitales, postas RENAES, tambos MIDIS y agua potable')}
             </span>
           </div>
         </div>
@@ -167,6 +169,33 @@ export const EmergencyScreen: React.FC = () => {
           type="button"
           onClick={() => setIsSafePlacesOpen(true)}
           className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
+        >
+          {t('Abrir')}
+        </button>
+      </div>
+
+      {/* Banner de Estado de Carreteras (SUTRAN) */}
+      <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-amber-950 to-orange-950 text-white rounded-2xl shadow-sm border border-amber-900/60 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-amber-950/80 text-amber-400 flex items-center justify-center shrink-0 border border-amber-800/60 shadow-inner">
+            <TrafficCone className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+              {t('Estado de Carreteras')}
+              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
+                SUTRAN
+              </span>
+            </span>
+            <span className="block text-caption text-slate-300 truncate">
+              {t('Bloqueos, huaicos y rutas transitables en carreteras')}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsSutranOpen(true)}
+          className="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
         >
           {t('Abrir')}
         </button>
@@ -211,6 +240,12 @@ export const EmergencyScreen: React.FC = () => {
       <SafePlacesSheet
         open={isSafePlacesOpen}
         onClose={() => setIsSafePlacesOpen(false)}
+      />
+
+      {/* Sheet de Carreteras SUTRAN */}
+      <SutranAlertsSheet
+        open={isSutranOpen}
+        onClose={() => setIsSutranOpen(false)}
       />
     </div>
   );

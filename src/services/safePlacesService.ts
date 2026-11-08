@@ -1,13 +1,14 @@
 /**
  * Safe Places Service: Queries OpenStreetMap Overpass API for critical humanitarian infrastructure:
- * Hospitals, water points, shelters/assembly points, fire stations, and police.
+ * Hospitals, MINSA/RENAES health posts, water points, shelters/assembly points, Tambos comunales (MIDIS),
+ * fire stations, and police.
  * All results are automatically cached locally in LocalStorage for 100% offline access.
  */
 
 export interface SafePlace {
   id: string;
   name: string;
-  category: 'salud' | 'agua' | 'refugio' | 'bomberos' | 'policia';
+  category: 'salud' | 'agua' | 'refugio' | 'bomberos' | 'policia' | 'tambo';
   lat: number;
   lng: number;
   address?: string;
@@ -16,7 +17,7 @@ export interface SafePlace {
   distanceMeters?: number;
 }
 
-const CACHE_KEY = 'ayllu_safe_places_cache_v1';
+const CACHE_KEY = 'ayllu_safe_places_cache_v2';
 const CACHE_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 // Key emergency base points in Peru as offline fallback
@@ -32,7 +33,7 @@ const FALLBACK_SAFE_PLACES: SafePlace[] = [
   },
   {
     id: 'hospital-loayza',
-    name: 'Hospital Nacional Arzobispo Loayza (SAMU 106)',
+    name: 'Hospital Nacional Arzobispo Loayza (SAMU 106 / RENAES)',
     category: 'salud',
     lat: -12.0478,
     lng: -77.0422,
@@ -41,12 +42,21 @@ const FALLBACK_SAFE_PLACES: SafePlace[] = [
   },
   {
     id: 'hospital-rebagliati',
-    name: 'Hospital Nacional Edgardo Rebagliati Martins',
+    name: 'Hospital Nacional Edgardo Rebagliati Martins - EsSalud',
     category: 'salud',
     lat: -12.0782,
     lng: -77.0371,
     address: 'Av. Edgardo Rebagliati 490, Jesús María',
     phone: '01 2654901'
+  },
+  {
+    id: 'tambo-pais-midis-1',
+    name: 'Tambo Comunal Comunitario - Programa Nacional PAIS (MIDIS)',
+    category: 'tambo',
+    lat: -12.0580,
+    lng: -77.0380,
+    address: 'Plataforma Comunal con Internet Satelital y Energía Solar',
+    phone: '01 6409600'
   },
   {
     id: 'indeci-campo-marte',
@@ -58,18 +68,19 @@ const FALLBACK_SAFE_PLACES: SafePlace[] = [
   },
   {
     id: 'punto-agua-sedapal-1',
-    name: 'Punto de Distribución de Agua de Emergencia Sedapal',
+    name: 'Punto de Distribución de Agua de Emergencia Sedapal / Cisterna',
     category: 'agua',
-    lat: -12.0520,
-    lng: -77.0450,
-    address: 'Reservorio y pileta pública comunitaria'
+    lat: -12.052,
+    lng: -77.045,
+    address: 'Reservorio y pileta pública comunitaria',
+    phone: '01 3178000'
   },
   {
     id: 'comisaria-lima-central',
     name: 'Comisaría PNP Alfonso Ugarte - Central 105',
     category: 'policia',
-    lat: -12.0440,
-    lng: -77.0435,
+    lat: -12.0498,
+    lng: -77.0428,
     address: 'Av. Alfonso Ugarte, Lima',
     phone: '105'
   }
@@ -108,27 +119,30 @@ export function getCachedSafePlaces(userLat: number, userLng: number): SafePlace
 }
 
 function withDistances(places: SafePlace[], lat: number, lng: number): SafePlace[] {
-  return places.map((p) => ({
-    ...p,
-    distanceMeters: calculateDistance(lat, lng, p.lat, p.lng)
-  })).sort((a, b) => (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0));
+  return places
+    .map((p) => ({
+      ...p,
+      distanceMeters: calculateDistance(lat, lng, p.lat, p.lng)
+    }))
+    .sort((a, b) => (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0));
 }
 
 /**
- * Fetches emergency infrastructure from OpenStreetMap Overpass API within radiusMeters (default 4000m)
+ * Fetches emergency infrastructure from OpenStreetMap Overpass API within radiusMeters (default 5000m)
  */
-export async function fetchNearbySafePlaces(lat: number, lng: number, radiusMeters = 4000): Promise<SafePlace[]> {
+export async function fetchNearbySafePlaces(lat: number, lng: number, radiusMeters = 5000): Promise<SafePlace[]> {
   const overpassQuery = `
     [out:json][timeout:15];
     (
-      nwr["amenity"~"hospital|clinic|pharmacy"](around:${radiusMeters},${lat},${lng});
+      nwr["amenity"~"hospital|clinic|doctors|pharmacy"](around:${radiusMeters},${lat},${lng});
       nwr["amenity"="drinking_water"](around:${radiusMeters},${lat},${lng});
-      nwr["man_made"="water_well"](around:${radiusMeters},${lat},${lng});
+      nwr["man_made"~"water_well|water_tap"](around:${radiusMeters},${lat},${lng});
       nwr["emergency"~"shelter|disaster_help_point|assembly_point"](around:${radiusMeters},${lat},${lng});
+      nwr["amenity"~"community_centre|townhall"](around:${radiusMeters},${lat},${lng});
       nwr["amenity"="fire_station"](around:${radiusMeters},${lat},${lng});
       nwr["amenity"="police"](around:${radiusMeters},${lat},${lng});
     );
-    out center 40;
+    out center 50;
   `;
 
   try {
@@ -157,18 +171,21 @@ export async function fetchNearbySafePlaces(lat: number, lng: number, radiusMete
       let category: SafePlace['category'] = 'refugio';
       let defaultName = 'Punto de Emergencia';
 
-      if (tags.amenity === 'hospital' || tags.amenity === 'clinic' || tags.amenity === 'pharmacy') {
+      if (tags.amenity === 'hospital' || tags.amenity === 'clinic' || tags.amenity === 'doctors' || tags.amenity === 'pharmacy') {
         category = 'salud';
-        defaultName = tags.amenity === 'hospital' ? 'Hospital' : tags.amenity === 'clinic' ? 'Posta / Clínica' : 'Farmacia';
-      } else if (tags.amenity === 'drinking_water' || tags.man_made === 'water_well') {
+        defaultName = tags.amenity === 'hospital' ? 'Hospital MINSA / EsSalud' : tags.amenity === 'clinic' || tags.amenity === 'doctors' ? 'Posta de Salud (RENAES)' : 'Farmacia / Botiquín';
+      } else if (tags.amenity === 'drinking_water' || tags.man_made === 'water_well' || tags.man_made === 'water_tap') {
         category = 'agua';
         defaultName = 'Punto de Agua Potable';
       } else if (tags.amenity === 'fire_station') {
         category = 'bomberos';
-        defaultName = 'Compañía de Bomberos';
+        defaultName = 'Compañía de Bomberos 116';
       } else if (tags.amenity === 'police') {
         category = 'policia';
-        defaultName = 'Comisaría PNP';
+        defaultName = 'Comisaría PNP 105';
+      } else if (tags.amenity === 'community_centre' || tags.amenity === 'townhall') {
+        category = 'tambo';
+        defaultName = 'Tambo Comunal / Local Comunitario';
       } else if (tags.emergency === 'shelter' || tags.emergency === 'assembly_point' || tags.emergency === 'disaster_help_point') {
         category = 'refugio';
         defaultName = 'Zona Segura / Albergue INDECI';
