@@ -144,7 +144,7 @@ const Shell: React.FC = () => {
 
       <BottomSheet open={isExitOpen} onClose={() => setIsExitOpen(false)} title={t('¿Salir del modo emergencia?')}>
         <div className="px-4 space-y-2" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <p className="pb-2 text-secondary">{t('Volverás a ver los servicios y favores de tu barrio.')}</p>
+          <p className="pb-2 text-secondary">{t('Volverás a ver los servicios y donaciones de tu barrio.')}</p>
           <button
             type="button"
             className="btn btn-primary"

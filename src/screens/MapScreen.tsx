@@ -31,7 +31,7 @@ interface Layer {
 
 const NORMAL_LAYERS: Layer[] = [
   { id: 'services', label: 'Servicios', color: '#1e3f8f', types: ['service'] },
-  { id: 'favors', label: 'Favores', color: '#0b5a3c', types: ['favor_offer', 'favor_request'] }
+  { id: 'favors', label: 'Donaciones', color: '#0b5a3c', types: ['favor_offer', 'favor_request'] }
 ];
 
 const EMERGENCY_LAYERS: Layer[] = [

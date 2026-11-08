@@ -126,7 +126,7 @@ const Mural: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
         <MuralSection title="Pedidos y ofertas de ayuda" items={emergencies} />
         <MuralSection title="Oficios recomendados por vecinos" items={services} showVotes />
-        <MuralSection title="Préstamos y favores" items={favors} />
+        <MuralSection title={t('Donaciones')} items={favors} />
 
         <p className="pt-3 border-t border-line text-secondary text-ink-2 text-center">
           {t('La verdadera riqueza del barrio es la ayuda entre vecinos.')}

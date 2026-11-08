@@ -49,8 +49,8 @@ export const tr = (spanish: string, params?: TextParams): string => translate(cu
 
 // The bottom bar gives each tab a fifth of the phone: these words do not fit, so the bar uses a shorter one.
 const SHORT_LABELS: Partial<Record<Lang, Record<string, string>>> = {
-  qu: { Servicios: "Llamk'ay", Vecinos: 'Llaqtamasi' },
-  ay: { Favores: 'Ayninaka', Vecinos: "Jak'a jaqi" }
+  qu: { Servicios: "Llamk'ay", Vecinos: 'Llaqtamasi', Donaciones: 'Quykuy' },
+  ay: { Donaciones: "Waxt'a", Vecinos: "Jak'a jaqi" }
 };
 
 /** The text for a tight place (the bottom bar): a shorter word when the usual one does not fit. */

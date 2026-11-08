@@ -8,6 +8,7 @@ import { loadContact, saveContact } from '../utils/storage';
 import { MAX_POST_PHOTOS, uploadPostPhoto } from '../services/postPhotos';
 import { BottomSheet } from './BottomSheet';
 import { useT } from '../i18n/LanguageContext';
+import { placeLabel } from '../services/geoService';
 
 const PRICE_BY_TYPE: Record<string, string> = { service: 'Conversar con el vecino' };
 
@@ -85,7 +86,7 @@ export const PublishSheet: React.FC = () => {
     const finalTitle = title.trim() || choice?.title.trim() || '';
     if (!choice || !finalTitle || (needsPlace && !place.trim())) return;
     if (photos.length > 0 && !navigator.onLine) {
-      setProblem('Las fotos necesitan internet. Quítalas para publicar ahora, o espera a tener señal.');
+      setProblem(t('Las fotos necesitan internet. Quítalas para publicar ahora, o espera a tener señal.'));
       return;
     }
 
@@ -96,7 +97,7 @@ export const PublishSheet: React.FC = () => {
       try {
         photoPaths = await Promise.all(photos.map(uploadPostPhoto));
       } catch {
-        setProblem('No se pudieron subir las fotos. Revisa tu internet y vuelve a intentar.');
+        setProblem(t('No se pudieron subir las fotos. Revisa tu internet y vuelve a intentar.'));
         return;
       } finally {
         setIsUploading(false);
@@ -207,7 +208,7 @@ export const PublishSheet: React.FC = () => {
               maxLength={160}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder={isService ? choice.title || 'Ej.: Pollería Don Lucho' : isGiving ? t('Ej.: Casaca de niño talla 8') : undefined}
+              placeholder={isService ? (choice.title ? t(choice.title) : t('Ej.: Pollería Don Lucho')) : isGiving ? t('Ej.: Casaca de niño talla 8') : undefined}
               className="field"
             />
           </div>
@@ -224,7 +225,7 @@ export const PublishSheet: React.FC = () => {
               onChange={(event) => setDetails(event.target.value)}
               placeholder={
                 isService
-                  ? OFFER_HINTS[choice.category] ?? 'Qué haces, horario, cómo te contactan...'
+                  ? t(OFFER_HINTS[choice.category] ?? 'Qué haces, horario, cómo te contactan...')
                   : isGiving
                     ? t('Estado, talla, cantidad, cuándo se puede recoger...')
                     : isAsking
@@ -279,7 +280,7 @@ export const PublishSheet: React.FC = () => {
                   maxLength={120}
                   value={price}
                   onChange={(event) => setPrice(event.target.value)}
-                  placeholder="Desde S/ 10"
+                  placeholder={t('Desde S/ 10')}
                   className="field"
                 />
               </div>
@@ -299,16 +300,16 @@ export const PublishSheet: React.FC = () => {
 
           {allowsPhotos && (
             <div>
-              <p className="pb-1 text-secondary font-bold">{t('Fotos')} ({photos.length} de {MAX_POST_PHOTOS})</p>
+              <p className="pb-1 text-secondary font-bold">{t('Fotos ({count} de {max})', { count: photos.length, max: MAX_POST_PHOTOS })}</p>
               <div className="flex flex-wrap gap-2">
                 {photos.map((photo, index) => (
                   <div key={`${photo.name}-${index}`} className="relative">
-                    <img src={URL.createObjectURL(photo)} alt={`Foto ${index + 1}`} className="w-20 h-20 rounded-lg object-cover bg-sunken" />
+                    <img src={URL.createObjectURL(photo)} alt={t('Foto {number}', { number: index + 1 })} className="w-20 h-20 rounded-lg object-cover bg-sunken" />
                     <button
                       type="button"
                       onClick={() => setPhotos((current) => current.filter((_, at) => at !== index))}
                       className="absolute -top-2 -right-2 grid place-items-center w-8 h-8 rounded-full bg-ink text-white"
-                      aria-label={`Quitar la foto ${index + 1}`}
+                      aria-label={t('Quitar la foto {number}', { number: index + 1 })}
                     >
                       <X className="w-4 h-4" aria-hidden="true" />
                     </button>
@@ -317,7 +318,7 @@ export const PublishSheet: React.FC = () => {
                 {photos.length < MAX_POST_PHOTOS && (
                   <label className="grid place-items-center w-20 h-20 rounded-lg border-2 border-dashed border-line text-anil cursor-pointer">
                     <ImagePlus className="w-7 h-7" aria-hidden="true" />
-                    <span className="sr-only">Agregar fotos</span>
+                    <span className="sr-only">{t('Agregar fotos')}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -384,7 +385,7 @@ export const PublishSheet: React.FC = () => {
           ) : (
             <p className="flex items-center gap-2 text-secondary text-ink-2">
               <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
-              <span className="min-w-0 truncate">{userLocation.name}</span>
+              <span className="min-w-0 truncate">{placeLabel(userLocation.name)}</span>
             </p>
           )}
         </form>

@@ -34,15 +34,15 @@ export const AudioGuideButton: React.FC<AudioGuideButtonProps> = ({ className = 
       return t('Oficios de tu barrio. Aquí encuentras gasfitería, electricidad, cerrajería y más, recomendados por tus propios vecinos. Toca un servicio para ver cómo contactarlo.');
     }
     if (tab === 'favors') {
-      return t('Favores entre vecinos. Aquí los vecinos prestan herramientas como taladros o escaleras, y ofrecen ayuda sin cobrar. Toca un favor para coordinar.');
+      return t('Donaciones entre vecinos. Aquí los vecinos regalan lo que ya no usan, como ropa, muebles o útiles, y las familias u organizaciones piden lo que necesitan. Toca una donación para coordinar.');
     }
     if (tab === 'map') {
-      return t('Mapa de tu zona. Los círculos de colores muestran los oficios, los favores y los puntos de emergencia cerca de ti.');
+      return t('Mapa de tu zona. Los círculos de colores muestran los oficios, las donaciones y los puntos de emergencia cerca de ti.');
     }
     const count = items.filter((item) => item.type === 'service' || item.type === 'favor_offer').length;
     return hasLocation
-      ? t('Bienvenido a AYLLU, tu red de vecinos. Estás en {place}. Hay {count} oficios y favores cerca de ti. Abajo tienes el botón rojo S.O.S. para emergencias, que funciona sin internet ni saldo, y el botón azul para publicar.', { place: placeLabel(userLocation.name), count })
-      : t('Bienvenido a AYLLU, tu red de vecinos. Hay {count} oficios y favores cerca de ti. Abajo tienes el botón rojo S.O.S. para emergencias, que funciona sin internet ni saldo, y el botón azul para publicar.', { count });
+      ? t('Bienvenido a AYLLU, tu red de vecinos. Estás en {place}. Hay {count} oficios y donaciones cerca de ti. Abajo tienes el botón rojo S.O.S. para emergencias, que funciona sin internet ni saldo, y el botón azul para publicar.', { place: placeLabel(userLocation.name), count })
+      : t('Bienvenido a AYLLU, tu red de vecinos. Hay {count} oficios y donaciones cerca de ti. Abajo tienes el botón rojo S.O.S. para emergencias, que funciona sin internet ni saldo, y el botón azul para publicar.', { count });
   };
 
   const toggle = () => {

@@ -1,0 +1,96 @@
+import type { Entries } from './entries';
+
+/**
+ * Donations (they replaced "favores"), the publish form and reporting a post. Quechua and Aymara are a
+ * careful draft: a native speaker should check them, as the rest of the app (see the team's notes).
+ */
+export const DONATIONS: Entries = {
+  // Donations screen (screens/FavorsScreen.tsx)
+  "Donaciones": ["Donations", "Quykuykuna", "Waxt'awinaka"],
+  "Regalan": ["Giving away", "Quykunku", "Waxt'apxi"],
+  "Piden": ["Asking", "Mañakunku", "Mayipxi"],
+  "Donar algo": ["Donate something", "Imallatapas quykuy", "Kunsa waxt'aña"],
+  "Pedir una donación": ["Ask for a donation", "Quykuyta mañakuy", "Waxt'a mayiña"],
+  "Qué quieres ver": ["What to show", "Imatataq qhawayta munanki", "Kunsa uñjañ munta"],
+  "Filtrar donaciones": ["Filter donations", "Quykuykunata akllay", "Waxt'awinak ajlliña"],
+  "Buscando donaciones...": ["Looking for donations...", "Quykuykunata maskachkan...", "Waxt'awinak thaqhaski..."],
+  "Todavía no hay donaciones aquí": ["No donations here yet", "Manaraqmi kaypi quykuykuna kanchu", "Janiw akan waxt'awinakax utjkiti"],
+  "Toca \"Donar algo\" para regalar lo que ya no usas.": ["Tap \"Donate something\" to give away what you no longer use.", "\"Imallatapas quykuy\" ñit'iy mana ñam llamk'achisqaykita quykunaykipaq.", "\"Kunsa waxt'aña\" ch'iqt'am jan apnaqkta ukanak waxt'añataki."],
+  "Toca \"Pedir una donación\" si tu familia u organización necesita algo.": ["Tap \"Ask for a donation\" if your family or organisation needs something.", "\"Quykuyta mañakuy\" ñit'iy aylluykipaq utaq huñunakuykipaq imapas pisiptinqa.", "\"Waxt'a mayiña\" ch'iqt'am wila masimax jan ukax tamamax kunsa munaspa ukhaxa."],
+  "Regala lo que ya no usas, o pide para tu familia, comedor, olla común o albergue. Sin dinero: coordinan por WhatsApp o llamada.": ["Give away what you no longer use, or ask for your family, soup kitchen, community pot or shelter. No money: arrange it by WhatsApp or a call.", "Mana ñam llamk'achisqaykita quykuy, utaq aylluykipaq, comedorpaq, olla comúnpaq utaq alberguepaq mañakuy. Mana qullqiyuq: WhatsAppwan utaq waqyaywan rimanakunku.", "Jan apnaqkta ukanak waxt'am, jan ukax wila masimataki, comedoritaki, olla comúnataki jan ukax albergueataki mayim. Jan qullqimpi: WhatsApp jan ukax jawsañampi arust'asipxi."],
+
+  // What is given (data/categories.ts)
+  "Ropa y zapatos": ["Clothes and shoes", "P'acha, sapatukunapas", "Isi, wiskhanakampi"],
+  "Alimentos": ["Food", "Mikhunakuna", "Manq'anaka"],
+  "Muebles": ["Furniture", "Mueblekuna", "Mueblenaka"],
+  "Electrodomésticos": ["Appliances", "Electrodomésticokuna", "Electrodomésticonaka"],
+  "Útiles escolares": ["School supplies", "Yachaywasipaq imakuna", "Yatiqañ yänaka"],
+  "Juguetes": ["Toys", "Pukllanakuna", "Anatañanaka"],
+  "Libros": ["Books", "Liwrukuna", "Pankanaka"],
+  "Para bebés": ["For babies", "Wawakunapaq", "Asu wawanakataki"],
+  "Otras cosas": ["Other things", "Huk imakuna", "Yaqha yänaka"],
+  "Ropa y frazadas": ["Clothes and blankets", "P'acha, qatakunapas", "Isi, ikiñanakampi"],
+  "Otra cosa": ["Something else", "Huk ima", "Yaqha yä"],
+  "Dono o regalo": ["I donate or give away", "Quykuni", "Waxt'ta"],
+  "Pido una donación": ["I ask for a donation", "Quykuyta mañakuni", "Waxt'a mayta"],
+  "Necesitamos alimentos": ["We need food", "Mikhunakunatam munayku", "Manq'anak munapxta"],
+  "Necesitamos ropa y frazadas": ["We need clothes and blankets", "P'achakunata qatakunatam munayku", "Isinaka ikiñanak munapxta"],
+  "Necesitamos útiles escolares": ["We need school supplies", "Yachaywasipaq imakunatam munayku", "Yatiqañ yänak munapxta"],
+
+  // Publish form (components/PublishSheet.tsx)
+  "¿Qué regalas?": ["What are you giving away?", "¿Imatataq quykunki?", "¿Kunsa waxt'ta?"],
+  "¿Qué se necesita?": ["What is needed?", "¿Imataq pisichkan?", "¿Kunasa munasi?"],
+  "Ej.: Casaca de niño talla 8": ["E.g.: child's jacket, size 8", "Ahinataq: wawapaq casaca, talla 8", "Akhama: wawan casacapa, talla 8"],
+  "Descripción": ["Description", "Willakuy", "Qhanañchawi"],
+  "Estado, talla, cantidad, cuándo se puede recoger...": ["Condition, size, quantity, when it can be picked up...", "Imayna kasqan, talla, hayka, hayk'aq apakunapaq...", "Kunjamäkis, talla, qhawqhas, kunapachas apasispa..."],
+  "Para qué es, para cuántas personas, hasta cuándo...": ["What it is for, for how many people, until when...", "Imapaq, hayka runapaq, hayk'aqkama...", "Kunatakisa, qhawqha jaqitakisa, kunapachkamasa..."],
+  "¿Dónde se recoge?": ["Where to pick it up?", "¿Maypitaq hap'ikunqa?", "¿Kawkinsa apaqasispa?"],
+  "¿Dónde se entrega?": ["Where to deliver it?", "¿Maymantaq apakunqa?", "¿Kawkirusa churasispa?"],
+  "¿Para quién?": ["For whom?", "¿Pipaqtaq?", "¿Khititakisa?"],
+  "¿Quién lo pide?": ["Who is asking?", "¿Pitaq mañakun?", "¿Khitis mayi?"],
+  "Cualquier vecino": ["Any neighbour", "Mayqan llaqtamasipas", "Kuna jak'a jaqis"],
+  "Un vecino": ["A neighbour", "Huk llaqtamasi", "Mä jak'a jaqi"],
+  "Una organización": ["An organisation", "Huk huñunakuy", "Mä tama"],
+  "Organización: comedor, olla común, albergue, parroquia...": ["Organisation: soup kitchen, community pot, shelter, parish...", "Huñunakuy: comedor, olla común, albergue, parroquia...", "Tama: comedor, olla común, albergue, parroquia..."],
+  "Qué tipo de cosa": ["What kind of thing", "Ima laya", "Kuna kasta"],
+  "Muestra cómo está lo que regalas o lo que se necesita. Se achican para gastar pocos datos.": ["Show the condition of what you give or what is needed. Photos are made smaller to use little data.", "Quykusqaykita utaq pisichkanta qhawachiy. Huch'uyachikunmi pisi datosta tukunanpaq.", "Waxt'kta jan ukax munaski ukanak uñacht'ayam. Jisk'achatawa jisk'a datos tukuyañataki."],
+  "Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.": ["Show your work, your food or your shop. Photos are made smaller to use little data.", "Llamk'ayniykita, mikhunaykita utaq tiendaykita qhawachiy. Huch'uyachikunmi pisi datosta tukunanpaq.", "Lurawima, manq'ama jan ukax tiendama uñacht'ayam. Jisk'achatawa jisk'a datos tukuyañataki."],
+  "Las fotos necesitan internet. Quítalas para publicar ahora, o espera a tener señal.": ["Photos need internet. Remove them to post now, or wait for signal.", "Fotokunaqa internetta munanku. Kunanpacha willakunaykipaq urquy, utaq señal kanankama suyay.", "Fotonakax internet munapxi. Jichha yatiyañatakix apsum, jan ukax señal utjañkama suyam."],
+  "No se pudieron subir las fotos. Revisa tu internet y vuelve a intentar.": ["The photos couldn't be uploaded. Check your internet and try again.", "Fotokunata manam wichachiyta atikurqanchu. Internetniykita qhaway, hinaspa kaqmanta ruway.", "Fotonakax janiw makhatayatäkiti. Internetma uñakipam, mayamp yant'am."],
+  "Ej.: Pollería Don Lucho": ["E.g.: Don Lucho's chicken shop", "Ahinataq: Pollería Don Lucho", "Akhama: Pollería Don Lucho"],
+  "Qué haces, horario, cómo te contactan...": ["What you do, opening hours, how to reach you...", "Imatam ruranki, ura, imaynatam tarisunkiman...", "Kunsa lurta, pacha, kunjamas jikxatapxätam..."],
+  "Platos del día, horario, si haces delivery...": ["Dishes of the day, opening hours, whether you deliver...", "P'unchawpa mikhunakuna, ura, wasikama apankichu...", "Uru manq'anaka, pacha, utar apasmati..."],
+  "Pollo entero, 1/4 con papas, horario, delivery...": ["Whole chicken, 1/4 with fries, opening hours, delivery...", "Llapan wallpa, 1/4 papawan, ura, wasikama apay...", "Taqpach wallpa, 1/4 ch'uqimpi, pacha, utar apaña..."],
+  "Tortas, postres, por pedido, sabores...": ["Cakes, desserts, to order, flavours...", "Tortakuna, misk'ikuna, mañakusqaman hina, sabores...", "Tortanaka, muxsanaka, mayiwirjama, sabores..."],
+  "Menú, carta, horario, si atiendes en el local...": ["Set menu, à la carte, opening hours, whether you serve on site...", "Menú, carta, ura, wasiykipi qaranki...", "Menú, carta, pacha, utaman manq'ayasmati..."],
+  "Qué vendes, horario, si recargas celulares...": ["What you sell, opening hours, whether you top up phones...", "Imatam qhatunki, ura, celular recargata ruranki...", "Kunsa aljta, pacha, celular recargas lurtati..."],
+  "Qué plataformas, por cuánto tiempo, cómo se paga...": ["Which platforms, for how long, how to pay...", "Ima plataformakuna, hayk'aqkama, imaynatam pagakun...", "Kuna plataformanaka, kunapachkama, kunjamas payllasi..."],
+  "Desde S/ 10": ["From S/ 10", "S/ 10-manta", "S/ 10-ta"],
+  "Fotos ({count} de {max})": ["Photos ({count} of {max})", "Fotokuna ({max}-manta {count})", "Fotonaka ({max}-ta {count})"],
+  "Foto {number}": ["Photo {number}", "Foto {number}", "Foto {number}"],
+  "Foto {number} de {title}": ["Photo {number} of {title}", "{title}-pa {number} fotonta", "{title} ukan {number} fotopa"],
+  "Quitar la foto {number}": ["Remove photo {number}", "{number} fotota urquy", "{number} foto apsuña"],
+  "Agregar fotos": ["Add photos", "Fotokunata yapay", "Fotonak yapxataña"],
+
+  // A donation in detail and in lists (PostSheet, PostRow)
+  "Para una organización (comedor, olla común, albergue)": ["For an organisation (soup kitchen, community pot, shelter)", "Huk huñunakuypaq (comedor, olla común, albergue)", "Mä tamataki (comedor, olla común, albergue)"],
+  "Para cualquier vecino": ["For any neighbour", "Mayqan llaqtamasipaqpas", "Kuna jak'a jaqitakis"],
+  "Lo pide una organización": ["Asked by an organisation", "Huk huñunakuymi mañakun", "Mä tamaw mayi"],
+  "Lo pide un vecino": ["Asked by a neighbour", "Huk llaqtamasim mañakun", "Mä jak'a jaqiw mayi"],
+  "Para denunciar una publicación necesitas entrar con tu código de usuario.": ["To report a post, sign in with your user code.", "Huk willakuyta willanakunaykipaqqa kodigoykiwan yaykunaykim tiyan.", "Mä yatiyawi qhanstañatakix codigomampiw mantañama."],
+  "Ya se entregó": ["Already delivered", "Quykunñam", "Churatäxiwa"],
+  "Ya los ayudaron": ["Already helped", "Yanapasqañam", "Yanapatäxapxiwa"],
+  "Sigue disponible": ["Still available", "Kachkanraqmi", "Utjaskiwa"],
+  "Ya lo entregué": ["I delivered it", "Quykunim", "Churtwa"],
+  "Ya nos ayudaron": ["We got help", "Yanapawarqankuñam", "Yanapapxistuwa"],
+  "Para organizaciones": ["For organisations", "Huñunakuykunapaq", "Tamanakataki"],
+  "Pide una organización": ["An organisation is asking", "Huk huñunakuy mañakun", "Mä tama mayi"],
+
+  // Texts that spoke of favours (App, AudioGuideButton, HelpSheets)
+  "Volverás a ver los servicios y donaciones de tu barrio.": ["You will see your neighbourhood's services and donations again.", "Llaqtaykipa llamk'aykunata quykuykunatapas kaqmanta qhawanki.", "Markaman luräwinaka waxt'awinakampi mayamp uñjäta."],
+  "Busca servicios que otros vecinos recomiendan, y regala o pide donaciones sin dinero.": ["Find services other neighbours recommend, and give or ask for donations without money.", "Llaqtamasikunap allin nisqan llamk'aykunata maskay, quykuykunatapas quykuy utaq mañakuy mana qullqiwan.", "Jak'a jaqinakan aski luräwinakap thaqham, waxt'awinak churam jan ukax mayim jan qullqimpi."],
+  "Donaciones entre vecinos. Aquí los vecinos regalan lo que ya no usan, como ropa, muebles o útiles, y las familias u organizaciones piden lo que necesitan. Toca una donación para coordinar.": ["Donations between neighbours. Here neighbours give away what they no longer use, like clothes, furniture or school supplies, and families or organisations ask for what they need. Tap a donation to arrange it.", "Llaqtamasikunapura quykuykuna. Kaypi llaqtamasikuna mana ñam llamk'achisqankuta quykunku, p'achata, mueblekunata utaq yachaywasipaq imakunata, aylluykuna utaq huñunakuykuna pisisqankuta mañakunku. Huk quykuyta ñit'iy rimanakunaykipaq.", "Jak'a jaqinak taypin waxt'awinaka. Akan jak'a jaqinakax jan apnaqapki ukanak waxt'apxi, isinaka, mueblenaka jan ukax yatiqañ yänaka, wila masinaka jan ukax tamanakax munapki ukanak mayipxi. Mä waxt'a ch'iqt'am arust'asiñataki."],
+  "Mapa de tu zona. Los círculos de colores muestran los oficios, las donaciones y los puntos de emergencia cerca de ti.": ["Map of your area. The coloured circles show trades, donations and emergency points near you.", "K'itiykipa mapan. Llimp'iyuq muyukuna qayllaykipi llamk'aykunata, quykuykunata, emergencia kaqkunatapas rikuchinku.", "Markaman mapapa. Saminakan muyunakax jak'aman luräwinaka, waxt'awinaka, emergencia chiqanakap uñacht'ayi."],
+  "Bienvenido a AYLLU, tu red de vecinos. Estás en {place}. Hay {count} oficios y donaciones cerca de ti. Abajo tienes el botón rojo S.O.S. para emergencias, que funciona sin internet ni saldo, y el botón azul para publicar.": ["Welcome to AYLLU, your neighbour network. You're in {place}. There are {count} trades and donations near you. At the bottom you have the red S.O.S. button for emergencies, which works without internet or credit, and the blue button to post.", "Allin hamusqayki AYLLUman, llaqtamasikunapa llikanman. {place} nisqapim kachkanki. Qayllaykipi {count} llamk'aykuna quykuykunapas kan. Uranpim kachkan puka S.O.S. boton emergenciapaq, mana internetwan nitaq saldowan llamk'aq, anqas botonpas willanapaq.", "Aski jutawi AYLLUru, jak'a jaqinakan llikapa. {place} ukankasktawa. Jak'amanx {count} luräwinaka waxt'awinakampi utji. Aynachanx wila S.O.S. botón emergenciataki utji, jan internet ni saldompi irnaqi, ukat larama botón yatiyañataki."],
+  "Bienvenido a AYLLU, tu red de vecinos. Hay {count} oficios y donaciones cerca de ti. Abajo tienes el botón rojo S.O.S. para emergencias, que funciona sin internet ni saldo, y el botón azul para publicar.": ["Welcome to AYLLU, your neighbour network. There are {count} trades and donations near you. At the bottom you have the red S.O.S. button for emergencies, which works without internet or credit, and the blue button to post.", "Allin hamusqayki AYLLUman, llaqtamasikunapa llikanman. Qayllaykipi {count} llamk'aykuna quykuykunapas kan. Uranpim kachkan puka S.O.S. boton emergenciapaq, mana internetwan nitaq saldowan llamk'aq, anqas botonpas willanapaq.", "Aski jutawi AYLLUru, jak'a jaqinakan llikapa. Jak'amanx {count} luräwinaka waxt'awinakampi utji. Aynachanx wila S.O.S. botón emergenciataki utji, jan internet ni saldompi irnaqi, ukat larama botón yatiyañataki."]
+};

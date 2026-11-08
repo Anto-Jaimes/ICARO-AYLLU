@@ -1,31 +1,37 @@
-import React, { ReactNode } from 'react';
-import { ArrowLeft, CircleHelp } from 'lucide-react';
+import React, { ReactNode, useState } from 'react';
+import { ArrowLeft, CircleHelp, Languages } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { AudioGuideButton } from './AudioGuideButton';
-import { useLanguage, useT } from '../i18n/LanguageContext';
+import { LANGUAGES, useLanguage, useT } from '../i18n/LanguageContext';
+import { BottomSheet } from './BottomSheet';
+import { LanguagePicker } from './LanguagePicker';
 
+/**
+ * Quick access to the language from the top bar. Four tiny buttons did not fit a finger (25 x 19 px,
+ * 11 px letters): one button of the usual size opens the picker with the four languages instead.
+ */
 export const TopBarLanguageSelector: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const { lang, setLang, t } = useLanguage();
+  const { lang, t } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
+  const current = LANGUAGES.find((option) => option.id === lang)?.name ?? '';
+
   return (
-    <div
-      className={`inline-flex items-center rounded-md bg-sunken p-0.5 border border-line text-xs font-bold shrink-0 ${className}`}
-      role="group"
-      aria-label={t('Idioma')}
-    >
-      {(['es', 'qu', 'ay', 'en'] as const).map((l) => (
-        <button
-          key={l}
-          type="button"
-          onClick={() => setLang(l)}
-          className={`px-1.5 py-0.5 rounded text-[11px] font-bold uppercase transition-colors ${
-            lang === l ? 'bg-anil text-white shadow-xs' : 'text-ink-2 hover:text-ink'
-          }`}
-          aria-pressed={lang === l}
-        >
-          {l}
-        </button>
-      ))}
-    </div>
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className={`icon-btn w-auto min-w-12 px-2 gap-1 text-meta font-bold uppercase shrink-0 ${className}`}
+        aria-label={`${t('Idioma')}: ${current}`}
+      >
+        <Languages className="w-5 h-5" aria-hidden="true" />
+        {lang}
+      </button>
+      <BottomSheet open={isOpen} onClose={() => setIsOpen(false)} title={t('Idioma')}>
+        <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
+          <LanguagePicker />
+        </div>
+      </BottomSheet>
+    </>
   );
 };
 

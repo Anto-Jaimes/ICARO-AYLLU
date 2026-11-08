@@ -3,6 +3,7 @@ import { EMERGENCY_TOOLS } from './dict/emergencyTools';
 import type { Entries } from './dict/entries';
 import { MAP_ALERTS } from './dict/mapAlerts';
 import { SOS_REPORTS } from './dict/sosReports';
+import { DONATIONS } from './dict/donations';
 
 /**
  * Translations, keyed by the Spanish text. Anything missing stays in Spanish, so a screen never shows a
@@ -1071,7 +1072,7 @@ export const STRINGS: Record<TranslatedLang, Record<string, string>> = {
 }
 };
 
-const MORE: Entries[] = [CORE, EMERGENCY_TOOLS, SOS_REPORTS, MAP_ALERTS];
+const MORE: Entries[] = [CORE, EMERGENCY_TOOLS, SOS_REPORTS, MAP_ALERTS, DONATIONS];
 for (const entries of MORE) {
   for (const [spanish, [en, qu, ay]] of Object.entries(entries)) {
     STRINGS.en[spanish] = en;

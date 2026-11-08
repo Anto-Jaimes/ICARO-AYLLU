@@ -129,7 +129,7 @@ export const PostSheet: React.FC = () => {
               <a href={postPhotoUrl(path)} target="_blank" rel="noreferrer" aria-label={t('Foto {number}', { number: index + 1 })}>
                 <img
                   src={postPhotoUrl(path)}
-                  alt={t('Foto {number}', { number: index + 1 })}
+                  alt={t('Foto {number} de {title}', { number: index + 1, title: item.title })}
                   className={`${item.photos!.length === 1 ? 'w-[calc(100vw-2rem)] max-w-xl' : 'w-64'} h-48 rounded-xl object-cover bg-sunken`}
                 />
               </a>

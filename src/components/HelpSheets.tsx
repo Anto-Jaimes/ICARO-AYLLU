@@ -25,7 +25,7 @@ const SLIDES: Slide[] = [
   {
     icon: Store,
     title: 'Encuentra y ayuda a tus vecinos',
-    text: 'Busca servicios que otros vecinos recomiendan, y presta o pide favores sin dinero.'
+    text: 'Busca servicios que otros vecinos recomiendan, y regala o pide donaciones sin dinero.'
   },
   {
     icon: Plus,
