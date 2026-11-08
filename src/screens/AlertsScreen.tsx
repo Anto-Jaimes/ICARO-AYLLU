@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CircleHelp, ShieldAlert, Waves, TrafficCone, Compass } from 'lucide-react';
+import { ChevronRight, CircleHelp, ShieldAlert, Waves, TrafficCone, Compass } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { PERU_DEPARTMENTS } from '../data/departments';
@@ -18,7 +18,7 @@ import {
 import { formatDayRange, formatRelativeTime } from '../utils/time';
 import { useT } from '../i18n/LanguageContext';
 import { evaluateTsunamiRisk } from '../services/tsunamiService';
-import { SutranAlertsSheet } from '../components/SutranAlertsSheet';
+import { RoadsSheet } from '../components/RoadsSheet';
 
 const LEVEL_NAMES: Record<number, NoticeLevel> = { 2: 'amarillo', 3: 'naranja', 4: 'rojo' };
 const ZONE_TITLES: Record<HazardZone['kind'], string> = {
@@ -100,29 +100,15 @@ export const AlertsScreen: React.FC = () => {
           </select>
         </div>
 
-        {/* Banner SUTRAN Carreteras */}
-        <div className="mx-4 mt-3 p-3 bg-surface border border-line rounded-2xl flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2.5 min-w-0 pr-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20">
-              <TrafficCone className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <span className="block text-secondary font-bold text-ink">
-                {t('Estado de Carreteras (SUTRAN)')}
-              </span>
-              <span className="block text-caption text-ink-secondary truncate">
-                {t('Cortes de vías por huaicos, desbordes y tránsito libre')}
-              </span>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsSutranOpen(true)}
-            className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-xl shrink-0 shadow-xs"
-          >
-            {t('Consultar')}
-          </button>
-        </div>
+        {/* National roads closed or restricted, from the MTC */}
+        <button type="button" className="row mt-3 border-y border-line" onClick={() => setIsSutranOpen(true)}>
+          <TrafficCone className="w-6 h-6 shrink-0 text-naranja" aria-hidden="true" />
+          <span className="flex-1 min-w-0">
+            <span className="block text-row font-semibold">{t('Carreteras')}</span>
+            <span className="block text-secondary text-ink-2">{t('Vías cerradas o con paso restringido, según el MTC')}</span>
+          </span>
+          <ChevronRight className="w-5 h-5 shrink-0 text-ink-2" aria-hidden="true" />
+        </button>
 
         {!departmentId && ownSavedAt && (
           <p role="status" className="mx-4 mt-3 p-3 rounded-lg bg-offline text-white text-secondary">
@@ -276,7 +262,7 @@ export const AlertsScreen: React.FC = () => {
         )}
       </div>
 
-      <SutranAlertsSheet
+      <RoadsSheet
         open={isSutranOpen}
         onClose={() => setIsSutranOpen(false)}
       />

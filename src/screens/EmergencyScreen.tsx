@@ -9,7 +9,7 @@ import { AcousticBeaconSheet } from '../components/AcousticBeaconSheet';
 import { RubbleRescueSheet } from '../components/RubbleRescueSheet';
 import { TriageSheet } from '../components/TriageSheet';
 import { SafePlacesSheet } from '../components/SafePlacesSheet';
-import { SutranAlertsSheet } from '../components/SutranAlertsSheet';
+import { RoadsSheet } from '../components/RoadsSheet';
 import { TacticalPanicSheet } from '../components/TacticalPanicSheet';
 import { PharmacySheet } from '../components/PharmacySheet';
 import { GasFacilitoSheet } from '../components/GasFacilitoSheet';
@@ -226,13 +226,13 @@ export const EmergencyScreen: React.FC = () => {
           </div>
           <div className="min-w-0">
             <span className="text-secondary font-bold text-slate-100 flex flex-wrap items-center gap-x-1.5 gap-y-1">
-              {t('Estado de Carreteras')}
+              {t('Carreteras')}
               <span className="text-meta whitespace-nowrap bg-amber-900/80 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/60 font-bold uppercase">
-                SUTRAN
+                MTC
               </span>
             </span>
             <span className="block text-caption text-slate-300 truncate">
-              {t('Bloqueos, huaicos y rutas transitables en carreteras')}
+              {t('Vías cerradas o con paso restringido, según el MTC')}
             </span>
           </div>
         </div>
@@ -344,7 +344,7 @@ export const EmergencyScreen: React.FC = () => {
       />
 
       {/* Sheet de Carreteras SUTRAN */}
-      <SutranAlertsSheet
+      <RoadsSheet
         open={isSutranOpen}
         onClose={() => setIsSutranOpen(false)}
       />
