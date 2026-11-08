@@ -11,7 +11,7 @@ import { recommendationText } from './PostRow';
 const EMERGENCY_TYPES = ['emergency_need', 'emergency_resource', 'support_group'];
 
 export const PostSheet: React.FC = () => {
-  const { selectedItem, closeItem, toggleVistoBueno, addReview, updateItemStatus, userLocation, hasLocation, showNotice } = useApp();
+  const { selectedItem, closeItem, toggleVistoBueno, addReview, updateItemStatus, userLocation, hasLocation, showNotice, canWrite, openAccess } = useApp();
 
   // Keeps showing the post while the sheet slides away.
   const lastItem = useRef<CommunityItem | null>(null);
@@ -197,7 +197,11 @@ export const PostSheet: React.FC = () => {
                   <button type="submit" className="btn btn-primary">Enviar recomendación</button>
                 </form>
               ) : (
-                <button type="button" className="btn btn-secondary mt-3" onClick={() => setIsWriting(true)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary mt-3"
+                  onClick={() => (canWrite ? setIsWriting(true) : openAccess('Para recomendar o comentar necesitas entrar con tu código de usuario.'))}
+                >
                   Escribir una recomendación
                 </button>
               ))}

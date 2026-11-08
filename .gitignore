@@ -44,3 +44,7 @@ call-test-out/
 
 # Registros de los servicios que corren en la PC
 logs/
+
+# Firebase service account: a secret key, never in git
+firebase-servicio.json
+*firebase-adminsdk*.json

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Backpack, BatteryLow, CircleHelp, HandHeart, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { Backpack, BatteryLow, CircleHelp, HandHeart, LogIn, LogOut, Plus, Printer, Siren, Store, TriangleAlert, type LucideIcon } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { BottomSheet } from './BottomSheet';
 import { EmergencyBackpackSheet } from './EmergencyBackpackSheet';
 import { UserCodeSection } from './UserCodeSection';
+import { WebKeySection } from './WebKeySection';
+import { signOutOfWeb } from '../services/webLoginService';
 
 interface Slide {
   icon: LucideIcon;
@@ -69,16 +72,51 @@ export const TutorialSheet: React.FC = () => {
 };
 
 export const MenuSheet: React.FC = () => {
-  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver } = useApp();
+  const { isMenuOpen, setIsMenuOpen, setIsTutorialOpen, setIsMuralOpen, setIsBatterySaver, canWrite, isWebMember, openAccess, showNotice } = useApp();
   const [isBackpackOpen, setIsBackpackOpen] = useState(false);
+  const isNative = Capacitor.isNativePlatform();
+
+  const leaveWeb = async () => {
+    setIsMenuOpen(false);
+    await signOutOfWeb();
+    showNotice('Saliste de la web en esta computadora. Tu celular sigue igual.');
+  };
 
   return (
     <>
       <EmergencyBackpackSheet open={isBackpackOpen} onClose={() => setIsBackpackOpen(false)} />
       <BottomSheet open={isMenuOpen} onClose={() => setIsMenuOpen(false)} title="Ayuda">
         <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
-          <UserCodeSection isVisible={isMenuOpen} />
+          {/* A code comes only from the app: on the web it shows once entered with it, never creates one. */}
+          {canWrite && <UserCodeSection isVisible={isMenuOpen} />}
+          {isNative && <WebKeySection isVisible={isMenuOpen} />}
           <ul className="list-plain">
+            {!isNative && (
+              <li>
+                <button
+                  type="button"
+                  className="row"
+                  onClick={() => {
+                    if (isWebMember) {
+                      leaveWeb();
+                    } else {
+                      setIsMenuOpen(false);
+                      openAccess();
+                    }
+                  }}
+                >
+                  {isWebMember
+                    ? <LogOut className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />
+                    : <LogIn className="w-6 h-6 shrink-0 text-anil" aria-hidden="true" />}
+                  <span className="flex-1">
+                    <span className="block text-row font-semibold">{isWebMember ? 'Salir de la web en esta computadora' : 'Entrar con mi código'}</span>
+                    <span className="block text-secondary text-ink-2">
+                      {isWebMember ? 'Tu celular sigue con tu cuenta' : 'Para publicar, comentar y llamar'}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            )}
             <li>
               <button
                 type="button"

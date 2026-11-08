@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Capacitor } from '@capacitor/core';
 import { Delete, PhoneCall } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
@@ -54,7 +53,7 @@ const PROBLEMS: Record<string, string> = {
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'];
 
 export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const { isOnline, hasLocation, userLocation, showNotice } = useApp();
+  const { isOnline, hasLocation, userLocation, showNotice, canWrite, openAccess } = useApp();
   const [step, setStep] = useState<Step>('loading');
   const [overview, setOverview] = useState<CallOverview | null>(null);
   const [phoneDraft, setPhoneDraft] = useState('');
@@ -100,7 +99,8 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
       return;
     }
     setQueued(queuedCall());
-    if (!Capacitor.isNativePlatform()) {
+    // The app always; the web once entered with the user code (the call goes to that user's phone).
+    if (!canWrite) {
       setStep('web');
       return;
     }
@@ -190,9 +190,21 @@ export const FreeCallSheet: React.FC<{ open: boolean; onClose: () => void }> = (
     <BottomSheet open={open} onClose={onClose} title="Llamada gratis">
       <div className="px-4 space-y-4" style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
         {step === 'web' && (
-          <p className="text-secondary">
-            Las llamadas gratis funcionan en la app AYLLU para Android. En una emergencia marca 105, 106 o 116 desde cualquier celular: son gratis.
-          </p>
+          <>
+            <p className="text-secondary">
+              Para llamar gratis entra con tu código de usuario de la app AYLLU. En una emergencia marca 105, 106 o 116 desde cualquier celular: son gratis.
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                onClose();
+                openAccess('Para llamar gratis necesitas entrar con tu código de usuario.');
+              }}
+            >
+              Entrar con mi código
+            </button>
+          </>
         )}
 
         {step === 'loading' && <p role="status" className="text-secondary text-ink-2">Cargando...</p>}

@@ -12,11 +12,15 @@ import { flagReport, mediaUrl, Report, REPORT_KINDS, reportTitle } from '../serv
 import { formatRelativeTime } from '../utils/time';
 
 export const ReportItem: React.FC<{ report: Report; onChanged: () => void }> = ({ report, onChanged }) => {
-  const { showNotice, isOnline } = useApp();
+  const { showNotice, isOnline, canWrite, openAccess } = useApp();
   const kind = REPORT_KINDS.find((option) => option.id === report.kind) ?? REPORT_KINDS[5];
   const Icon = kind.icon;
 
   const flag = async () => {
+    if (!canWrite) {
+      openAccess('Para denunciar una noticia necesitas entrar con tu código de usuario.');
+      return;
+    }
     if (!isOnline) {
       showNotice('Necesitas internet para denunciar.');
       return;

@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { AppProvider, useApp } from './context/AppContext';
@@ -11,6 +12,7 @@ import { PostSheet } from './components/PostSheet';
 import { PublishSheet } from './components/PublishSheet';
 import { ReportSheet } from './components/ReportSheet';
 import { SosSheet } from './components/SosSheet';
+import { WebAccessSheet } from './components/WebAccessSheet';
 import { EmergencyBar } from './components/TopBar';
 import { PrintableMuralModal } from './components/PrintableMuralModal';
 import { BatterySaverScreen } from './screens/BatterySaverScreen';
@@ -126,6 +128,7 @@ const Shell: React.FC = () => {
       <ReportSheet />
       <SosSheet />
       <EmergencySuggestion />
+      {!Capacitor.isNativePlatform() && <WebAccessSheet />}
       <MenuSheet />
       <TutorialSheet />
 
