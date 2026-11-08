@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useT } from '../i18n/LanguageContext';
 import { Activity, AlertTriangle, Ear, Mic, MicOff, ShieldAlert } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { geophoneDetector, handsFreeSentinel, SurvivalPatternMatch } from '../utils/rubbleRescue';
@@ -13,6 +14,7 @@ interface RubbleRescueSheetProps {
 const MIC_PROBLEM = 'No se pudo usar el micrófono. Revisa que AYLLU tenga permiso para usarlo.';
 
 export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onClose }) => {
+  const t = useT();
   const [activeTab, setActiveTab] = useState<'geophone' | 'sentinel'>('geophone');
   const [micProblem, setMicProblem] = useState<string | null>(null);
 
@@ -135,7 +137,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
             }`}
           >
             <Mic className="w-5 h-5 shrink-0" aria-hidden="true" />
-            Estoy atrapado
+            {t("Estoy atrapado")}
           </button>
         </div>
 
@@ -147,7 +149,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
               <div className="flex items-center gap-2 mb-2">
                 <div className={`w-3 h-3 rounded-full ${isGeophoneActive ? 'bg-amber-400' : 'bg-slate-700'}`} aria-hidden="true" />
                 <span className="text-secondary font-bold text-slate-200">
-                  {isGeophoneActive ? 'Escuchando golpes...' : 'Geófono en pausa'}
+                  {isGeophoneActive ? t('Escuchando golpes...') : t('Geófono en pausa')}
                 </span>
               </div>
 
@@ -155,7 +157,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
               <div
                 className="h-4 bg-slate-900 rounded-full overflow-hidden"
                 role="meter"
-                aria-label="Golpes graves que llegan"
+                aria-label={t("Golpes graves que llegan")}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={vibrationLevel}
@@ -167,8 +169,8 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
               </div>
 
               <div className="mt-2.5 flex items-center justify-between gap-2 text-secondary text-slate-400">
-                <span>Apoya el celular firme contra la pared, el tubo o el escombro.</span>
-                <span className="font-mono text-slate-300 shrink-0">Golpes: {knockCount}</span>
+                <span>{t("Apoya el celular firme contra la pared, el tubo o el escombro.")}</span>
+                <span className="font-mono text-slate-300 shrink-0">{t("Golpes:")} {knockCount}</span>
               </div>
 
               <button
@@ -176,7 +178,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
                 onClick={handleToggleGeophone}
                 className={`btn mt-3 min-h-12 font-bold ${isGeophoneActive ? 'btn-secondary text-rojo' : 'btn-danger'}`}
               >
-                {isGeophoneActive ? 'Detener Geófono' : 'Activar Geófono de Muro'}
+                {isGeophoneActive ? t('Detener Geófono') : t('Activar Geófono de Muro')}
               </button>
             </div>
 
@@ -184,7 +186,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
               <div role="alert" className="p-4 bg-red-100 border-2 border-red-500 rounded-2xl text-red-950">
                 <div className="flex items-center gap-2 mb-1">
                   <AlertTriangle className="w-6 h-6 text-red-600 shrink-0" aria-hidden="true" />
-                  <span className="text-section font-black tracking-tight text-red-900">Alguien golpea al otro lado</span>
+                  <span className="text-section font-black tracking-tight text-red-900">{t("Alguien golpea al otro lado")}</span>
                 </div>
                 <p className="text-secondary text-red-800 font-medium">
                   Se escucharon <strong>3 golpes a ritmo parejo</strong>, uno cada {(detectedMatch.intervalMs / 1000).toFixed(1).replace('.', ',')} segundos. Responde con golpes y avisa a los rescatistas.
@@ -193,7 +195,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
             )}
 
             <div className="p-3 bg-surface-raised border border-line rounded-xl text-secondary text-ink-2 space-y-1">
-              <span className="font-bold text-ink block">¿Cómo funciona?</span>
+              <span className="font-bold text-ink block">{t("¿Cómo funciona?")}</span>
               <p>
                 El concreto y los tubos llevan los golpes como un sonido grave. El celular cuenta solo esos golpes graves y cortos: los aplausos, las voces y los ruidos largos no cuentan. Tres golpes a ritmo parejo son alguien llamando.
               </p>
@@ -211,7 +213,7 @@ export const RubbleRescueSheet: React.FC<RubbleRescueSheetProps> = ({ open, onCl
               </div>
 
               <h4 className="text-section font-bold text-slate-100">
-                {isSentinelActive ? 'Escuchando tu voz' : 'Manos libres apagado'}
+                {isSentinelActive ? t('Escuchando tu voz') : t('Manos libres apagado')}
               </h4>
               <p className="text-secondary text-slate-300 max-w-xs mx-auto mt-1">
                 {isSentinelActive

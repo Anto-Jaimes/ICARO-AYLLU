@@ -3,7 +3,7 @@ import { CircleCheck, CircleHelp, CloudOff, MapPin, TriangleAlert, type LucideIc
 import { useApp } from '../context/AppContext';
 import { SafetyTone, useHazards } from '../context/HazardContext';
 import { LevelGlyph } from './LevelTag';
-import { HelpButton } from './TopBar';
+import { HelpButton, TopBarLanguageSelector } from './TopBar';
 import { useT } from '../i18n/LanguageContext';
 
 interface ToneStyle {
@@ -53,6 +53,7 @@ export const SafetyBlock: React.FC = () => {
           <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
           <span className="truncate text-secondary font-medium">{place}</span>
         </button>
+        <TopBarLanguageSelector />
         <HelpButton />
       </div>
 

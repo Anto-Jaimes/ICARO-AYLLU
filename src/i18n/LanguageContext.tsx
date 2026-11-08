@@ -48,7 +48,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }, []);
 
-  const t = useCallback((spanish: string) => (lang === 'es' ? spanish : STRINGS[lang][spanish] ?? spanish), [lang]);
+  const t = useCallback((spanish: string) => (!spanish || lang === 'es' ? spanish : STRINGS[lang][spanish] ?? STRINGS[lang][spanish.trim()] ?? spanish), [lang]);
   const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

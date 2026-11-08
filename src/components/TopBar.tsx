@@ -2,7 +2,32 @@ import React, { ReactNode } from 'react';
 import { ArrowLeft, CircleHelp } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { AudioGuideButton } from './AudioGuideButton';
-import { useT } from '../i18n/LanguageContext';
+import { useLanguage, useT } from '../i18n/LanguageContext';
+
+export const TopBarLanguageSelector: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const { lang, setLang } = useLanguage();
+  return (
+    <div
+      className={`inline-flex items-center rounded-md bg-sunken p-0.5 border border-line text-xs font-bold shrink-0 ${className}`}
+      role="group"
+      aria-label="Idioma"
+    >
+      {(['es', 'qu', 'ay', 'en'] as const).map((l) => (
+        <button
+          key={l}
+          type="button"
+          onClick={() => setLang(l)}
+          className={`px-1.5 py-0.5 rounded text-[11px] font-bold uppercase transition-colors ${
+            lang === l ? 'bg-anil text-white shadow-xs' : 'text-ink-2 hover:text-ink'
+          }`}
+          aria-pressed={lang === l}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 interface TopBarProps {
   title: string;
@@ -31,7 +56,8 @@ export const TopBar: React.FC<TopBarProps> = ({ title, onBack, action }) => {
           </button>
         )}
         <h1 className="flex-1 min-w-0 truncate text-title font-bold">{t(title)}</h1>
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1">
+          <TopBarLanguageSelector />
           <AudioGuideButton screenTitle={t(title)} />
           {action ?? <HelpButton />}
         </div>
@@ -47,6 +73,7 @@ export const EmergencyBar: React.FC<{ onExit: () => void }> = ({ onExit }) => {
     <header className="sticky top-0 z-20 bg-rojo text-white" style={{ paddingTop: 'var(--safe-top)' }}>
       <div className="page flex items-center h-14 pl-4 pr-2 gap-2">
         <h1 className="flex-1 min-w-0 truncate text-title font-bold">{t('Modo emergencia')}</h1>
+        <TopBarLanguageSelector className="bg-rojo-press border-white/20 text-white" />
         <AudioGuideButton className="text-white hover:bg-white/10" screenTitle={t('Modo emergencia')} />
         <button
           type="button"

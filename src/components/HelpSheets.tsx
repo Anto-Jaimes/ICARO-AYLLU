@@ -40,6 +40,7 @@ const SLIDES: Slide[] = [
 ];
 
 export const TutorialSheet: React.FC = () => {
+  const t = useT();
   const { isTutorialOpen, setIsTutorialOpen } = useApp();
   const [slide, setSlide] = useState(0);
 
@@ -56,18 +57,18 @@ export const TutorialSheet: React.FC = () => {
     <BottomSheet
       open={isTutorialOpen}
       onClose={finish}
-      title="Cómo se usa"
+      title={t("Cómo se usa")}
       footer={
         <button type="button" className="btn btn-primary" onClick={() => (isLast ? finish() : setSlide(slide + 1))}>
-          {isLast ? 'Empezar' : 'Siguiente'}
+          {isLast ? t('Empezar') : t('Siguiente')}
         </button>
       }
     >
       <div className="px-4 pb-4">
         <Icon className="w-10 h-10 text-anil" aria-hidden="true" />
-        <h3 className="mt-3 text-section font-bold">{title}</h3>
-        <p className="mt-1">{text}</p>
-        <p className="mt-3 text-meta text-ink-2">Paso {slide + 1} de {SLIDES.length}</p>
+        <h3 className="mt-3 text-section font-bold">{t(title)}</h3>
+        <p className="mt-1">{t(text)}</p>
+        <p className="mt-3 text-meta text-ink-2">{t('Paso')} {slide + 1} {t('de')} {SLIDES.length}</p>
       </div>
     </BottomSheet>
   );
@@ -183,14 +184,14 @@ export const MenuSheet: React.FC = () => {
           <section className="px-4 pt-4 border-t border-line">
             <h3 className="flex items-center gap-2 text-row font-bold">
               <HandHeart className="w-5 h-5 text-anil" aria-hidden="true" />
-              Qué es el ayllu
+              {t('Qué es el ayllu')}
             </h3>
             <p className="mt-1 text-secondary text-ink-2">
-              Es la comunidad andina que se ayuda entre sí. Esta app conecta a los vecinos de tu barrio.
+              {t('Es la comunidad andina que se ayuda entre sí. Esta app conecta a los vecinos de tu barrio.')}
             </p>
-            <h3 className="mt-4 text-row font-bold">De dónde vienen las alertas</h3>
+            <h3 className="mt-4 text-row font-bold">{t('De dónde vienen las alertas')}</h3>
             <p className="mt-1 text-secondary text-ink-2">
-              Sismos del IGP. Huaicos, lluvias y avisos de SENAMHI. Son datos oficiales del Perú. Ante una emergencia, sigue a las autoridades.
+              {t('Sismos del IGP. Huaicos, lluvias y avisos de SENAMHI. Son datos oficiales del Perú. Ante una emergencia, sigue a las autoridades.')}
             </p>
           </section>
         </div>

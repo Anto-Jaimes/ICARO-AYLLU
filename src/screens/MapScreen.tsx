@@ -5,6 +5,7 @@ import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { CloudOff, LocateFixed, MapPin, Minus, Navigation2, Plus, RotateCcw, RotateCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { EmptyState } from '../components/EmptyState';
+import { TopBarLanguageSelector } from '../components/TopBar';
 import { MapSearch } from '../components/MapSearch';
 import { MyPlacesPanel, PickBar, SpotCard, TripCard, type SpotKind } from '../components/MapPanel';
 import { HomeSheet, PlacesSheet, SavePlaceSheet, type PlaceDraft } from '../components/MyPlacesSheets';
@@ -797,7 +798,7 @@ const MapScreen: React.FC = () => {
               icon={CloudOff}
               title="El mapa necesita internet"
               line="Tu casa y tus lugares siguen aquí abajo. Para buscar lugares o ver el camino por las calles, conéctate."
-              action={<button type="button" className="btn btn-secondary" onClick={() => setTab(homeTab)}>Ver lista de vecinos</button>}
+              action={<button type="button" className="btn btn-secondary" onClick={() => setTab(homeTab)}>{t("Ver lista de vecinos")}</button>}
             />
           </div>
         )}
@@ -821,8 +822,11 @@ const MapScreen: React.FC = () => {
                 className="flex gap-2 -mx-4 px-4 pb-1 overflow-x-auto"
                 style={{ scrollbarWidth: 'none' }}
                 role="group"
-                aria-label="Qué mostrar en el mapa"
+                aria-label={t("Qué mostrar en el mapa")}
               >
+                <div className="pointer-events-auto shrink-0 shadow-sm">
+                  <TopBarLanguageSelector className="bg-surface" />
+                </div>
                 {layers.map((layer) => {
                   const isVisible = !hiddenLayers.includes(layer.id);
                   return (
@@ -856,7 +860,7 @@ const MapScreen: React.FC = () => {
                 type="button"
                 onClick={() => mapRef.current?.easeTo({ bearing: 0, duration: 300 })}
                 aria-label={isRotated ? `Apuntar al norte. Mapa girado ${Math.round(bearing)} grados` : 'El mapa apunta al norte'}
-                title="Apuntar al norte"
+                title={t("Apuntar al norte")}
                 className={MAP_BUTTON}
               >
                 <Navigation2
@@ -866,20 +870,20 @@ const MapScreen: React.FC = () => {
                 />
               </button>
               <div className="hidden lg:flex flex-col gap-2">
-                <button type="button" aria-label="Girar a la izquierda" title="Girar a la izquierda" onClick={() => rotateBy(-ROTATE_STEP)} className={MAP_BUTTON}>
+                <button type="button" aria-label={t("Girar a la izquierda")} title={t("Girar a la izquierda")} onClick={() => rotateBy(-ROTATE_STEP)} className={MAP_BUTTON}>
                   <RotateCcw className="w-6 h-6" aria-hidden="true" />
                 </button>
-                <button type="button" aria-label="Girar a la derecha" title="Girar a la derecha" onClick={() => rotateBy(ROTATE_STEP)} className={MAP_BUTTON}>
+                <button type="button" aria-label={t("Girar a la derecha")} title={t("Girar a la derecha")} onClick={() => rotateBy(ROTATE_STEP)} className={MAP_BUTTON}>
                   <RotateCw className="w-6 h-6" aria-hidden="true" />
                 </button>
               </div>
-              <button type="button" aria-label="Centrar en mi ubicación" title="Centrar en mi ubicación" onClick={centerOnMe} className={MAP_BUTTON}>
+              <button type="button" aria-label={t("Centrar en mi ubicación")} title={t("Centrar en mi ubicación")} onClick={centerOnMe} className={MAP_BUTTON}>
                 <LocateFixed className="w-6 h-6" aria-hidden="true" />
               </button>
-              <button type="button" aria-label="Acercar" title="Acercar" onClick={() => mapRef.current?.zoomIn()} className={MAP_BUTTON}>
+              <button type="button" aria-label={t("Acercar")} title={t("Acercar")} onClick={() => mapRef.current?.zoomIn()} className={MAP_BUTTON}>
                 <Plus className="w-6 h-6" aria-hidden="true" />
               </button>
-              <button type="button" aria-label="Alejar" title="Alejar" onClick={() => mapRef.current?.zoomOut()} className={MAP_BUTTON}>
+              <button type="button" aria-label={t("Alejar")} title={t("Alejar")} onClick={() => mapRef.current?.zoomOut()} className={MAP_BUTTON}>
                 <Minus className="w-6 h-6" aria-hidden="true" />
               </button>
             </div>

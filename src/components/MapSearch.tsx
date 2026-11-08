@@ -1,3 +1,4 @@
+import { useT } from '../i18n/LanguageContext';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MapPin, Search, X } from 'lucide-react';
 import { MIN_SEARCH_LENGTH, searchPlaces, type PlaceResult } from '../services/geoService';
@@ -19,6 +20,7 @@ interface MapSearchProps {
 }
 
 export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo, onPick, onClear }) => {
+  const t = useT();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [status, setStatus] = useState<SearchStatus>('idle');
@@ -111,9 +113,9 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
 
   const message = (() => {
     if (!isLongEnough) return null;
-    if (!isOnline) return 'Buscar lugares necesita internet.';
-    if (status === 'searching') return 'Buscando...';
-    if (status === 'error') return 'No pudimos buscar. Revisa tu conexión e intenta otra vez.';
+    if (!isOnline) return t('Buscar lugares necesita internet.');
+    if (status === 'searching') return t('Buscando...');
+    if (status === 'error') return t('No pudimos buscar. Revisa tu conexión e intenta otra vez.');
     if (status === 'done' && results.length === 0) return `No encontramos "${resultsFor}" en el Perú. Prueba con otra palabra o el distrito.`;
     return null;
   })();
@@ -129,7 +131,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
         if (isLongEnough && isOnline) run(text);
       }}
     >
-      <label htmlFor="map-search" className="sr-only">Buscar un lugar o dirección</label>
+      <label htmlFor="map-search" className="sr-only">{t("Buscar un lugar o dirección")}</label>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 text-ink-2 pointer-events-none" aria-hidden="true" />
         <input
@@ -140,7 +142,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
           autoComplete="off"
           spellCheck={false}
           value={query}
-          placeholder="Buscar un lugar o dirección"
+          placeholder={t("Buscar un lugar o dirección")}
           aria-controls="map-search-results"
           aria-expanded={showList}
           onChange={(event) => {
@@ -157,7 +159,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
           <button
             type="button"
             onClick={clear}
-            aria-label="Borrar búsqueda"
+            aria-label={t("Borrar búsqueda")}
             className="icon-btn absolute right-1 top-1/2 -translate-y-1/2 text-ink-2"
           >
             <X className="w-6 h-6" aria-hidden="true" />
@@ -170,7 +172,7 @@ export const MapSearch: React.FC<MapSearchProps> = ({ near, isOnline, distanceTo
           {message ?? (results.length > 0 ? `${results.length} lugares encontrados` : '')}
         </p>
         {results.length > 0 && status !== 'searching' && (
-          <ul className={`list-plain ${message ? 'border-t border-line' : ''}`} aria-label="Lugares encontrados">
+          <ul className={`list-plain ${message ? 'border-t border-line' : ''}`} aria-label={t("Lugares encontrados")}>
             {results.map((place) => {
               const distance = distanceTo(place);
               return (

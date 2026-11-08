@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useT } from '../i18n/LanguageContext';
 import { LocateFixed, MapPin, Star, Trash2 } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
 import { MAX_PLACE_NAME, MAX_PLACES, type Home, type MapPoint, type MyPlace } from '../services/myPlaces';
@@ -20,14 +21,16 @@ interface HomeSheetProps {
 
 export const HomeSheet: React.FC<HomeSheetProps> = ({
   open, onClose, home, isLocating, canPickOnMap, onUseMyLocation, onPickOnMap, onRemove
-}) => (
-  <BottomSheet open={open} onClose={onClose} title={home ? 'Cambiar mi casa' : '¿Dónde es tu casa?'}>
+}) => {
+  const t = useT();
+  return (
+  <BottomSheet open={open} onClose={onClose} title={home ? t('Cambiar mi casa') : t('¿Dónde es tu casa?')}>
     <div className={SHEET_BODY} style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
       <p className="text-secondary text-ink-2">
         {home
           ? `Ahora está en ${home.address || 'un punto que elegiste en el mapa'}.`
           : 'Guárdala para saber a cuánto estás y cómo volver. Si estás en casa, usa tu ubicación.'}{' '}
-        {STAYS_HERE}
+        {t(STAYS_HERE)}
       </p>
       <button
         type="button"
@@ -37,26 +40,27 @@ export const HomeSheet: React.FC<HomeSheetProps> = ({
         aria-busy={isLocating}
       >
         <LocateFixed className="w-6 h-6" aria-hidden="true" />
-        {isLocating ? 'Buscando tu ubicación...' : 'Estoy en casa ahora'}
+        {isLocating ? t('Buscando tu ubicación...') : t('Estoy en casa ahora')}
       </button>
       {canPickOnMap && (
         <>
           <button type="button" className="btn btn-secondary" onClick={onPickOnMap}>
             <MapPin className="w-6 h-6" aria-hidden="true" />
-            Elegirla en el mapa
+            {t('Elegirla en el mapa')}
           </button>
-          <p className="text-meta text-ink-2">También puedes buscar tu dirección arriba y tocar «Es mi casa».</p>
+          <p className="text-meta text-ink-2">{t('También puedes buscar tu dirección arriba y tocar «Es mi casa».')}</p>
         </>
       )}
       {home && (
         <button type="button" onClick={onRemove} className="flex items-center gap-2 min-h-12 px-1 text-secondary font-bold text-rojo">
           <Trash2 className="w-5 h-5" aria-hidden="true" />
-          Quitar mi casa
+          {t('Quitar mi casa')}
         </button>
       )}
     </div>
   </BottomSheet>
-);
+  );
+};
 
 interface PlacesSheetProps {
   open: boolean;
@@ -74,6 +78,7 @@ interface PlacesSheetProps {
 export const PlacesSheet: React.FC<PlacesSheetProps> = ({
   open, onClose, places, distanceTo, isLocating, canPickOnMap, onOpenPlace, onDelete, onAddHere, onAddOnMap
 }) => {
+  const t = useT();
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const isFull = places.length >= MAX_PLACES;
 
@@ -84,7 +89,7 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
     <p className="pb-1 text-secondary text-ink-2">Tienes {MAX_PLACES} lugares, el máximo. Borra uno para agregar otro.</p>
   ) : (
     <div>
-      <p className="pb-2 text-secondary font-bold">Agregar un lugar</p>
+      <p className="pb-2 text-secondary font-bold">{t("Agregar un lugar")}</p>
       <div className={`grid gap-2 ${canPickOnMap ? 'grid-cols-2' : ''}`}>
         <button
           type="button"
@@ -94,12 +99,12 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
           aria-busy={isLocating}
         >
           <LocateFixed className="w-5 h-5 shrink-0" aria-hidden="true" />
-          {isLocating ? 'Ubicando...' : 'Donde estoy'}
+          {isLocating ? t('Ubicando...') : t('Donde estoy')}
         </button>
         {canPickOnMap && (
           <button type="button" className="btn btn-secondary text-secondary px-2" onClick={onAddOnMap}>
             <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
-            En el mapa
+            {t('En el mapa')}
           </button>
         )}
       </div>
@@ -107,16 +112,16 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
   );
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Mis lugares" footer={footer}>
+    <BottomSheet open={open} onClose={onClose} title={t("Mis lugares")} footer={footer}>
       {places.length === 0 ? (
         <div className="px-4 pb-4">
-          <p className="text-row font-bold">Aún no guardas lugares</p>
+          <p className="text-row font-bold">{t("Aún no guardas lugares")}</p>
           <p className="mt-1 text-secondary text-ink-2">
-            Guarda el colegio de tus hijos, tu trabajo o el punto de reunión de tu familia. {STAYS_HERE}
+            {t('Guarda el colegio de tus hijos, tu trabajo o el punto de reunión de tu familia.')} {STAYS_HERE}
           </p>
         </div>
       ) : (
-        <ul className="list-plain border-t border-line" aria-label="Lugares guardados">
+        <ul className="list-plain border-t border-line" aria-label={t("Lugares guardados")}>
           {places.map((place) => {
             const distance = distanceTo(place);
             const isConfirming = confirmingId === place.id;
@@ -141,10 +146,10 @@ export const PlacesSheet: React.FC<PlacesSheetProps> = ({
                       }}
                       className="min-h-12 px-3 rounded-lg bg-rojo text-white text-secondary font-bold"
                     >
-                      Borrar
+                      {t("Borrar")}
                     </button>
                     <button type="button" onClick={() => setConfirmingId(null)} className="min-h-12 px-3 rounded-lg text-secondary font-bold text-ink-2">
-                      No
+                      {t("No")}
                     </button>
                   </span>
                 ) : (
@@ -181,6 +186,7 @@ interface SavePlaceSheetProps {
 }
 
 export const SavePlaceSheet: React.FC<SavePlaceSheetProps> = ({ draft, onClose, onSave }) => {
+  const t = useT();
   const [name, setName] = useState('');
   const [nameFor, setNameFor] = useState('');
 
@@ -194,7 +200,7 @@ export const SavePlaceSheet: React.FC<SavePlaceSheetProps> = ({ draft, onClose, 
   const trimmed = name.trim();
 
   return (
-    <BottomSheet open={draft !== null} onClose={onClose} title="Guardar lugar">
+    <BottomSheet open={draft !== null} onClose={onClose} title={t("Guardar lugar")}>
       <form
         className={SHEET_BODY}
         style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}
@@ -208,7 +214,7 @@ export const SavePlaceSheet: React.FC<SavePlaceSheetProps> = ({ draft, onClose, 
           {draft?.address || 'Punto elegido en el mapa'}
         </p>
         <div>
-          <label htmlFor="place-name" className="block pb-1 text-secondary font-bold">Nombre del lugar</label>
+          <label htmlFor="place-name" className="block pb-1 text-secondary font-bold">{t("Nombre del lugar")}</label>
           <input
             id="place-name"
             className="field"
@@ -216,21 +222,21 @@ export const SavePlaceSheet: React.FC<SavePlaceSheetProps> = ({ draft, onClose, 
             maxLength={MAX_PLACE_NAME}
             required
             autoComplete="off"
-            placeholder="Ej.: Colegio de mi hija"
+            placeholder={t("Ej.: Colegio de mi hija")}
             onChange={(event) => setName(event.target.value)}
           />
         </div>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Ideas de nombre">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t("Ideas de nombre")}>
           {NAME_IDEAS.map((idea) => (
-            <button key={idea} type="button" className="chip" onClick={() => setName(idea)}>
-              {idea}
+            <button key={idea} type="button" className="chip" onClick={() => setName(t(idea))}>
+              {t(idea)}
             </button>
           ))}
         </div>
         <p className="text-meta text-ink-2">{STAYS_HERE}</p>
         <button type="submit" className="btn btn-primary disabled:opacity-60" disabled={!trimmed}>
           <Star className="w-6 h-6" aria-hidden="true" />
-          Guardar en mis lugares
+          {t("Guardar en mis lugares")}
         </button>
       </form>
     </BottomSheet>

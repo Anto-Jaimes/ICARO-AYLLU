@@ -137,14 +137,14 @@ export const SosSheet: React.FC = () => {
         </div>
       </BottomSheet>
 
-      <BottomSheet open={panel === 'alarm'} onClose={closeAlarm} title="Alarma">
+      <BottomSheet open={panel === 'alarm'} onClose={closeAlarm} title={t("Alarma")}>
         <div className="px-4" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
           <p className="pb-4 text-secondary text-ink-2">
-            Suena fuerte para que tus vecinos o los rescatistas te encuentren, incluso de noche o bajo escombros. Úsala solo en una emergencia real.
+            {t("Suena fuerte para que tus vecinos o los rescatistas te encuentren, incluso de noche o bajo escombros. Úsala solo en una emergencia real.")}
           </p>
           <button type="button" className={`btn ${isSounding ? 'btn-secondary' : 'btn-danger'} min-h-24`} onClick={toggleSiren}>
             {isSounding ? <Square className="w-6 h-6" aria-hidden="true" /> : <Volume2 className="w-6 h-6" aria-hidden="true" />}
-            {isSounding ? 'Detener alarma' : 'Hacer sonar'}
+            {isSounding ? t('Detener alarma') : t('Hacer sonar')}
           </button>
         </div>
       </BottomSheet>
