@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Megaphone, Search, Store } from 'lucide-react';
+import { Megaphone, Search, ShieldAlert, Store } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { SERVICE_CATEGORIES } from '../data/categories';
@@ -9,6 +9,7 @@ import { PostRow } from '../components/PostRow';
 import { QuakeCard } from '../components/QuakeCard';
 import { SafetyBlock } from '../components/SafetyBlock';
 import { WeatherCard } from '../components/WeatherCard';
+import { TacticalPanicSheet } from '../components/TacticalPanicSheet';
 import { useIsDesktop } from '../hooks/useMediaQuery';
 import { useReports } from '../hooks/useReports';
 import { useT } from '../i18n/LanguageContext';
@@ -79,44 +80,33 @@ const TodayCards: React.FC = () => {
 const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
   const { items, hasLocation, openServices, isLoadingItems } = useApp();
   const t = useT();
-  const [query, setQuery] = useState('');
 
   const nearby = useMemo(() => {
-    const services = items.filter((item) => item.type === 'service');
-    // Without a position, the best recommended beat an order that would mean nothing.
-    const sorted = [...services].sort((a, b) =>
-      hasLocation ? (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0) : b.vistosBuenos - a.vistosBuenos
-    );
-    return sorted.slice(0, rows);
+    return items
+      .filter((item) => item.type === 'service' && item.status !== 'resolved')
+      .sort((a, b) => (hasLocation ? (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0) : 0))
+      .slice(0, rows);
   }, [items, hasLocation, rows]);
 
   return (
-    <section aria-labelledby="nearby-title" className="pt-6">
-      <h2 id="nearby-title" className="px-4 pb-1 text-section font-bold">{t(hasLocation ? 'Cerca de ti' : 'Los más recomendados')}</h2>
-      <form
-        role="search"
-        className="px-4 pt-1"
-        onSubmit={(event) => {
-          event.preventDefault();
-          openServices({ query: query.trim() });
-        }}
-      >
-        <label htmlFor="home-search" className="sr-only">{t('Buscar un servicio')}</label>
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-2" aria-hidden="true" />
-          <input
-            id="home-search"
-            type="search"
-            enterKeyHint="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t('¿Qué necesitas?')}
-            className="field pl-12"
-          />
-        </div>
-      </form>
+    <section aria-labelledby="services-title" className="pt-6">
+      <div className="px-4 pb-2">
+        <h2 id="services-title" className="text-section font-bold">{t('Oficios de tu barrio')}</h2>
+      </div>
 
-      <div className="chip-row pt-2" role="group" aria-label={t('Buscar por tipo de servicio')}>
+      <div className="px-4 pb-3">
+        <button
+          type="button"
+          onClick={() => openServices()}
+          className="field flex items-center gap-2 text-ink-2 text-left"
+          aria-label={t('¿Qué necesitas?')}
+        >
+          <Search className="w-5 h-5 shrink-0" aria-hidden="true" />
+          <span>{t('¿Qué necesitas?')}</span>
+        </button>
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto px-4 pb-3" style={{ scrollbarWidth: 'none' }} role="group" aria-label="Categorías">
         {SERVICE_CATEGORIES.map((category) => (
           <button key={category.id} type="button" className="chip" onClick={() => openServices({ category: category.id })}>
             {t(category.label)}
@@ -150,10 +140,36 @@ const NearbyServices: React.FC<{ rows: number }> = ({ rows }) => {
 
 export const HomeScreen: React.FC = () => {
   const isDesktop = useIsDesktop();
+  const [isPanicOpen, setIsPanicOpen] = useState(false);
+  const t = useT();
 
   return (
     <div className="app-nav-offset">
       <SafetyBlock />
+
+      {/* Botón táctico de 1-toque: Plus Code y Silbato */}
+      <div className="mx-4 mt-2 p-3 bg-surface border border-line rounded-2xl flex items-center justify-between shadow-xs">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center shrink-0 border border-red-500/20">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-ink">
+              {t('Plus Code & Silbato Vecinal')}
+            </span>
+            <span className="block text-caption text-ink-secondary truncate">
+              {t('Tu ubicación exacta sin internet y alarma disuasiva')}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsPanicOpen(true)}
+          className="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl shrink-0 shadow-xs active:scale-95 transition-all"
+        >
+          {t('Auxilio')}
+        </button>
+      </div>
 
       <div className="page lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
         <div className="min-w-0">
@@ -169,6 +185,11 @@ export const HomeScreen: React.FC = () => {
           </aside>
         )}
       </div>
+
+      <TacticalPanicSheet
+        open={isPanicOpen}
+        onClose={() => setIsPanicOpen(false)}
+      />
     </div>
   );
 };

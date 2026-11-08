@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Activity, Boxes, HandHeart, HeartPulse, Phone, ShieldCheck, TrafficCone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
+import { Activity, Boxes, HandHeart, HeartPulse, Phone, ShieldAlert, ShieldCheck, TrafficCone, UsersRound, Waves, type LucideIcon } from 'lucide-react';
 import { Tab, useApp } from '../context/AppContext';
 import { useHazards } from '../context/HazardContext';
 import { EmptyState, LoadingRow } from '../components/EmptyState';
@@ -10,6 +10,7 @@ import { RubbleRescueSheet } from '../components/RubbleRescueSheet';
 import { TriageSheet } from '../components/TriageSheet';
 import { SafePlacesSheet } from '../components/SafePlacesSheet';
 import { SutranAlertsSheet } from '../components/SutranAlertsSheet';
+import { TacticalPanicSheet } from '../components/TacticalPanicSheet';
 import { useT } from '../i18n/LanguageContext';
 
 interface EmergencyView {
@@ -70,6 +71,7 @@ export const EmergencyScreen: React.FC = () => {
   const [isTriageOpen, setIsTriageOpen] = useState(false);
   const [isSafePlacesOpen, setIsSafePlacesOpen] = useState(false);
   const [isSutranOpen, setIsSutranOpen] = useState(false);
+  const [isPanicOpen, setIsPanicOpen] = useState(false);
   const view = VIEWS[tab] ?? VIEWS.neighbors!;
 
   const posts = useMemo(() => {
@@ -84,6 +86,33 @@ export const EmergencyScreen: React.FC = () => {
 
   return (
     <div className="app-nav-offset page">
+      {/* Banner de Auxilio 1-Toque / Plus Code / Silbato Antirrobo */}
+      <div className="mx-4 mt-2 p-3 bg-gradient-to-r from-red-950 via-rose-950 to-indigo-950 text-white rounded-2xl shadow-sm border border-red-700/60 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+          <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 border border-red-400 shadow-md">
+            <ShieldAlert className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-secondary font-bold text-slate-100 flex items-center gap-1.5">
+              {t('Plus Code & Silbato Vecinal')}
+              <span className="text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded font-black uppercase">
+                1-Toque
+              </span>
+            </span>
+            <span className="block text-caption text-slate-300 truncate">
+              {t('Ubicación exacta sin internet, SMS de rescate y alarma disuasiva')}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsPanicOpen(true)}
+          className="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white text-secondary font-bold rounded-xl shrink-0 shadow transition-all active:scale-95"
+        >
+          {t('Abrir')}
+        </button>
+      </div>
+
       {/* In an emergency, hearing a trapped neighbour by sound can matter more than anything else. */}
       <button type="button" className="row border-b border-line" onClick={() => setIsAcousticOpen(true)}>
         <Waves className="w-6 h-6 shrink-0 text-rojo" aria-hidden="true" />
@@ -217,6 +246,12 @@ export const EmergencyScreen: React.FC = () => {
           ))}
         </ul>
       )}
+
+      {/* Sheet de Plus Code & Silbato 1-Toque */}
+      <TacticalPanicSheet
+        open={isPanicOpen}
+        onClose={() => setIsPanicOpen(false)}
+      />
 
       {/* Sheet de Radar Acústico */}
       <AcousticBeaconSheet
