@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ImagePlus, MapPin, X } from 'lucide-react';
+import { Camera, ImagePlus, MapPin, X } from 'lucide-react';
 import { PublishPreset, useApp } from '../context/AppContext';
 import { DONATION_CATEGORIES, EMERGENCY_PUBLISH_GROUPS, NORMAL_PUBLISH_GROUPS, PublishTile } from '../data/categories';
 import { REPORT_KINDS, ReportKind } from '../services/reportsService';
@@ -7,8 +7,12 @@ import { normalizePhone } from '../utils/geo';
 import { loadContact, saveContact } from '../utils/storage';
 import { MAX_POST_PHOTOS, uploadPostPhoto } from '../services/postPhotos';
 import { BottomSheet } from './BottomSheet';
+import { CameraCapture, canUseCamera } from './CameraCapture';
 import { useT } from '../i18n/LanguageContext';
 import { placeLabel } from '../services/geoService';
+
+// The same two big options as in the news sheet.
+const PHOTO_OPTION = 'flex-1 basis-0 flex flex-col items-center gap-1 min-h-20 px-2 py-3 rounded-lg bg-sunken text-secondary font-bold text-primary text-center cursor-pointer active:bg-border';
 
 const PRICE_BY_TYPE: Record<string, string> = { service: 'Conversar con el vecino' };
 
@@ -37,6 +41,7 @@ export const PublishSheet: React.FC = () => {
   const [price, setPrice] = useState('');
   const [address, setAddress] = useState('');
   const [photos, setPhotos] = useState<File[]>([]);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [audience, setAudience] = useState<'vecinos' | 'organizacion'>('vecinos');
@@ -52,10 +57,15 @@ export const PublishSheet: React.FC = () => {
     setTitle(selection.type === 'service' ? '' : selection.title);
   };
 
-  const addPhotos = (files: FileList | null) => {
+  const addPhotos = (files: FileList | File[] | null) => {
     if (!files) return;
     const images = [...files].filter((file) => file.type.startsWith('image/'));
     setPhotos((current) => [...current, ...images].slice(0, MAX_POST_PHOTOS));
+  };
+
+  const receivePhoto = (photo: File) => {
+    setIsCameraOpen(false);
+    addPhotos([photo]);
   };
 
   useEffect(() => {
@@ -131,265 +141,276 @@ export const PublishSheet: React.FC = () => {
   ) : undefined;
 
   return (
-    <BottomSheet
-      open={isPublishOpen}
-      onClose={closePublish}
-      title={choice ? t('Revisa y publica') : t('¿Qué quieres publicar?')}
-      footer={footer}
-    >
-      {!choice ? (
-        <div className="px-4 pb-6 space-y-5" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
-          <section>
-            <h3 className="pb-2 text-section font-bold">{t('Avisar lo que pasa')}</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {REPORT_KINDS.map((kind) => {
-                const Icon = kind.icon;
-                return (
-                  <button
-                    key={kind.id}
-                    type="button"
-                    onClick={() => startReport(kind.id)}
-                    className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-border"
-                  >
-                    <Icon className="w-6 h-6 text-status-danger" aria-hidden="true" />
-                    <span className="text-secondary font-bold">{t(kind.label)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          {groups.map((group) => (
-            <section key={group.heading}>
-              <h3 className="pb-2 text-section font-bold">{t(group.heading)}</h3>
+    <>
+      <BottomSheet
+        open={isPublishOpen}
+        onClose={closePublish}
+        title={choice ? t('Revisa y publica') : t('¿Qué quieres publicar?')}
+        footer={footer}
+      >
+        {!choice ? (
+          <div className="px-4 pb-6 space-y-5" style={{ paddingBottom: 'calc(24px + var(--safe-bottom))' }}>
+            <section>
+              <h3 className="pb-2 text-section font-bold">{t('Avisar lo que pasa')}</h3>
               <div className="grid grid-cols-2 gap-2">
-                {group.tiles.map((tile: PublishTile) => {
-                  const Icon = tile.icon;
+                {REPORT_KINDS.map((kind) => {
+                  const Icon = kind.icon;
                   return (
                     <button
-                      key={`${tile.type}-${tile.label}`}
+                      key={kind.id}
                       type="button"
-                      onClick={() => choose(tile)}
+                      onClick={() => startReport(kind.id)}
                       className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-border"
                     >
-                      <Icon className="w-6 h-6 text-primary" aria-hidden="true" />
-                      <span className="text-secondary font-bold">{t(tile.label)}</span>
+                      <Icon className="w-6 h-6 text-status-danger" aria-hidden="true" />
+                      <span className="text-secondary font-bold">{t(kind.label)}</span>
                     </button>
                   );
                 })}
               </div>
             </section>
-          ))}
-        </div>
-      ) : (
-        <form id="publish-form" onSubmit={publish} className="px-4 pb-4 space-y-3">
-          {isDonation && (
-            <div className="chip-row -mx-4" role="group" aria-label={t('Qué tipo de cosa')}>
-              {DONATION_CATEGORIES.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className="chip"
-                  aria-pressed={choice.category === option.id}
-                  onClick={() => setChoice({ ...choice, category: option.id })}
-                >
-                  {t(option.label)}
-                </button>
-              ))}
-            </div>
-          )}
-          <div>
-            <label htmlFor="publish-title" className="block pb-1 text-secondary font-bold">
-              {isService ? t('Nombre de tu negocio o servicio') : isGiving ? t('¿Qué regalas?') : isAsking ? t('¿Qué se necesita?') : t('Título')}
-            </label>
-            <input
-              id="publish-title"
-              required={!isService || !choice.title}
-              maxLength={160}
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder={isService ? (choice.title ? t(choice.title) : t('Ej.: Pollería Don Lucho')) : isGiving ? t('Ej.: Casaca de niño talla 8') : undefined}
-              className="field"
-            />
-          </div>
 
-          <div>
-            <label htmlFor="publish-details" className="block pb-1 text-secondary font-bold">
-              {isService ? t('¿Qué ofreces?') : isDonation ? t('Descripción') : t('Detalles (opcional)')}
-            </label>
-            <textarea
-              id="publish-details"
-              rows={isService || isDonation ? 3 : 2}
-              maxLength={2000}
-              value={details}
-              onChange={(event) => setDetails(event.target.value)}
-              placeholder={
-                isService
-                  ? t(OFFER_HINTS[choice.category] ?? 'Qué haces, horario, cómo te contactan...')
-                  : isGiving
-                    ? t('Estado, talla, cantidad, cuándo se puede recoger...')
-                    : isAsking
-                      ? t('Para qué es, para cuántas personas, hasta cuándo...')
-                      : undefined
-              }
-              className="field"
-            />
-          </div>
-
-          {isDonation && (
-            <>
-              <div>
-                <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">
-                  {isGiving ? t('¿Dónde se recoge?') : t('¿Dónde se entrega?')}
-                </label>
-                <input
-                  id="publish-address"
-                  maxLength={200}
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  placeholder={t('Calle y referencia')}
-                  className="field"
-                />
-              </div>
-              <fieldset>
-                <legend className="pb-1 text-secondary font-bold">{isGiving ? t('¿Para quién?') : t('¿Quién lo pide?')}</legend>
+            {groups.map((group) => (
+              <section key={group.heading}>
+                <h3 className="pb-2 text-section font-bold">{t(group.heading)}</h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {(['vecinos', 'organizacion'] as const).map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      aria-pressed={audience === option}
-                      onClick={() => setAudience(option)}
-                      className={`min-h-12 px-3 rounded-lg text-secondary font-bold ${audience === option ? 'bg-primary text-white' : 'bg-sunken text-ink'}`}
-                    >
-                      {option === 'vecinos' ? (isGiving ? t('Cualquier vecino') : t('Un vecino')) : t('Una organización')}
-                    </button>
+                  {group.tiles.map((tile: PublishTile) => {
+                    const Icon = tile.icon;
+                    return (
+                      <button
+                        key={`${tile.type}-${tile.label}`}
+                        type="button"
+                        onClick={() => choose(tile)}
+                        className="flex flex-col items-start gap-2 min-h-[88px] p-3 rounded-lg bg-sunken text-left active:bg-border"
+                      >
+                        <Icon className="w-6 h-6 text-primary" aria-hidden="true" />
+                        <span className="text-secondary font-bold">{t(tile.label)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <form id="publish-form" onSubmit={publish} className="px-4 pb-4 space-y-3">
+            {isDonation && (
+              <div className="chip-row -mx-4" role="group" aria-label={t('Qué tipo de cosa')}>
+                {DONATION_CATEGORIES.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className="chip"
+                    aria-pressed={choice.category === option.id}
+                    onClick={() => setChoice({ ...choice, category: option.id })}
+                  >
+                    {t(option.label)}
+                  </button>
+                ))}
+              </div>
+            )}
+            <div>
+              <label htmlFor="publish-title" className="block pb-1 text-secondary font-bold">
+                {isService ? t('Nombre de tu negocio o servicio') : isGiving ? t('¿Qué regalas?') : isAsking ? t('¿Qué se necesita?') : t('Título')}
+              </label>
+              <input
+                id="publish-title"
+                required={!isService || !choice.title}
+                maxLength={160}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder={isService ? (choice.title ? t(choice.title) : t('Ej.: Pollería Don Lucho')) : isGiving ? t('Ej.: Casaca de niño talla 8') : undefined}
+                className="field"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="publish-details" className="block pb-1 text-secondary font-bold">
+                {isService ? t('¿Qué ofreces?') : isDonation ? t('Descripción') : t('Detalles (opcional)')}
+              </label>
+              <textarea
+                id="publish-details"
+                rows={isService || isDonation ? 3 : 2}
+                maxLength={2000}
+                value={details}
+                onChange={(event) => setDetails(event.target.value)}
+                placeholder={
+                  isService
+                    ? t(OFFER_HINTS[choice.category] ?? 'Qué haces, horario, cómo te contactan...')
+                    : isGiving
+                      ? t('Estado, talla, cantidad, cuándo se puede recoger...')
+                      : isAsking
+                        ? t('Para qué es, para cuántas personas, hasta cuándo...')
+                        : undefined
+                }
+                className="field"
+              />
+            </div>
+
+            {isDonation && (
+              <>
+                <div>
+                  <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">
+                    {isGiving ? t('¿Dónde se recoge?') : t('¿Dónde se entrega?')}
+                  </label>
+                  <input
+                    id="publish-address"
+                    maxLength={200}
+                    value={address}
+                    onChange={(event) => setAddress(event.target.value)}
+                    placeholder={t('Calle y referencia')}
+                    className="field"
+                  />
+                </div>
+                <fieldset>
+                  <legend className="pb-1 text-secondary font-bold">{isGiving ? t('¿Para quién?') : t('¿Quién lo pide?')}</legend>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(['vecinos', 'organizacion'] as const).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        aria-pressed={audience === option}
+                        onClick={() => setAudience(option)}
+                        className={`min-h-12 px-3 rounded-lg text-secondary font-bold ${audience === option ? 'bg-primary text-white' : 'bg-sunken text-ink'}`}
+                      >
+                        {option === 'vecinos' ? (isGiving ? t('Cualquier vecino') : t('Un vecino')) : t('Una organización')}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="pt-1 text-meta text-ink-secondary">{t('Organización: comedor, olla común, albergue, parroquia...')}</p>
+                </fieldset>
+              </>
+            )}
+
+            {isService && (
+              <div className="grid grid-cols-2 gap-2">
+                <div className="min-w-0">
+                  <label htmlFor="publish-price" className="block pb-1 text-secondary font-bold">{t('Precio')}</label>
+                  <input
+                    id="publish-price"
+                    maxLength={120}
+                    value={price}
+                    onChange={(event) => setPrice(event.target.value)}
+                    placeholder={t('Desde S/ 10')}
+                    className="field"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">{t('¿Dónde queda?')}</label>
+                  <input
+                    id="publish-address"
+                    maxLength={200}
+                    value={address}
+                    onChange={(event) => setAddress(event.target.value)}
+                    placeholder={t('Calle y referencia')}
+                    className="field"
+                  />
+                </div>
+              </div>
+            )}
+
+            {allowsPhotos && (
+              <div>
+                <p className="pb-1 text-secondary font-bold">{t('Fotos ({count} de {max})', { count: photos.length, max: MAX_POST_PHOTOS })}</p>
+                <div className="flex flex-wrap gap-2">
+                  {photos.map((photo, index) => (
+                    <div key={`${photo.name}-${index}`} className="relative">
+                      <img src={URL.createObjectURL(photo)} alt={t('Foto {number}', { number: index + 1 })} className="w-20 h-20 rounded-lg object-cover bg-sunken" />
+                      <button
+                        type="button"
+                        onClick={() => setPhotos((current) => current.filter((_, at) => at !== index))}
+                        className="absolute -top-2 -right-2 grid place-items-center w-8 h-8 rounded-full bg-ink text-white"
+                        aria-label={t('Quitar la foto {number}', { number: index + 1 })}
+                      >
+                        <X className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                    </div>
                   ))}
                 </div>
-                <p className="pt-1 text-meta text-ink-secondary">{t('Organización: comedor, olla común, albergue, parroquia...')}</p>
-              </fieldset>
-            </>
-          )}
+                {photos.length < MAX_POST_PHOTOS && (
+                  <div className="flex gap-2 pt-2">
+                    {canUseCamera() && (
+                      <button type="button" onClick={() => setIsCameraOpen(true)} className={PHOTO_OPTION}>
+                        <Camera className="w-6 h-6" aria-hidden="true" />
+                        {t('Tomar foto')}
+                      </button>
+                    )}
+                    <label className={PHOTO_OPTION}>
+                      <ImagePlus className="w-6 h-6" aria-hidden="true" />
+                      {t('Elegir fotos')}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="sr-only"
+                        onChange={(event) => {
+                          addPhotos(event.target.files);
+                          event.target.value = '';
+                        }}
+                      />
+                    </label>
+                  </div>
+                )}
+                <p className="pt-1 text-meta text-ink-secondary">
+                  {isDonation
+                    ? t('Muestra cómo está lo que regalas o lo que se necesita. Se achican para gastar pocos datos.')
+                    : t('Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.')}
+                </p>
+              </div>
+            )}
 
-          {isService && (
+            {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{problem}</p>}
+
             <div className="grid grid-cols-2 gap-2">
               <div className="min-w-0">
-                <label htmlFor="publish-price" className="block pb-1 text-secondary font-bold">{t('Precio')}</label>
+                <label htmlFor="publish-name" className="block pb-1 text-secondary font-bold">{t('Tu nombre')}</label>
                 <input
-                  id="publish-price"
-                  maxLength={120}
-                  value={price}
-                  onChange={(event) => setPrice(event.target.value)}
-                  placeholder={t('Desde S/ 10')}
+                  id="publish-name"
+                  autoComplete="name"
+                  maxLength={80}
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
                   className="field"
                 />
               </div>
               <div className="min-w-0">
-                <label htmlFor="publish-address" className="block pb-1 text-secondary font-bold">{t('¿Dónde queda?')}</label>
+                <label htmlFor="publish-phone" className="block pb-1 text-secondary font-bold">{t('Teléfono')}</label>
                 <input
-                  id="publish-address"
-                  maxLength={200}
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  placeholder={t('Calle y referencia')}
+                  id="publish-phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
                   className="field"
                 />
               </div>
             </div>
-          )}
 
-          {allowsPhotos && (
-            <div>
-              <p className="pb-1 text-secondary font-bold">{t('Fotos ({count} de {max})', { count: photos.length, max: MAX_POST_PHOTOS })}</p>
-              <div className="flex flex-wrap gap-2">
-                {photos.map((photo, index) => (
-                  <div key={`${photo.name}-${index}`} className="relative">
-                    <img src={URL.createObjectURL(photo)} alt={t('Foto {number}', { number: index + 1 })} className="w-20 h-20 rounded-lg object-cover bg-sunken" />
-                    <button
-                      type="button"
-                      onClick={() => setPhotos((current) => current.filter((_, at) => at !== index))}
-                      className="absolute -top-2 -right-2 grid place-items-center w-8 h-8 rounded-full bg-ink text-white"
-                      aria-label={t('Quitar la foto {number}', { number: index + 1 })}
-                    >
-                      <X className="w-4 h-4" aria-hidden="true" />
-                    </button>
-                  </div>
-                ))}
-                {photos.length < MAX_POST_PHOTOS && (
-                  <label className="grid place-items-center w-20 h-20 rounded-lg border-2 border-dashed border-border text-primary cursor-pointer">
-                    <ImagePlus className="w-7 h-7" aria-hidden="true" />
-                    <span className="sr-only">{t('Agregar fotos')}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="sr-only"
-                      onChange={(event) => {
-                        addPhotos(event.target.files);
-                        event.target.value = '';
-                      }}
-                    />
-                  </label>
-                )}
+            {needsPlace ? (
+              <div>
+                <label htmlFor="publish-place" className="block pb-1 text-secondary font-bold">{t('¿Dónde estás?')}</label>
+                <input
+                  id="publish-place"
+                  required
+                  maxLength={160}
+                  value={place}
+                  onChange={(event) => setPlace(event.target.value)}
+                  placeholder={t('Calle o referencia')}
+                  className="field"
+                />
+                <p className="pt-1 text-meta text-ink-secondary">{t('No tenemos tu ubicación. Escribe una referencia.')}</p>
               </div>
-              <p className="pt-1 text-meta text-ink-secondary">
-                {isDonation
-                  ? t('Muestra cómo está lo que regalas o lo que se necesita. Se achican para gastar pocos datos.')
-                  : t('Muestra tu trabajo, tu comida o tu local. Se achican para gastar pocos datos.')}
+            ) : (
+              <p className="flex items-center gap-2 text-secondary text-ink-secondary">
+                <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
+                <span className="min-w-0 truncate">{placeLabel(userLocation.name)}</span>
               </p>
-            </div>
-          )}
-
-          {problem && <p role="alert" className="text-secondary font-bold text-status-danger">{problem}</p>}
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="min-w-0">
-              <label htmlFor="publish-name" className="block pb-1 text-secondary font-bold">{t('Tu nombre')}</label>
-              <input
-                id="publish-name"
-                autoComplete="name"
-                maxLength={80}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                className="field"
-              />
-            </div>
-            <div className="min-w-0">
-              <label htmlFor="publish-phone" className="block pb-1 text-secondary font-bold">{t('Teléfono')}</label>
-              <input
-                id="publish-phone"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                className="field"
-              />
-            </div>
-          </div>
-
-          {needsPlace ? (
-            <div>
-              <label htmlFor="publish-place" className="block pb-1 text-secondary font-bold">{t('¿Dónde estás?')}</label>
-              <input
-                id="publish-place"
-                required
-                maxLength={160}
-                value={place}
-                onChange={(event) => setPlace(event.target.value)}
-                placeholder={t('Calle o referencia')}
-                className="field"
-              />
-              <p className="pt-1 text-meta text-ink-secondary">{t('No tenemos tu ubicación. Escribe una referencia.')}</p>
-            </div>
-          ) : (
-            <p className="flex items-center gap-2 text-secondary text-ink-secondary">
-              <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
-              <span className="min-w-0 truncate">{placeLabel(userLocation.name)}</span>
-            </p>
-          )}
-        </form>
-      )}
-    </BottomSheet>
+            )}
+          </form>
+        )}
+      </BottomSheet>
+      {isCameraOpen && <CameraCapture mode="photo" onCapture={receivePhoto} onClose={() => setIsCameraOpen(false)} />}
+    </>
   );
 };

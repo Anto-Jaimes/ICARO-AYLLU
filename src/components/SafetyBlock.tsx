@@ -1,5 +1,5 @@
 import React from 'react';
-import { CircleCheck, CircleHelp, CloudOff, MapPin, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { ChevronRight, CircleCheck, CircleHelp, CloudOff, MapPin, TriangleAlert, type LucideIcon } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SafetyTone, useHazards } from '../context/HazardContext';
 import { LevelGlyph } from './LevelTag';
@@ -52,14 +52,17 @@ export const SafetyBlock: React.FC = () => {
       style={{ paddingTop: 'var(--safe-top)' }}
     >
       <div className="page flex items-center h-14 pl-2 pr-1">
-        <button
-          type="button"
-          onClick={() => setIsAlertsOpen(true)}
-          className="flex items-center gap-1.5 min-w-0 flex-1 min-h-12 px-2 rounded-lg text-left"
-        >
-          <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
-          <span className="truncate text-secondary font-medium">{place}</span>
-        </button>
+        <div className="flex-1 min-w-0 pl-1 pr-2">
+          <button
+            type="button"
+            onClick={() => setIsAlertsOpen(true)}
+            className="inline-flex items-center gap-1.5 max-w-full min-h-11 pl-2.5 pr-1.5 rounded-lg border-2 border-current text-left active:opacity-70"
+          >
+            <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
+            <span className="truncate text-secondary font-semibold">{place}</span>
+            <ChevronRight className="w-5 h-5 shrink-0" aria-hidden="true" />
+          </button>
+        </div>
         <div data-tour="help" className="flex items-center">
           <TopBarLanguageSelector />
           <HelpButton />

@@ -70,7 +70,7 @@ export const DONATIONS: Entries = {
   "Foto {number}": ["Photo {number}", "Foto {number}", "Foto {number}"],
   "Foto {number} de {title}": ["Photo {number} of {title}", "{title}-pa {number} fotonta", "{title} ukan {number} fotopa"],
   "Quitar la foto {number}": ["Remove photo {number}", "{number} fotota urquy", "{number} foto apsuña"],
-  "Agregar fotos": ["Add photos", "Fotokunata yapay", "Fotonak yapxataña"],
+  "Elegir fotos": ["Choose photos", "Fotokunata akllay", "Fotonak akllaña"],
 
   // A donation in detail and in lists (PostSheet, PostRow)
   "Para una organización (comedor, olla común, albergue)": ["For an organisation (soup kitchen, community pot, shelter)", "Huk huñunakuypaq (comedor, olla común, albergue)", "Mä tamataki (comedor, olla común, albergue)"],

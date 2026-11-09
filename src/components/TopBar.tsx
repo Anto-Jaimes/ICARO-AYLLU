@@ -20,11 +20,11 @@ export const TopBarLanguageSelector: React.FC<{ className?: string }> = ({ class
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className={`icon-btn w-auto min-w-12 px-2 gap-1 text-meta font-bold uppercase shrink-0 ${className}`}
+        className={`icon-btn labeled-btn ${className}`}
         aria-label={`${t('Idioma')}: ${current}`}
       >
         <Languages className="w-5 h-5" aria-hidden="true" />
-        {lang}
+        <span>{t('Idioma')}</span>
       </button>
       <BottomSheet open={isOpen} onClose={() => setIsOpen(false)} title={t('Idioma')}>
         <div style={{ paddingBottom: 'calc(16px + var(--safe-bottom))' }}>
@@ -45,8 +45,9 @@ export const HelpButton: React.FC<{ className?: string }> = ({ className = '' })
   const { setIsMenuOpen } = useApp();
   const t = useT();
   return (
-    <button type="button" onClick={() => setIsMenuOpen(true)} aria-label={t('Ayuda')} className={`icon-btn ${className}`}>
-      <CircleHelp className="w-6 h-6" aria-hidden="true" />
+    <button type="button" onClick={() => setIsMenuOpen(true)} className={`icon-btn labeled-btn ${className}`}>
+      <CircleHelp className="w-5 h-5" aria-hidden="true" />
+      <span>{t('Ayuda')}</span>
     </button>
   );
 };
